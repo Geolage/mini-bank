@@ -25,10 +25,28 @@ describe('settings', () => {
     cy.get('button[aria-label="Language: English"]').click()
     cy.get('[role=menuitem]').contains('简体中文').click()
 
-    cy.contains('label', '用户名或邮箱').should('be.visible')
+    cy.contains('label', '账号').should('be.visible')
     cy.get('html').should('have.attr', 'lang', 'zh-CN')
     cy.window().then(noHorizontalOverflow)
     cy.screenshot('login-page-zh', { capture: 'viewport' })
+  })
+
+  it('opens in Chinese when the browser has no stored preference', () => {
+    cy.viewport(1180, 720)
+    cy.visit('/login', {
+      onBeforeLoad(win) {
+        win.localStorage.removeItem('mini-bank.preferences')
+      },
+    })
+
+    cy.contains('label', '账号').should('be.visible')
+    cy.get('input[name="identifier"]').should(
+      'have.attr',
+      'placeholder',
+      '请输入账号',
+    )
+    cy.get('input[name="password"]').should('have.attr', 'placeholder', '请输入密码')
+    cy.get('html').should('have.attr', 'lang', 'zh-CN')
   })
 
   it('persists the language chosen in Settings across reloads', () => {
@@ -55,10 +73,15 @@ describe('settings', () => {
     cy.contains('h1', '账户').should('be.visible')
 
     cy.visit('/settings')
-    cy.contains('button', '恢复默认').click()
+    cy.contains('label', 'English').click()
     cy.contains('h1', 'Settings').should('be.visible')
-    cy.contains('Preferences restored.').should('be.visible')
     readPreferences().its('state.locale').should('eq', 'en-US')
+
+    cy.contains('label', '简体中文').click()
+    cy.contains('button', '恢复默认').click()
+    cy.contains('h1', '设置').should('be.visible')
+    cy.contains('已恢复默认设置。').should('be.visible')
+    readPreferences().its('state.locale').should('eq', 'zh-CN')
   })
 
   it('persists the theme and restores the AntD blue default', () => {

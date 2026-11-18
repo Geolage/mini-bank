@@ -294,15 +294,15 @@ describe('accessibility', () => {
 
     await user.click(screen.getByRole('button', { name: 'Sign in' }))
 
-    const identifier = screen.getByLabelText('Username or email')
+    const identifier = screen.getByLabelText('Account')
     expect(
-      await screen.findByText('Username or email is required'),
+      await screen.findByText('Account is required'),
     ).toBeInTheDocument()
     expect(identifier).toHaveAttribute('aria-invalid', 'true')
     const describedBy = identifier.getAttribute('aria-describedby')?.split(' ') ?? []
     expect(
       describedBy.some((id) =>
-        document.getElementById(id)?.textContent?.includes('Username or email is required'),
+        document.getElementById(id)?.textContent?.includes('Account is required'),
       ),
     ).toBe(true)
   })

@@ -77,7 +77,7 @@ describe('LoginPage', () => {
 
     await user.click(screen.getByRole('button', { name: 'Sign in' }))
 
-    expect(await screen.findByText('Username or email is required')).toBeInTheDocument()
+    expect(await screen.findByText('Account is required')).toBeInTheDocument()
     expect(
       await screen.findByText('Password must be at least 8 characters'),
     ).toBeInTheDocument()
@@ -89,7 +89,7 @@ describe('LoginPage', () => {
 
     await user.click(screen.getByRole('button', { name: 'Use admin' }))
 
-    expect(screen.getByLabelText('Username or email')).toHaveValue('admin')
+    expect(screen.getByLabelText('Account')).toHaveValue('admin')
     expect(screen.getByLabelText('Password')).toHaveValue('11111111')
   })
 
@@ -98,7 +98,7 @@ describe('LoginPage', () => {
     mockLogin(jsonResponse({ accessToken: 'jwt-token', user: admin }))
     renderLoginPage()
 
-    await user.type(screen.getByLabelText('Username or email'), 'admin')
+    await user.type(screen.getByLabelText('Account'), 'admin')
     await user.type(screen.getByLabelText('Password'), '11111111')
     await user.click(screen.getByRole('button', { name: 'Sign in' }))
 
@@ -121,7 +121,7 @@ describe('LoginPage', () => {
     )
     renderLoginPage()
 
-    await user.type(screen.getByLabelText('Username or email'), 'admin')
+    await user.type(screen.getByLabelText('Account'), 'admin')
     await user.type(screen.getByLabelText('Password'), '00000000')
     await user.click(screen.getByRole('button', { name: 'Sign in' }))
 
@@ -135,7 +135,7 @@ describe('LoginPage', () => {
     fetchMock.mockRejectedValue(new TypeError('Failed to fetch'))
     renderLoginPage()
 
-    await user.type(screen.getByLabelText('Username or email'), 'admin')
+    await user.type(screen.getByLabelText('Account'), 'admin')
     await user.type(screen.getByLabelText('Password'), '11111111')
     await user.click(screen.getByRole('button', { name: 'Sign in' }))
 
@@ -149,7 +149,14 @@ describe('LoginPage', () => {
     renderLoginPage()
 
     expect(await screen.findByRole('heading', { name: '登录' })).toBeInTheDocument()
-    expect(screen.getByLabelText('用户名或邮箱')).toBeInTheDocument()
+    expect(screen.getByLabelText('账号')).toHaveAttribute(
+      'placeholder',
+      '请输入账号',
+    )
+    expect(screen.getByLabelText('密码')).toHaveAttribute(
+      'placeholder',
+      '请输入密码',
+    )
     expect(screen.getByRole('button', { name: '登录' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '填入管理员' })).toBeInTheDocument()
   })

@@ -22,11 +22,11 @@ const enUS = {
   auth: {
     signIn: 'Sign in',
     signInSubtitle: 'Use a demo account to explore the console.',
-    identifier: 'Username or email',
-    identifierPlaceholder: 'admin',
-    identifierRequired: 'Username or email is required',
+    identifier: 'Account',
+    identifierPlaceholder: 'Enter your account',
+    identifierRequired: 'Account is required',
     password: 'Password',
-    passwordPlaceholder: 'At least 8 characters',
+    passwordPlaceholder: 'Enter your password',
     passwordRequired: 'Password must be at least 8 characters',
     heroTitle: 'Banking operations, without the noise.',
     heroBody:

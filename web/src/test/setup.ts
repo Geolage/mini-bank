@@ -27,3 +27,11 @@ if (!window.ResizeObserver) {
     value: ResizeObserverMock,
   })
 }
+
+// The app ships Chinese as the default locale, but the component tests assert English
+// copy. Pin the preference before any store rehydrates it; tests that need another locale
+// set it through usePreferencesStore explicitly.
+localStorage.setItem(
+  'mini-bank.preferences',
+  JSON.stringify({ state: { locale: 'en-US', themeId: 'antd-blue' }, version: 0 }),
+)

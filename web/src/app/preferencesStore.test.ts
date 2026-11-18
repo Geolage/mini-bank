@@ -7,12 +7,12 @@ import {
 
 beforeEach(() => {
   localStorage.clear()
-  usePreferencesStore.setState({ locale: 'en-US', themeId: 'antd-blue' })
+  usePreferencesStore.setState({ locale: 'zh-CN', themeId: 'antd-blue' })
 })
 
 describe('loadPreferences', () => {
-  it('defaults to English and the AntD blue theme', () => {
-    expect(loadPreferences()).toEqual({ locale: 'en-US', themeId: 'antd-blue' })
+  it('defaults to Chinese and the AntD blue theme', () => {
+    expect(loadPreferences()).toEqual({ locale: 'zh-CN', themeId: 'antd-blue' })
   })
 
   it('reads a stored preference', () => {
@@ -30,7 +30,7 @@ describe('loadPreferences', () => {
       JSON.stringify({ state: { locale: 'fr-FR', themeId: 'emerald' }, version: 0 }),
     )
 
-    expect(loadPreferences().locale).toBe('en-US')
+    expect(loadPreferences().locale).toBe('zh-CN')
     expect(loadPreferences().themeId).toBe('emerald')
   })
 
@@ -40,26 +40,26 @@ describe('loadPreferences', () => {
       throw new Error('blocked')
     }
 
-    expect(loadPreferences()).toEqual({ locale: 'en-US', themeId: 'antd-blue' })
+    expect(loadPreferences()).toEqual({ locale: 'zh-CN', themeId: 'antd-blue' })
     window.localStorage.getItem = original
   })
 })
 
 describe('usePreferencesStore', () => {
   it('persists a locale change', () => {
-    usePreferencesStore.getState().setLocale('zh-CN')
+    usePreferencesStore.getState().setLocale('en-US')
 
-    expect(usePreferencesStore.getState().locale).toBe('zh-CN')
-    expect(localStorage.getItem(PREF_STORAGE_KEY)).toContain('zh-CN')
+    expect(usePreferencesStore.getState().locale).toBe('en-US')
+    expect(localStorage.getItem(PREF_STORAGE_KEY)).toContain('en-US')
   })
 
   it('resets both preferences', () => {
-    usePreferencesStore.getState().setLocale('zh-CN')
+    usePreferencesStore.getState().setLocale('en-US')
     usePreferencesStore.getState().setThemeId('volcano')
     usePreferencesStore.getState().resetPreferences()
 
     expect(usePreferencesStore.getState()).toMatchObject({
-      locale: 'en-US',
+      locale: 'zh-CN',
       themeId: 'antd-blue',
     })
   })

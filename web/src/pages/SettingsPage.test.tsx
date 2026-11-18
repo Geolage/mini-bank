@@ -61,12 +61,12 @@ describe('SettingsPage', () => {
 
     await waitFor(() =>
       expect(usePreferencesStore.getState()).toMatchObject({
-        locale: 'en-US',
+        locale: 'zh-CN',
         themeId: 'antd-blue',
       }),
     )
     expect(
-      await screen.findByRole('heading', { name: 'Settings' }),
+      await screen.findByRole('heading', { name: '设置' }),
     ).toBeInTheDocument()
   })
 

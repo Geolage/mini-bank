@@ -5,7 +5,7 @@ import type { ThemeId } from '../theme/presets'
 
 export const PREF_STORAGE_KEY = 'mini-bank.preferences'
 
-export const DEFAULT_LOCALE: Locale = 'en-US'
+export const DEFAULT_LOCALE: Locale = 'zh-CN'
 export const DEFAULT_THEME_ID: ThemeId = 'antd-blue'
 
 export interface Preferences {

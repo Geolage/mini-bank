@@ -1,0 +1,23 @@
+{
+  "name": "mini-bank",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "packageManager": "pnpm@12.16.1",
+  "scripts": {
+    "dev": "pnpm --parallel -r run dev",
+    "build": "pnpm -r run build",
+    "lint": "pnpm -r run lint",
+    "typecheck": "pnpm -r run typecheck",
+    "test": "pnpm -r run test",
+    "db:up": "docker compose up -d db",
+    "db:down": "docker compose down",
+    "db:generate": "pnpm --filter api run prisma:generate",
+    "db:migrate": "pnpm --filter api run prisma:migrate",
+    "db:seed": "pnpm --filter api run prisma:seed",
+    "db:studio": "pnpm --filter api run prisma:studio"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

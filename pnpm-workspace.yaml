@@ -1,0 +1,11 @@
+packages:
+  - web
+  - api
+
+allowBuilds:
+  '@prisma/client': true
+  '@prisma/engines': true
+  '@scarf/scarf': true
+  cypress: true
+  esbuild: true
+  prisma: true

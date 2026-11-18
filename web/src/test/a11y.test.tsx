@@ -11,6 +11,7 @@ import { AccountsPage } from '../pages/AccountsPage'
 import { AuditPage } from '../pages/AuditPage'
 import { LoginPage } from '../pages/LoginPage'
 import { NotFoundPage } from '../pages/NotFoundPage'
+import { PayeesPage } from '../pages/PayeesPage'
 import { SettingsPage } from '../pages/SettingsPage'
 import { TransactionsPage } from '../pages/TransactionsPage'
 import { TransferPage } from '../pages/TransferPage'
@@ -131,6 +132,26 @@ function stubApi() {
       return Promise.resolve(jsonResponse(transactions))
     }
     if (path === '/api/audit-logs') return Promise.resolve(jsonResponse(auditLogs))
+    if (path === '/api/payees') {
+      return Promise.resolve(
+        jsonResponse({
+          items: [
+            {
+              id: 'payee-1',
+              name: 'Visitor checking',
+              accountNumber: 'MB-2001-0001',
+              bankName: 'MiniBank',
+              note: 'Dinner splits',
+              createdAt: '2026-11-05T08:00:00.000Z',
+              updatedAt: '2026-11-05T09:00:00.000Z',
+            },
+          ],
+          page: 1,
+          pageSize: 10,
+          total: 1,
+        }),
+      )
+    }
 
     return Promise.reject(new Error(`Unexpected fetch: ${path}`))
   })
@@ -187,6 +208,7 @@ function renderShell(initialEntry: string) {
               }
             />
             <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/payees" element={<PayeesPage />} />
             <Route
               path="/forbidden"
               element={
@@ -252,6 +274,13 @@ describe('accessibility', () => {
     const { container } = renderShell('/audit')
 
     expect(await screen.findByText('TRANSFER_CREATED')).toBeInTheDocument()
+    await expectNoAccessibilityViolations(container)
+  })
+
+  it('payees page is accessible', async () => {
+    const { container } = renderShell('/payees')
+
+    expect(await screen.findByText('Visitor checking')).toBeInTheDocument()
     await expectNoAccessibilityViolations(container)
   })
 

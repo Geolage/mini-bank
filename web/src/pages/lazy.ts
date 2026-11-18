@@ -16,6 +16,10 @@ export const NotFoundPage = lazy(() =>
   import('./NotFoundPage').then((module) => ({ default: module.NotFoundPage })),
 )
 
+export const PayeesPage = lazy(() =>
+  import('./PayeesPage').then((module) => ({ default: module.PayeesPage })),
+)
+
 export const SettingsPage = lazy(() =>
   import('./SettingsPage').then((module) => ({ default: module.SettingsPage })),
 )

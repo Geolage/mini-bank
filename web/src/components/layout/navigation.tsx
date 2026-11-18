@@ -1,6 +1,7 @@
 import {
   AuditOutlined,
   BankOutlined,
+  ContactsOutlined,
   SettingOutlined,
   SwapOutlined,
 } from '@ant-design/icons'
@@ -22,6 +23,7 @@ export interface BreadcrumbTrailItem {
 export function buildMenuRoutes(role: Role | null): MenuRoute[] {
   const routes: MenuRoute[] = [
     { path: '/accounts', nameKey: 'nav.accounts', icon: <BankOutlined /> },
+    { path: '/payees', nameKey: 'nav.payees', icon: <ContactsOutlined /> },
   ]
 
   if (role === 'OPERATOR') {
@@ -39,6 +41,9 @@ export function buildMenuRoutes(role: Role | null): MenuRoute[] {
 export function getSelectedMenuKeys(pathname: string): string[] {
   if (pathname === '/accounts' || pathname.startsWith('/accounts/')) {
     return ['/accounts']
+  }
+  if (pathname === '/payees' || pathname.startsWith('/payees/')) {
+    return ['/payees']
   }
   if (pathname === '/transfer' || pathname.startsWith('/transfer/')) {
     return ['/transfer']
@@ -61,6 +66,9 @@ export function getBreadcrumbTrail(pathname: string): BreadcrumbTrailItem[] {
       { labelKey: 'nav.accounts', to: '/accounts' },
       { labelKey: 'breadcrumb.transactionHistory' },
     ]
+  }
+  if (pathname === '/payees') {
+    return [{ labelKey: 'nav.payees' }]
   }
   if (pathname === '/transfer') {
     return [{ labelKey: 'nav.transfer' }]

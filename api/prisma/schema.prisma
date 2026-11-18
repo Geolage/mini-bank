@@ -36,6 +36,7 @@ model User {
   name         String
   role         Role       @default(VIEWER)
   accounts     Account[]
+  payees       Payee[]
   auditLogs    AuditLog[] @relation("ActorAuditLogs")
   createdAt    DateTime   @default(now()) @map("created_at")
 
@@ -91,4 +92,20 @@ model AuditLog {
   @@index([actorId, createdAt(sort: Desc)])
   @@index([resourceType, resourceId])
   @@map("audit_logs")
+}
+
+model Payee {
+  id            String   @id @default(uuid())
+  userId        String   @map("user_id")
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name          String
+  accountNumber String   @map("account_number")
+  bankName      String   @default("MiniBank") @map("bank_name")
+  note          String?
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@unique([userId, accountNumber])
+  @@index([userId])
+  @@map("payees")
 }

@@ -214,6 +214,8 @@ accessibility and stretch goals.
 - The interface opens in Simplified Chinese; the language switcher sits in the app header on
   every screen, including sign-in, and the choice is stored in `localStorage`
   (`mini-bank.preferences`) and sets `<html lang>`
+- Theme, language and the account menu share one row fixed to the top-right of the header
+  (ProLayout `mix` layout), so the palette is one click away from any screen
 - Settings page: language, six AA-checked colour palettes (Calm Blue, Elegant Blue, Aurora
   Purple, Emerald, Volcano, Slate), and **Restore defaults**
 - Tables centre-align headers and cells; cells that would overflow (audit details,

@@ -12,6 +12,7 @@ import {
   Typography,
 } from 'antd'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useSearchParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { useI18n } from '../i18n/useI18n'
 import { accountsQueryOptions } from '../services/accounts'
@@ -32,6 +33,7 @@ interface TransferFormValues {
 export function TransferPage() {
   const { locale, t } = useI18n()
   const [form] = Form.useForm<TransferFormValues>()
+  const [searchParams] = useSearchParams()
   const queryClient = useQueryClient()
   const accounts = useQuery(accountsQueryOptions)
   const [idempotencyKey, setIdempotencyKey] = useState(() => crypto.randomUUID())
@@ -107,7 +109,7 @@ export function TransferPage() {
               requiredMark={false}
               initialValues={{
                 fromAccountId: '',
-                toAccountNumber: '',
+                toAccountNumber: searchParams.get('to') ?? '',
                 amount: '',
                 note: '',
               }}

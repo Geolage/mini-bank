@@ -1,4 +1,8 @@
-import type { AuditListParams, TransactionListParams } from '../types/api'
+import type {
+  AuditListParams,
+  PayeeListParams,
+  TransactionListParams,
+} from '../types/api'
 
 export const queryKeys = {
   accounts: ['accounts'] as const,
@@ -7,4 +11,6 @@ export const queryKeys = {
     ['accounts', accountId, 'transactions', params] as const,
   auditAll: ['audit'] as const,
   audit: (params: AuditListParams) => ['audit', params] as const,
+  payeesAll: ['payees'] as const,
+  payees: (params: PayeeListParams) => ['payees', params] as const,
 } as const

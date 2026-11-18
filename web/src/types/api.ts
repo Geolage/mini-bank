@@ -99,3 +99,29 @@ export interface ApiErrorBody {
   message: string | string[]
   error?: string
 }
+
+export type PayeeSort = 'name' | 'nameDesc' | 'updated' | 'created'
+
+export interface Payee {
+  id: string
+  name: string
+  accountNumber: string
+  bankName: string
+  note: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface PayeeListParams {
+  page: number
+  pageSize: number
+  q?: string
+  sort: PayeeSort
+}
+
+export interface PayeeInput {
+  name: string
+  accountNumber: string
+  bankName?: string
+  note?: string
+}

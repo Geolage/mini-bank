@@ -9,6 +9,7 @@ import {
   AuditPage,
   LoginPage,
   NotFoundPage,
+  PayeesPage,
   SettingsPage,
   TransactionsPage,
   TransferPage,
@@ -34,6 +35,7 @@ export const router = createBrowserRouter([
       { index: true, element: <Navigate to="/accounts" replace /> },
       { path: 'accounts', element: <AccountsPage /> },
       { path: 'accounts/:accountId/transactions', element: <TransactionsPage /> },
+      { path: 'payees', element: <PayeesPage /> },
       {
         path: 'transfer',
         element: (

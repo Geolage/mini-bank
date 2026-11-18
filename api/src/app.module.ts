@@ -6,6 +6,7 @@ import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { AuditModule } from './audit/audit.module.js';
 import { AuthModule } from './auth/auth.module.js';
+import { PayeesModule } from './payees/payees.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 import { TransactionsModule } from './transactions/transactions.module.js';
 import { TransfersModule } from './transfers/transfers.module.js';
@@ -36,6 +37,7 @@ import { TransfersModule } from './transfers/transfers.module.js';
     TransactionsModule,
     TransfersModule,
     AuditModule,
+    PayeesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

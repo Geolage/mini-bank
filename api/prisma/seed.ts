@@ -219,6 +219,46 @@ async function main() {
     });
   }
 
+  const payees = [
+    {
+      userId: admin.id,
+      name: 'Visitor checking',
+      accountNumber: visitorUsd.accountNumber,
+      note: 'Dinner splits and coffee',
+    },
+    {
+      userId: admin.id,
+      name: 'Visitor HKD',
+      accountNumber: visitorHkd.accountNumber,
+      note: 'Rent share',
+    },
+    {
+      userId: visitor.id,
+      name: 'Admin checking',
+      accountNumber: adminUsd.accountNumber,
+      note: 'Concert tickets',
+    },
+    {
+      userId: visitor.id,
+      name: 'Admin HKD savings',
+      accountNumber: adminHkd.accountNumber,
+      note: null,
+    },
+  ];
+
+  for (const payee of payees) {
+    await prisma.payee.upsert({
+      where: {
+        userId_accountNumber: {
+          userId: payee.userId,
+          accountNumber: payee.accountNumber,
+        },
+      },
+      update: {},
+      create: payee,
+    });
+  }
+
   await prisma.auditLog.upsert({
     where: { id: '00000000-0000-4000-8000-000000000001' },
     update: { actorId: admin.id },

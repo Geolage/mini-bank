@@ -1,8 +1,8 @@
 # Contributing to MiniBank
 
 Thanks for helping improve this demo. It is a full-stack banking console built to be read
-and studied, so **clarity and reproducibility beat cleverness**: every change should
-keep the app runnable, the gates green, and the reasoning visible in the commit message.
+and studied, so **clarity and reproducibility beat cleverness**: every change should keep
+the app runnable, the gates green, and the reasoning visible in the commit message.
 
 ## Setup
 

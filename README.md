@@ -1,6 +1,9 @@
 # MiniBank · Account Console
 
-A full-stack banking demo. It covers authentication, account balances, money transfers, audit trails, bilingual UI, theming, accessibility and CI-ready testing.
+A full-stack online-banking demo. It walks through authentication, accounts, statements,
+idempotent transfers, an audit trail, a payee address book, an overview dashboard,
+bilingual UI, theming and accessibility — built so developers can read how an internet
+bank is put together and practise building one themselves.
 
 > Status: authentication, accounts, transaction history, transfers, audit logs, a payee
 > address book, an overview dashboard, statement export, bilingual UI (English / 简体中文)
@@ -286,8 +289,8 @@ accessibility and stretch goals.
 
 - JWT is stored in `localStorage` for demo simplicity. Production should use httpOnly, secure cookies with CSRF protection.
 - The demo passwords (`11111111` / `00000000`) are intentionally simple and repeat digits so
-anyone can try the app without setup. The API only enforces `@MinLength(8)`; a real
-deployment needs a password policy, MFA, reuse checks and rate limiting.
+  anyone can try the app without setup. The API only enforces `@MinLength(8)`; a real
+  deployment needs a password policy, MFA, reuse checks and rate limiting.
 - No refresh token, rate limiting or account lockout.
 - Seed data only; no real banking integration.
 - The API runs without HTTPS locally.
@@ -307,6 +310,14 @@ deployment needs a password policy, MFA, reuse checks and rate limiting.
 - axe also renders the Settings page in English **and** Chinese, so a translated label
   cannot break an accessible name
 - Lighthouse Accessibility scores 100 on the production build (mobile and desktop)
+
+## How this was built
+
+Designed, scoped and reviewed by a developer, implemented with AI pair-programming. Each
+feature started from a short written brief, landed with tests written alongside the code,
+and had to pass the same gates you see in CI — lint, formatting, typecheck, unit and API
+tests, the bundle budget, axe and contrast checks — before it was committed. The history is
+grouped into thematic commits so the reasoning is readable rather than one generated dump.
 
 ## Collaborating
 

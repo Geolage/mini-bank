@@ -10,4 +10,13 @@ coverage/
 web/cypress/screenshots/
 web/cypress/videos/
 web/cypress/downloads/
+
+# Agent and editor tooling artifacts
+.qoder/
+.claude/
+.cursor/
+.windsurf/
+.aider*
+.specstory/
+docs/superpowers/
 *.tsbuildinfo

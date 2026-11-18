@@ -1,8 +1,13 @@
-import { ArrowLeftOutlined } from '@ant-design/icons'
+import {
+  ArrowLeftOutlined,
+  DownloadOutlined,
+  PrinterOutlined,
+} from '@ant-design/icons'
 import { ProCard, ProTable } from '@ant-design/pro-components'
 import type { ProColumns } from '@ant-design/pro-components'
 import {
   Alert,
+  App,
   Button,
   DatePicker,
   Empty,
@@ -16,15 +21,20 @@ import {
 } from 'antd'
 import { useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
+import { useEffect, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useI18n } from '../i18n/useI18n'
 import { accountQueryOptions } from '../services/accounts'
-import { transactionsQueryOptions } from '../services/transactions'
+import {
+  fetchAllTransactions,
+  transactionsQueryOptions,
+} from '../services/transactions'
 import type {
   AccountTransaction,
   TransactionDirection,
 } from '../types/api'
 import { formatDateTime, formatMoney, maskAccountNumber } from '../utils/format'
+import { downloadTextFile, toCsv } from '../utils/statement'
 import {
   readTransactionParams,
   TRANSACTION_PAGE_SIZE_OPTIONS,
@@ -56,6 +66,75 @@ export function TransactionsPage() {
 
   const { type, from, to } = listParams
   const hasFilters = Boolean(type || from || to)
+
+  const { message } = App.useApp()
+  const [exporting, setExporting] = useState(false)
+  const [printRows, setPrintRows] = useState<AccountTransaction[] | null>(null)
+  const [now] = useState(() => new Date())
+
+  useEffect(() => {
+    if (printRows) window.print()
+  }, [printRows])
+
+  function statementRows(rows: AccountTransaction[]): string[][] {
+    return rows.map((transaction) => [
+      transaction.createdAt,
+      transaction.reference,
+      directionOf(transaction, accountId) === 'INCOMING'
+        ? t('transactions.incoming')
+        : t('transactions.outgoing'),
+      transaction.amount,
+      transaction.currency,
+      transaction.status === 'COMPLETED'
+        ? t('enum.transactionStatus.COMPLETED')
+        : t('enum.transactionStatus.FAILED'),
+      transaction.note ?? '',
+    ])
+  }
+
+  function statementHeaders(): string[] {
+    return [
+      t('transactions.column.date'),
+      t('transactions.column.reference'),
+      t('transactions.column.direction'),
+      t('transactions.column.amount'),
+      t('dashboard.currency'),
+      t('transactions.column.status'),
+      t('transactions.column.note'),
+    ]
+  }
+
+  async function exportCsv() {
+    setExporting(true)
+    try {
+      const rows = await fetchAllTransactions(accountId, listParams)
+      const csv = toCsv(statementHeaders(), statementRows(rows))
+      downloadTextFile(
+        `minibank-statement-${account.data?.accountNumber ?? accountId}.csv`,
+        csv,
+      )
+      message.success(t('transactions.exportDone', { count: rows.length }))
+    } catch (error) {
+      message.error(
+        error instanceof Error ? error.message : t('transactions.exportFailed'),
+      )
+    } finally {
+      setExporting(false)
+    }
+  }
+
+  async function printStatement() {
+    setExporting(true)
+    try {
+      setPrintRows(await fetchAllTransactions(accountId, listParams))
+    } catch (error) {
+      message.error(
+        error instanceof Error ? error.message : t('transactions.exportFailed'),
+      )
+    } finally {
+      setExporting(false)
+    }
+  }
 
   function updateFilters(filters: {
     type?: TransactionDirection
@@ -154,12 +233,28 @@ export function TransactionsPage() {
           </Title>
           <Text type="secondary">{t('transactions.subtitle')}</Text>
         </div>
-        <Button
-          icon={<ArrowLeftOutlined aria-hidden="true" />}
-          onClick={() => navigate('/accounts')}
-        >
-          {t('transactions.backToAccounts')}
-        </Button>
+        <Space size={8} wrap>
+          <Button
+            icon={<DownloadOutlined aria-hidden="true" />}
+            loading={exporting}
+            onClick={exportCsv}
+          >
+            {t('transactions.exportCsv')}
+          </Button>
+          <Button
+            icon={<PrinterOutlined aria-hidden="true" />}
+            loading={exporting}
+            onClick={printStatement}
+          >
+            {t('transactions.printStatement')}
+          </Button>
+          <Button
+            icon={<ArrowLeftOutlined aria-hidden="true" />}
+            onClick={() => navigate('/accounts')}
+          >
+            {t('transactions.backToAccounts')}
+          </Button>
+        </Space>
       </Flex>
 
       {account.isLoading ? (
@@ -314,6 +409,58 @@ export function TransactionsPage() {
           }}
         />
       )}
+
+      {printRows ? (
+        <div className="print-sheet">
+          <h1>{t('transactions.statementTitle')}</h1>
+          <p>
+            {account.data?.accountNumber ?? accountId} ·{' '}
+            {account.data?.currency ?? ''} · {t('transactions.statementGenerated')}{' '}
+            {new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(now)}
+          </p>
+          <p>{t('transactions.statementCount', { count: printRows.length })}</p>
+          {printRows.length === 0 ? (
+            <p>{t('transactions.statementEmpty')}</p>
+          ) : (
+            <table>
+              <thead>
+                <tr>
+                  {statementHeaders().map((header) => (
+                    <th key={header}>{header}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {printRows.map((transaction) => (
+                  <tr key={transaction.id}>
+                    <td>{formatDateTime(transaction.createdAt, locale)}</td>
+                    <td>{transaction.reference}</td>
+                    <td>
+                      {directionOf(transaction, accountId) === 'INCOMING'
+                        ? t('transactions.incoming')
+                        : t('transactions.outgoing')}
+                    </td>
+                    <td>
+                      {formatMoney(
+                        transaction.amount,
+                        transaction.currency,
+                        locale,
+                      )}
+                    </td>
+                    <td>{transaction.currency}</td>
+                    <td>
+                      {transaction.status === 'COMPLETED'
+                        ? t('enum.transactionStatus.COMPLETED')
+                        : t('enum.transactionStatus.FAILED')}
+                    </td>
+                    <td>{transaction.note ?? ''}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      ) : null}
     </div>
   )
 }

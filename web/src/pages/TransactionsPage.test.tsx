@@ -1,4 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { App } from 'antd'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
@@ -69,17 +70,19 @@ function renderTransactionsPage(
   })
 
   return render(
-    <QueryClientProvider client={queryClient}>
-      <MemoryRouter initialEntries={[initialEntry]}>
-        <Routes>
-          <Route path="/accounts" element={<div>Accounts overview</div>} />
-          <Route
-            path="/accounts/:accountId/transactions"
-            element={<TransactionsPage />}
-          />
-        </Routes>
-      </MemoryRouter>
-    </QueryClientProvider>,
+    <App>
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter initialEntries={[initialEntry]}>
+          <Routes>
+            <Route path="/accounts" element={<div>Accounts overview</div>} />
+            <Route
+              path="/accounts/:accountId/transactions"
+              element={<TransactionsPage />}
+            />
+          </Routes>
+        </MemoryRouter>
+      </QueryClientProvider>
+    </App>,
   )
 }
 
@@ -116,6 +119,7 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.unstubAllGlobals()
+  vi.restoreAllMocks()
 })
 
 describe('TransactionsPage', () => {
@@ -203,5 +207,48 @@ describe('TransactionsPage', () => {
     )
 
     expect(screen.getByText('Accounts overview')).toBeInTheDocument()
+  })
+
+  it('exports every filtered row as a CSV download', async () => {
+    mockApi()
+    const blobs: Blob[] = []
+    vi.spyOn(URL, 'createObjectURL').mockImplementation((blob) => {
+      blobs.push(blob as Blob)
+      return 'blob:mock'
+    })
+    vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {})
+    renderTransactionsPage()
+    await screen.findByText('SEED-TXN-006')
+
+    await userEvent.click(screen.getByRole('button', { name: 'Export CSV' }))
+
+    await waitFor(() => expect(blobs).toHaveLength(1))
+    // Blob.text() strips the BOM during UTF-8 decoding, so check the raw bytes.
+    const bytes = new Uint8Array(await blobs[0].arrayBuffer())
+    expect([...bytes.slice(0, 3)]).toEqual([0xef, 0xbb, 0xbf])
+    const text = await blobs[0].text()
+    expect(text).toContain('Reference')
+    expect(text).toContain('SEED-TXN-006')
+    expect(text).toContain('SEED-TXN-005')
+    expect(text).toContain('Lunch')
+    expect(await screen.findByText('Exported 2 rows')).toBeInTheDocument()
+  })
+
+  it('prints a statement sheet with all filtered rows', async () => {
+    mockApi()
+    const printSpy = vi.spyOn(window, 'print').mockImplementation(() => {})
+    const { container } = renderTransactionsPage()
+    await screen.findByText('SEED-TXN-006')
+
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Print statement' }),
+    )
+
+    await waitFor(() => expect(printSpy).toHaveBeenCalled())
+    const sheet = container.querySelector('.print-sheet')
+    expect(sheet).not.toBeNull()
+    expect(sheet!.textContent).toContain('Account statement')
+    expect(sheet!.textContent).toContain('SEED-TXN-006')
+    expect(sheet!.textContent).toContain('SEED-TXN-005')
   })
 })

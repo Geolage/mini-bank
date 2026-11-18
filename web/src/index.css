@@ -75,3 +75,44 @@ body {
 .ant-pro-global-header-logo {
   display: none;
 }
+
+.print-sheet {
+  display: none;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .print-sheet,
+  .print-sheet * {
+    visibility: visible;
+  }
+
+  .print-sheet {
+    display: block;
+    position: absolute;
+    inset: 0;
+    padding: 24px;
+    color: #0f172a;
+    font-size: 12px;
+  }
+
+  .print-sheet h1 {
+    font-size: 18px;
+    margin: 0 0 8px;
+  }
+
+  .print-sheet table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .print-sheet th,
+  .print-sheet td {
+    border: 1px solid #94a3b8;
+    padding: 6px 8px;
+    text-align: left;
+  }
+}

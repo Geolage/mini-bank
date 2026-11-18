@@ -69,4 +69,32 @@ describe('transaction history', () => {
       cy.contains('No transactions match these filters.').should('be.visible')
     })
   })
+
+  it('exports the filtered statement and prints a sheet', () => {
+    cy.viewport(1180, 720)
+    openFirstAccountTransactions()
+
+    cy.contains('button', 'Export CSV').click()
+    cy.contains('Exported 4 rows').should('be.visible')
+    cy.readFile('cypress/downloads/minibank-statement-MB-1001-0001.csv')
+      .should('contain', 'SEED-TXN-001')
+      .and('contain', 'Reference')
+
+    cy.get('.ant-select').first().click()
+    cy.contains('.ant-select-item-option-content', 'Outgoing').click()
+    cy.get('.ant-table-tbody tr.ant-table-row').should('have.length', 2)
+    cy.contains('button', 'Export CSV').click()
+    cy.contains('Exported 2 rows').should('be.visible')
+    cy.readFile('cypress/downloads/minibank-statement-MB-1001-0001.csv')
+      .should('contain', 'SEED-TXN-005')
+      .and('not.contain', 'SEED-TXN-006')
+
+    cy.window().then((win) => {
+      cy.stub(win, 'print').as('print')
+    })
+    cy.contains('button', 'Print statement').click()
+    cy.get('@print').should('have.been.called')
+    cy.get('.print-sheet').should('contain.text', 'Account statement')
+    cy.get('.print-sheet').should('contain.text', 'SEED-TXN-005')
+  })
 })

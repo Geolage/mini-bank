@@ -36,3 +36,20 @@ export const transactionsQueryOptions = (
     enabled: Boolean(accountId),
     placeholderData: keepPreviousData,
   })
+
+/** Every row matching the filters, for exports and print sheets (not just one page). */
+export async function fetchAllTransactions(
+  accountId: string,
+  params: TransactionListParams,
+): Promise<AccountTransaction[]> {
+  const rows: AccountTransaction[] = []
+  let page = 1
+  for (;;) {
+    const result = await apiFetch<Paginated<AccountTransaction>>(
+      transactionListPath(accountId, { ...params, page, pageSize: 100 }),
+    )
+    rows.push(...result.items)
+    if (rows.length >= result.total || result.items.length === 0) return rows
+    page += 1
+  }
+}

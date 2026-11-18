@@ -22,6 +22,7 @@ const enUS = {
   auth: {
     signIn: 'Sign in',
     signInSubtitle: 'Use a demo account to explore the console.',
+    sessionExpired: 'Your session has expired. Please sign in again.',
     identifier: 'Account',
     identifierPlaceholder: 'Enter your account',
     identifierRequired: 'Account is required',

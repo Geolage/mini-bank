@@ -60,7 +60,7 @@ function renderLoginPage() {
 
 beforeEach(() => {
   localStorage.clear()
-  useAuthStore.setState({ token: null, user: null })
+  useAuthStore.setState({ token: null, user: null, sessionExpired: false })
   usePreferencesStore.setState({ locale: 'en-US', themeId: 'antd-blue' })
   fetchMock = vi.fn()
   vi.stubGlobal('fetch', fetchMock)
@@ -142,6 +142,21 @@ describe('LoginPage', () => {
     expect(
       await screen.findByText('Cannot reach the API. Make sure the backend is running.'),
     ).toBeInTheDocument()
+  })
+
+  it('explains why an expired session lands back on sign-in', async () => {
+    const user = userEvent.setup()
+    useAuthStore.setState({ sessionExpired: true })
+    renderLoginPage()
+
+    expect(
+      await screen.findByText('Your session has expired. Please sign in again.'),
+    ).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: /close/i }))
+    expect(
+      screen.queryByText('Your session has expired. Please sign in again.'),
+    ).not.toBeInTheDocument()
   })
 
   it('renders Chinese labels when the locale is zh-CN', async () => {

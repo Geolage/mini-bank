@@ -24,6 +24,7 @@ const zhCN: Messages = {
   auth: {
     signIn: '登录',
     signInSubtitle: '使用演示账号体验控制台。',
+    sessionExpired: '登录状态已过期，请重新登录。',
     identifier: '账号',
     identifierPlaceholder: '请输入账号',
     identifierRequired: '请输入账号',

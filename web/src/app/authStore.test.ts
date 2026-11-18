@@ -14,7 +14,7 @@ const user: User = {
 
 beforeEach(() => {
   localStorage.clear()
-  useAuthStore.setState({ token: null, user: null })
+  useAuthStore.setState({ token: null, user: null, sessionExpired: false })
 })
 
 describe('loadStoredAuth', () => {
@@ -64,5 +64,36 @@ describe('useAuthStore', () => {
 
     expect(useAuthStore.getState()).toMatchObject({ token: null, user: null })
     expect(localStorage.getItem(STORAGE_KEY)).toBeNull()
+  })
+
+  it('leaves no expiry notice after a manual sign out', () => {
+    useAuthStore.getState().signIn({ accessToken: 'jwt', user })
+    useAuthStore.getState().signOut()
+
+    expect(useAuthStore.getState().sessionExpired).toBe(false)
+  })
+
+  it('flags the session as expired when the API rejects the token', () => {
+    useAuthStore.getState().signIn({ accessToken: 'expired', user })
+    useAuthStore.getState().expireSession()
+
+    expect(useAuthStore.getState()).toMatchObject({
+      token: null,
+      user: null,
+      sessionExpired: true,
+    })
+    expect(localStorage.getItem(STORAGE_KEY)).toBeNull()
+  })
+
+  it('drops the notice once the user signs in again or dismisses it', () => {
+    useAuthStore.getState().expireSession()
+    expect(useAuthStore.getState().sessionExpired).toBe(true)
+
+    useAuthStore.getState().dismissExpiredNotice()
+    expect(useAuthStore.getState().sessionExpired).toBe(false)
+
+    useAuthStore.getState().expireSession()
+    useAuthStore.getState().signIn({ accessToken: 'jwt', user })
+    expect(useAuthStore.getState().sessionExpired).toBe(false)
   })
 })

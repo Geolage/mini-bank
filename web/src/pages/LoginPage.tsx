@@ -35,6 +35,8 @@ export function LoginPage() {
   const screens = Grid.useBreakpoint()
   const token = useAuthStore((state) => state.token)
   const signIn = useAuthStore((state) => state.signIn)
+  const sessionExpired = useAuthStore((state) => state.sessionExpired)
+  const dismissExpiredNotice = useAuthStore((state) => state.dismissExpiredNotice)
   const { t } = useI18n()
 
   const redirectTo =
@@ -168,6 +170,17 @@ export function LoginPage() {
           <Paragraph style={{ marginTop: 4, color: '#475569' }}>
             {t('auth.signInSubtitle')}
           </Paragraph>
+
+          {sessionExpired ? (
+            <Alert
+              type="warning"
+              showIcon
+              closable
+              message={t('auth.sessionExpired')}
+              onClose={dismissExpiredNotice}
+              style={{ marginTop: 16 }}
+            />
+          ) : null}
 
           <Card style={{ marginTop: 24 }}>
             <Form<LoginRequest>

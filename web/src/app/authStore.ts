@@ -9,8 +9,12 @@ export interface AuthSession {
 }
 
 export interface AuthState extends AuthSession {
+  /** Set when the API rejects the stored token, so the sign-in page can explain it. */
+  sessionExpired: boolean
   signIn: (response: LoginResponse) => void
   signOut: () => void
+  expireSession: () => void
+  dismissExpiredNotice: () => void
 }
 
 export function loadStoredAuth(): AuthSession {
@@ -37,15 +41,21 @@ export function loadStoredAuth(): AuthSession {
 
 export const useAuthStore = create<AuthState>()((set) => ({
   ...loadStoredAuth(),
+  sessionExpired: false,
   signIn: ({ accessToken, user }) => {
     localStorage.setItem(
       STORAGE_KEY,
       JSON.stringify({ token: accessToken, user }),
     )
-    set({ token: accessToken, user })
+    set({ token: accessToken, user, sessionExpired: false })
   },
   signOut: () => {
     localStorage.removeItem(STORAGE_KEY)
     set({ token: null, user: null })
   },
+  expireSession: () => {
+    localStorage.removeItem(STORAGE_KEY)
+    set({ token: null, user: null, sessionExpired: true })
+  },
+  dismissExpiredNotice: () => set({ sessionExpired: false }),
 }))

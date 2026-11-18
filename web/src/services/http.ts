@@ -18,8 +18,8 @@ export class ApiError extends Error {
 function signOutIfUnauthorized(status: number) {
   if (status !== 401) return
 
-  const { token, signOut } = useAuthStore.getState()
-  if (token) signOut()
+  const { token, expireSession } = useAuthStore.getState()
+  if (token) expireSession()
 }
 
 function readErrorMessage(body: ApiErrorBody | undefined, status: number) {

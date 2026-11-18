@@ -6,7 +6,8 @@ export async function expectNoAccessibilityViolations(container: HTMLElement) {
   })
 
   const blocking = results.violations.filter(
-    (violation) => violation.impact === 'critical' || violation.impact === 'serious',
+    (violation) =>
+      violation.impact === 'critical' || violation.impact === 'serious',
   )
 
   if (blocking.length > 0) {
@@ -15,7 +16,10 @@ export async function expectNoAccessibilityViolations(container: HTMLElement) {
         (violation) =>
           `${violation.id} (${violation.impact}): ${violation.help}\n` +
           violation.nodes
-            .map((node) => `    ${node.target.join(' ')} → ${node.html.slice(0, 500)}`)
+            .map(
+              (node) =>
+                `    ${node.target.join(' ')} → ${node.html.slice(0, 500)}`,
+            )
             .join('\n'),
       )
       .join('\n')

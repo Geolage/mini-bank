@@ -36,7 +36,10 @@ export const router = createBrowserRouter([
       { index: true, element: <Navigate to="/dashboard" replace /> },
       { path: 'dashboard', element: <DashboardPage /> },
       { path: 'accounts', element: <AccountsPage /> },
-      { path: 'accounts/:accountId/transactions', element: <TransactionsPage /> },
+      {
+        path: 'accounts/:accountId/transactions',
+        element: <TransactionsPage />,
+      },
       { path: 'payees', element: <PayeesPage /> },
       {
         path: 'transfer',

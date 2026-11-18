@@ -15,9 +15,14 @@
     "db:generate": "pnpm --filter api run prisma:generate",
     "db:migrate": "pnpm --filter api run prisma:migrate",
     "db:seed": "pnpm --filter api run prisma:seed",
-    "db:studio": "pnpm --filter api run prisma:studio"
+    "db:studio": "pnpm --filter api run prisma:studio",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "engines": {
     "node": ">=20"
+  },
+  "devDependencies": {
+    "prettier": "^3.6.2"
   }
 }

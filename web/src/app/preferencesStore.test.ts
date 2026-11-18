@@ -18,7 +18,10 @@ describe('loadPreferences', () => {
   it('reads a stored preference', () => {
     localStorage.setItem(
       PREF_STORAGE_KEY,
-      JSON.stringify({ state: { locale: 'zh-CN', themeId: 'emerald' }, version: 0 }),
+      JSON.stringify({
+        state: { locale: 'zh-CN', themeId: 'emerald' },
+        version: 0,
+      }),
     )
 
     expect(loadPreferences()).toEqual({ locale: 'zh-CN', themeId: 'emerald' })
@@ -27,7 +30,10 @@ describe('loadPreferences', () => {
   it('ignores an unknown stored locale', () => {
     localStorage.setItem(
       PREF_STORAGE_KEY,
-      JSON.stringify({ state: { locale: 'fr-FR', themeId: 'emerald' }, version: 0 }),
+      JSON.stringify({
+        state: { locale: 'fr-FR', themeId: 'emerald' },
+        version: 0,
+      }),
     )
 
     expect(loadPreferences().locale).toBe('zh-CN')
@@ -37,7 +43,10 @@ describe('loadPreferences', () => {
   it('drops a stored theme that no longer exists', () => {
     localStorage.setItem(
       PREF_STORAGE_KEY,
-      JSON.stringify({ state: { locale: 'zh-CN', themeId: 'geekblue' }, version: 0 }),
+      JSON.stringify({
+        state: { locale: 'zh-CN', themeId: 'geekblue' },
+        version: 0,
+      }),
     )
 
     expect(loadPreferences()).toEqual({ locale: 'zh-CN', themeId: 'antd-blue' })

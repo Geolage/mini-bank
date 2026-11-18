@@ -23,7 +23,9 @@ describe('GET /health (e2e)', () => {
   });
 
   it('returns ok', async () => {
-    const response = await request(app.getHttpServer()).get('/health').expect(200);
+    const response = await request(app.getHttpServer())
+      .get('/health')
+      .expect(200);
 
     expect(response.body).toMatchObject({
       status: 'ok',

@@ -120,12 +120,14 @@ describe('PayeesPage', () => {
 
   it('creates a payee from the drawer', async () => {
     const user = userEvent.setup()
-    fetchMock.mockImplementation((_input: RequestInfo | URL, init?: RequestInit) => {
-      if (init?.method === 'POST') {
-        return Promise.resolve(jsonResponse({ ...payee, id: 'payee-3' }, 201))
-      }
-      return Promise.resolve(jsonResponse(page))
-    })
+    fetchMock.mockImplementation(
+      (_input: RequestInfo | URL, init?: RequestInit) => {
+        if (init?.method === 'POST') {
+          return Promise.resolve(jsonResponse({ ...payee, id: 'payee-3' }, 201))
+        }
+        return Promise.resolve(jsonResponse(page))
+      },
+    )
     renderPayees()
     await screen.findByText('Visitor checking')
 
@@ -139,7 +141,9 @@ describe('PayeesPage', () => {
         ([, init]) => (init as RequestInit | undefined)?.method === 'POST',
       )
       expect(post).toBeTruthy()
-      expect(JSON.parse((post![1] as RequestInit).body as string)).toMatchObject({
+      expect(
+        JSON.parse((post![1] as RequestInit).body as string),
+      ).toMatchObject({
         name: 'Landlord',
         accountNumber: 'MB-1001-0002',
       })
@@ -169,22 +173,26 @@ describe('PayeesPage', () => {
 
   it('deletes optimistically and offers undo', async () => {
     const user = userEvent.setup()
-    fetchMock.mockImplementation((_input: RequestInfo | URL, init?: RequestInit) => {
-      if (init?.method === 'DELETE') {
-        return Promise.resolve(jsonResponse(payee))
-      }
-      if (init?.method === 'POST') {
-        return Promise.resolve(jsonResponse(payee, 201))
-      }
-      return Promise.resolve(jsonResponse(page))
-    })
+    fetchMock.mockImplementation(
+      (_input: RequestInfo | URL, init?: RequestInit) => {
+        if (init?.method === 'DELETE') {
+          return Promise.resolve(jsonResponse(payee))
+        }
+        if (init?.method === 'POST') {
+          return Promise.resolve(jsonResponse(payee, 201))
+        }
+        return Promise.resolve(jsonResponse(page))
+      },
+    )
     renderPayees()
     await screen.findByText('Visitor checking')
 
     const row = screen.getByText('Visitor checking').closest('tr')!
     await user.click(within(row).getByRole('button', { name: 'Delete' }))
 
-    expect(await screen.findByText('Deleted “Visitor checking”')).toBeInTheDocument()
+    expect(
+      await screen.findByText('Deleted “Visitor checking”'),
+    ).toBeInTheDocument()
     await waitFor(() =>
       expect(
         fetchMock.mock.calls.some(
@@ -206,12 +214,14 @@ describe('PayeesPage', () => {
 
   it('bulk deletes the selected rows', async () => {
     const user = userEvent.setup()
-    fetchMock.mockImplementation((_input: RequestInfo | URL, init?: RequestInit) => {
-      if (init?.method === 'DELETE') {
-        return Promise.resolve(jsonResponse(payee))
-      }
-      return Promise.resolve(jsonResponse(page))
-    })
+    fetchMock.mockImplementation(
+      (_input: RequestInfo | URL, init?: RequestInit) => {
+        if (init?.method === 'DELETE') {
+          return Promise.resolve(jsonResponse(payee))
+        }
+        return Promise.resolve(jsonResponse(page))
+      },
+    )
     renderPayees()
     await screen.findByText('Visitor checking')
 
@@ -252,6 +262,8 @@ describe('PayeesPage', () => {
     renderPayees()
 
     expect(await screen.findByText('Could not load payees')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Try again' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Try again' }),
+    ).toBeInTheDocument()
   })
 })

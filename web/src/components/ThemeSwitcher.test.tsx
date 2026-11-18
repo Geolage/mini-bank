@@ -41,9 +41,7 @@ describe('ThemeSwitcher', () => {
       'Volcano',
       'Slate',
     ]) {
-      expect(
-        await screen.findByRole('menuitem', { name }),
-      ).toBeInTheDocument()
+      expect(await screen.findByRole('menuitem', { name })).toBeInTheDocument()
     }
 
     await user.click(screen.getByRole('menuitem', { name: 'Elegant Blue' }))

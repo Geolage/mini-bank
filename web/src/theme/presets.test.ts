@@ -37,14 +37,20 @@ describe('theme presets', () => {
     for (const preset of THEME_PRESETS) {
       const primary = preset.config.token?.colorPrimary as string
 
-      expect(contrast(primary, WHITE), `${preset.id} link`).toBeGreaterThanOrEqual(4.5)
+      expect(
+        contrast(primary, WHITE),
+        `${preset.id} link`,
+      ).toBeGreaterThanOrEqual(4.5)
     }
   })
 
   it('keeps the selected sidebar item readable on its own background', () => {
     for (const preset of THEME_PRESETS) {
       expect(
-        contrast(preset.sider.colorTextMenuSelected, preset.sider.colorBgMenuItemSelected),
+        contrast(
+          preset.sider.colorTextMenuSelected,
+          preset.sider.colorBgMenuItemSelected,
+        ),
         `${preset.id} sidebar selection`,
       ).toBeGreaterThanOrEqual(4.5)
     }

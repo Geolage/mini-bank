@@ -2,9 +2,10 @@
 
 A full-stack banking demo. It covers authentication, account balances, money transfers, audit trails, bilingual UI, theming, accessibility and CI-ready testing.
 
-> Status: authentication, accounts, transaction history, transfers, audit logs, bilingual
-> UI (English / 简体中文) and user settings are implemented end to end, on the final
-> frontend stack. Remaining work is deployment and stretch goals (see [Build tasks](#build-tasks)).
+> Status: authentication, accounts, transaction history, transfers, audit logs, a payee
+> address book, an overview dashboard, statement export, bilingual UI (English / 简体中文)
+> and user settings are implemented end to end, on the final frontend stack. Remaining work
+> is deployment and stretch goals (see [Build tasks](#build-tasks)).
 >
 > The frontend runs on React Router + TanStack Query + Zustand + Ant Design/ProComponents.
 
@@ -19,23 +20,24 @@ Vite · TanStack Query       JWT · RBAC · Swagger      Prisma · migrations
 
 ## Tech stack
 
-| Layer | Choice |
-|---|---|
-| Frontend | React 19, TypeScript, Vite 8 |
-| Routing | React Router 7 |
-| Server state | TanStack Query 5 |
-| Session state | Zustand 5 |
-| Forms | Ant Design Form |
-| UI | Ant Design 5 + ProComponents (ProLayout, ProCard, ProTable) |
+| Layer                | Choice                                                                                                                  |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Frontend             | React 19, TypeScript, Vite 8                                                                                            |
+| Routing              | React Router 7                                                                                                          |
+| Server state         | TanStack Query 5                                                                                                        |
+| Session state        | Zustand 5                                                                                                               |
+| Forms                | Ant Design Form                                                                                                         |
+| UI                   | Ant Design 5 + ProComponents (ProLayout, ProCard, ProTable)                                                             |
 | Internationalisation | Hand-written typed zh/en catalogues + Ant Design and dayjs locales (no i18n library); Simplified Chinese is the default |
-| Theming | `ConfigProvider` token presets (6 AA-checked palettes) + ProLayout sider tokens |
-| Frontend tests | Vitest 5 + React Testing Library + jest-dom (Jest-compatible API) |
-| E2E | Cypress 16 |
-| Backend | NestJS 12 (ESM), Passport JWT |
-| Database | PostgreSQL 16 + Prisma 6 |
-| API docs | Swagger / OpenAPI |
-| Logging | Pino (nestjs-pino) |
-| CI | GitHub Actions |
+| Theming              | `ConfigProvider` token presets (6 AA-checked palettes) + ProLayout sider tokens                                         |
+| Charts               | Hand-rolled SVG (no chart dependency), keyboard- and hover-readable                                                     |
+| Frontend tests       | Vitest 5 + React Testing Library + jest-dom (Jest-compatible API)                                                       |
+| E2E                  | Cypress 16                                                                                                              |
+| Backend              | NestJS 12 (ESM), Passport JWT                                                                                           |
+| Database             | PostgreSQL 16 + Prisma 6                                                                                                |
+| API docs             | Swagger / OpenAPI                                                                                                       |
+| Logging              | Pino (nestjs-pino)                                                                                                      |
+| CI                   | GitHub Actions                                                                                                          |
 
 ## Repository layout
 
@@ -120,19 +122,19 @@ pnpm --filter api exec prisma migrate reset --force
 pnpm dev
 ```
 
-| Service | URL |
-|---|---|
-| Web app | http://localhost:8080 |
-| API | http://localhost:3000/api |
-| Swagger | http://localhost:3000/docs |
-| Health | http://localhost:3000/api/health |
+| Service | URL                              |
+| ------- | -------------------------------- |
+| Web app | http://localhost:8080            |
+| API     | http://localhost:3000/api        |
+| Swagger | http://localhost:3000/docs       |
+| Health  | http://localhost:3000/api/health |
 
 ### Demo accounts
 
-| Role | Username | Email | Nickname | Password |
-|---|---|---|---|---|
-| Operator (can transfer, sees audit) | `admin` | `admin@minibank.dev` | Admin | `11111111` |
-| Viewer (read only) | `visitor` | `visitor@minibank.dev` | Visitor | `00000000` |
+| Role                                | Username  | Email                  | Nickname | Password   |
+| ----------------------------------- | --------- | ---------------------- | -------- | ---------- |
+| Operator (can transfer, sees audit) | `admin`   | `admin@minibank.dev`   | Admin    | `11111111` |
+| Viewer (read only)                  | `visitor` | `visitor@minibank.dev` | Visitor  | `00000000` |
 
 Sign in with either the username or the email; both are case-insensitive. The sign-in page
 also has **Use admin** / **Use visitor** buttons that fill the form for you, in whichever
@@ -140,22 +142,22 @@ language the page is currently using.
 
 ## Scripts
 
-| Command | Description |
-|---|---|
-| `pnpm dev` | Run web + API in watch mode |
-| `pnpm build` | Build both apps |
-| `pnpm --filter web size` | Check the initial gzipped payload against the 400 kB budget |
-| `pnpm lint` | Oxlint both apps |
-| `pnpm typecheck` | TypeScript checks |
-| `pnpm test` | Unit tests (Vitest) |
-| `pnpm --filter api test:e2e` | API e2e tests (no DB required) |
-| `pnpm db:up` / `db:down` | Start / stop PostgreSQL |
-| `pnpm db:migrate` | `prisma migrate dev` (also generates the Prisma client) |
-| `pnpm db:generate` | Generate the Prisma client without migrating (used by CI) |
-| `pnpm db:seed` | Seed demo users, accounts and transactions |
-| `pnpm db:studio` | Prisma Studio |
-| `pnpm --filter web cy:open` | Cypress interactive runner |
-| `pnpm --filter web cy:run` | Cypress headless (requires web + API + DB) |
+| Command                      | Description                                                 |
+| ---------------------------- | ----------------------------------------------------------- |
+| `pnpm dev`                   | Run web + API in watch mode                                 |
+| `pnpm build`                 | Build both apps                                             |
+| `pnpm --filter web size`     | Check the initial gzipped payload against the 400 kB budget |
+| `pnpm lint`                  | Oxlint both apps                                            |
+| `pnpm typecheck`             | TypeScript checks                                           |
+| `pnpm test`                  | Unit tests (Vitest)                                         |
+| `pnpm --filter api test:e2e` | API e2e tests (no DB required)                              |
+| `pnpm db:up` / `db:down`     | Start / stop PostgreSQL                                     |
+| `pnpm db:migrate`            | `prisma migrate dev` (also generates the Prisma client)     |
+| `pnpm db:generate`           | Generate the Prisma client without migrating (used by CI)   |
+| `pnpm db:seed`               | Seed demo users, accounts and transactions                  |
+| `pnpm db:studio`             | Prisma Studio                                               |
+| `pnpm --filter web cy:open`  | Cypress interactive runner                                  |
+| `pnpm --filter web cy:run`   | Cypress headless (requires web + API + DB)                  |
 
 ## Build tasks
 
@@ -229,7 +231,18 @@ accessibility and stretch goals.
 - Verified: Lighthouse on the production build still scores Accessibility 100 with the
   Chinese UI and with the weakest palette (Volcano) as defaults
 
-### 7. Stretch goals
+### 7. Payees, overview and statements (implemented)
+
+- Payees: per-user address book with search and sort in the URL, create/edit drawer,
+  detail drawer with the full account number and one-click transfer prefill, optimistic
+  delete with undo (single and bulk), audit entries for every mutation
+- Overview (`/dashboard`, the post-login home): greeting, one balance card per currency,
+  month in/out, a 30-day SVG cash-flow chart with hover/keyboard readout and a currency
+  switch, recent activity linking into statements; aggregated server-side in integer cents
+- Statements: CSV export of the whole filtered set (RFC 4180 quoting + UTF-8 BOM for Excel)
+  and a print-optimized sheet isolated from the app chrome via `@media print`
+
+### 8. Stretch goals
 
 - Refresh tokens / httpOnly cookies
 - Redis caching for account summaries
@@ -264,6 +277,10 @@ accessibility and stretch goals.
 - **AA contrast is a test, not a note.** `theme/presets.test.ts` recomputes white-on-primary,
   link-on-white and sidebar-selection ratios for every palette, so a new colour cannot ship
   below 4.5:1. This is what ruled `#0088ff` (3.52:1) out as a primary.
+- **Aggregates never sum across currencies.** The overview groups by currency and adds in
+  integer cents, so two-decimal money stays exact and a USD total can never absorb HKD.
+- **Exports respect the filter, not the page.** CSV and print walk every page of the current
+  query, and the CSV carries a BOM so Excel opens Chinese notes without mojibake.
 
 ## Known limitations
 

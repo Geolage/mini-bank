@@ -73,9 +73,7 @@ export class TransfersService {
         const locked = await tx.account.findMany({
           where: { id: { in: [source.id, target.id] } },
         });
-        const lockedSource = locked.find(
-          (account) => account.id === source.id,
-        );
+        const lockedSource = locked.find((account) => account.id === source.id);
 
         if (!lockedSource) {
           throw new NotFoundException('Source account not found');

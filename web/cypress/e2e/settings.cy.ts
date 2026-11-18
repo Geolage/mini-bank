@@ -62,7 +62,11 @@ describe('settings', () => {
       'placeholder',
       '请输入账号',
     )
-    cy.get('input[name="password"]').should('have.attr', 'placeholder', '请输入密码')
+    cy.get('input[name="password"]').should(
+      'have.attr',
+      'placeholder',
+      '请输入密码',
+    )
     cy.get('html').should('have.attr', 'lang', 'zh-CN')
   })
 
@@ -109,11 +113,19 @@ describe('settings', () => {
     cy.get('.ant-menu-item-selected').should('have.css', 'color', BLUE_SELECTED)
 
     cy.contains('label', 'Emerald').click()
-    cy.get('.ant-menu-item-selected').should('have.css', 'color', EMERALD_SELECTED)
+    cy.get('.ant-menu-item-selected').should(
+      'have.css',
+      'color',
+      EMERALD_SELECTED,
+    )
     readPreferences().its('state.themeId').should('eq', 'emerald')
 
     cy.reload()
-    cy.get('.ant-menu-item-selected').should('have.css', 'color', EMERALD_SELECTED)
+    cy.get('.ant-menu-item-selected').should(
+      'have.css',
+      'color',
+      EMERALD_SELECTED,
+    )
 
     cy.contains('button', 'Restore defaults').click()
     cy.get('.ant-menu-item-selected').should('have.css', 'color', BLUE_SELECTED)
@@ -162,12 +174,20 @@ describe('settings', () => {
     cy.get('button[aria-label="Theme: Calm Blue"]').click()
     cy.get('[role=menuitem]').contains('Elegant Blue').click()
 
-    cy.get('.ant-menu-item-selected').should('have.css', 'color', ELEGANT_SELECTED)
+    cy.get('.ant-menu-item-selected').should(
+      'have.css',
+      'color',
+      ELEGANT_SELECTED,
+    )
     readPreferences().its('state.themeId').should('eq', 'elegant-blue')
 
     cy.reload()
     cy.get('button[aria-label="Theme: Elegant Blue"]').should('be.visible')
-    cy.get('.ant-menu-item-selected').should('have.css', 'color', ELEGANT_SELECTED)
+    cy.get('.ant-menu-item-selected').should(
+      'have.css',
+      'color',
+      ELEGANT_SELECTED,
+    )
   })
 
   it('lets a visitor sign in with an email address and hides operator pages', () => {

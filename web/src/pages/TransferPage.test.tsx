@@ -65,19 +65,21 @@ function mockApi(
     reference: 'TXN-abc',
   }),
 ) {
-  fetchMock.mockImplementation((input: RequestInfo | URL, init?: RequestInit) => {
-    const url = String(input)
+  fetchMock.mockImplementation(
+    (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input)
 
-    if (init?.method === 'POST' && url === '/api/transfers') {
-      return Promise.resolve(transferResponse)
-    }
+      if (init?.method === 'POST' && url === '/api/transfers') {
+        return Promise.resolve(transferResponse)
+      }
 
-    if (url.startsWith('/api/accounts')) {
-      return Promise.resolve(jsonResponse(accounts))
-    }
+      if (url.startsWith('/api/accounts')) {
+        return Promise.resolve(jsonResponse(accounts))
+      }
 
-    return Promise.reject(new Error(`Unexpected fetch: ${url}`))
-  })
+      return Promise.reject(new Error(`Unexpected fetch: ${url}`))
+    },
+  )
 }
 
 beforeEach(() => {
@@ -113,7 +115,9 @@ describe('TransferPage', () => {
     renderTransferPage()
 
     await screen.findByText(/•••• 0001 · USD\s12,500\.00/)
-    await userEvent.click(screen.getByRole('button', { name: 'Submit transfer' }))
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Submit transfer' }),
+    )
 
     expect(
       await screen.findByText('Enter the recipient account number'),
@@ -121,9 +125,9 @@ describe('TransferPage', () => {
     expect(
       screen.getByText('Enter a positive amount with up to 2 decimal places'),
     ).toBeInTheDocument()
-    expect(fetchMock.mock.calls.some(([, init]) => init?.method === 'POST')).toBe(
-      false,
-    )
+    expect(
+      fetchMock.mock.calls.some(([, init]) => init?.method === 'POST'),
+    ).toBe(false)
   })
 
   it('submits a transfer with an idempotency key and refreshes accounts', async () => {
@@ -136,7 +140,9 @@ describe('TransferPage', () => {
       'MB-2001-0001',
     )
     await userEvent.type(screen.getByLabelText('Amount'), '100.00')
-    await userEvent.click(screen.getByRole('button', { name: 'Submit transfer' }))
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Submit transfer' }),
+    )
 
     expect(await screen.findByText('Transfer submitted')).toBeInTheDocument()
     expect(screen.getByText('TXN-abc')).toBeInTheDocument()
@@ -175,7 +181,9 @@ describe('TransferPage', () => {
       'MB-2001-0001',
     )
     await userEvent.type(screen.getByLabelText('Amount'), '99999.00')
-    await userEvent.click(screen.getByRole('button', { name: 'Submit transfer' }))
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Submit transfer' }),
+    )
 
     expect(await screen.findByText('Insufficient funds')).toBeInTheDocument()
   })

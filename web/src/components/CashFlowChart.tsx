@@ -23,7 +23,11 @@ interface CashFlowChartProps {
   locale: Locale
 }
 
-export function CashFlowChart({ points, currency, locale }: CashFlowChartProps) {
+export function CashFlowChart({
+  points,
+  currency,
+  locale,
+}: CashFlowChartProps) {
   const { t } = useI18n()
   const [active, setActive] = useState<number | null>(null)
 
@@ -156,7 +160,10 @@ export function CashFlowChart({ points, currency, locale }: CashFlowChartProps) 
                 x={x + 1}
                 y={PAD_TOP + plotHeight - incomingHeight}
                 width={barWidth}
-                height={Math.max(incomingHeight, point.incoming !== '0.00' ? 2 : 0)}
+                height={Math.max(
+                  incomingHeight,
+                  point.incoming !== '0.00' ? 2 : 0,
+                )}
                 rx={2}
                 fill={INCOME_COLOR}
               />
@@ -164,7 +171,10 @@ export function CashFlowChart({ points, currency, locale }: CashFlowChartProps) 
                 x={x + 1 + barWidth + 2}
                 y={PAD_TOP + plotHeight - outgoingHeight}
                 width={barWidth}
-                height={Math.max(outgoingHeight, point.outgoing !== '0.00' ? 2 : 0)}
+                height={Math.max(
+                  outgoingHeight,
+                  point.outgoing !== '0.00' ? 2 : 0,
+                )}
                 rx={2}
                 fill={EXPENSE_COLOR}
               />

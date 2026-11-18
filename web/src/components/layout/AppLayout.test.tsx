@@ -53,9 +53,13 @@ describe('AppLayout', () => {
     usePreferencesStore.setState({ locale: 'zh-CN', themeId: 'antd-blue' })
     renderShell()
 
-    expect(await screen.findByRole('menuitem', { name: /账户/ })).toBeInTheDocument()
+    expect(
+      await screen.findByRole('menuitem', { name: /账户/ }),
+    ).toBeInTheDocument()
     expect(screen.getByRole('menuitem', { name: /转账/ })).toBeInTheDocument()
-    expect(screen.getByRole('menuitem', { name: /审计日志/ })).toBeInTheDocument()
+    expect(
+      screen.getByRole('menuitem', { name: /审计日志/ }),
+    ).toBeInTheDocument()
   })
 
   it('keeps operator-only entries out of a viewer menu', async () => {
@@ -65,7 +69,9 @@ describe('AppLayout', () => {
     })
     renderShell()
 
-    expect(await screen.findByRole('menuitem', { name: /Accounts/ })).toBeInTheDocument()
+    expect(
+      await screen.findByRole('menuitem', { name: /Accounts/ }),
+    ).toBeInTheDocument()
     expect(screen.queryByRole('menuitem', { name: /Transfer/ })).toBeNull()
     expect(screen.queryByRole('menuitem', { name: /Audit log/ })).toBeNull()
   })

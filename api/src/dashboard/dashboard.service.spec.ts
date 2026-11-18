@@ -45,7 +45,12 @@ function transaction(
   };
 }
 
-const visitorUsd = { ...usd, id: 'acc-visitor', userId: 'user-2', accountNumber: 'MB-2001-0001' };
+const visitorUsd = {
+  ...usd,
+  id: 'acc-visitor',
+  userId: 'user-2',
+  accountNumber: 'MB-2001-0001',
+};
 
 describe('DashboardService', () => {
   let findAccounts: ReturnType<typeof vi.fn>;
@@ -55,11 +60,13 @@ describe('DashboardService', () => {
 
   beforeEach(() => {
     findAccounts = vi.fn().mockResolvedValue([usd, hkd]);
-    findTransactions = vi.fn().mockResolvedValue([
-      transaction('t1', usd, visitorUsd, '42.00', daysAgo(0)),
-      transaction('t2', visitorUsd, usd, '18.75', daysAgo(0)),
-      transaction('t3', usd, visitorUsd, '250.00', daysAgo(3)),
-    ]);
+    findTransactions = vi
+      .fn()
+      .mockResolvedValue([
+        transaction('t1', usd, visitorUsd, '42.00', daysAgo(0)),
+        transaction('t2', visitorUsd, usd, '18.75', daysAgo(0)),
+        transaction('t3', usd, visitorUsd, '250.00', daysAgo(3)),
+      ]);
     countPayees = vi.fn().mockResolvedValue(2);
 
     const prisma = {
@@ -92,7 +99,9 @@ describe('DashboardService', () => {
 
   it('returns a zero-filled 30 day series per currency', async () => {
     const overview = await service.overview('user-1');
-    const usdSeries = overview.series.find((entry) => entry.currency === 'USD')!;
+    const usdSeries = overview.series.find(
+      (entry) => entry.currency === 'USD',
+    )!;
 
     expect(usdSeries.points).toHaveLength(30);
     const today = usdSeries.points[29];

@@ -33,7 +33,10 @@ describe('GET /dashboard/overview (e2e)', () => {
 
     const moduleRef = await Test.createTestingModule({
       controllers: [DashboardController],
-      providers: [DashboardService, { provide: PrismaService, useValue: prisma }],
+      providers: [
+        DashboardService,
+        { provide: PrismaService, useValue: prisma },
+      ],
     })
       .overrideGuard(JwtAuthGuard)
       .useValue({
@@ -49,7 +52,11 @@ describe('GET /dashboard/overview (e2e)', () => {
 
     app = moduleRef.createNestApplication();
     app.useGlobalPipes(
-      new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }),
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        transform: true,
+      }),
     );
     await app.init();
   });

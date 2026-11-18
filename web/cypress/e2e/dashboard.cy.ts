@@ -28,7 +28,9 @@ describe('dashboard', () => {
 
     cy.get('.ant-select').first().scrollIntoView({ block: 'center' }).click()
     cy.get('.ant-select-item-option').contains('HKD').click()
-    cy.contains(/\+HKD\s300\.00/).scrollIntoView().should('be.visible')
+    cy.contains(/\+HKD\s300\.00/)
+      .scrollIntoView()
+      .should('be.visible')
     cy.contains(/-HKD\s1,200\.00/).should('be.visible')
     cy.get('svg rect[tabindex="0"]').should('have.length', 30)
   })

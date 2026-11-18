@@ -13,7 +13,9 @@ export function SettingsPage() {
   const themeId = usePreferencesStore((state) => state.themeId)
   const setLocale = usePreferencesStore((state) => state.setLocale)
   const setThemeId = usePreferencesStore((state) => state.setThemeId)
-  const resetPreferences = usePreferencesStore((state) => state.resetPreferences)
+  const resetPreferences = usePreferencesStore(
+    (state) => state.resetPreferences,
+  )
   const [restored, setRestored] = useState(false)
 
   return (
@@ -26,11 +28,7 @@ export function SettingsPage() {
       </div>
 
       <Flex vertical gap={16}>
-        <ProCard
-          title={t('settings.languageGroup')}
-          bordered
-          headerBordered
-        >
+        <ProCard title={t('settings.languageGroup')} bordered headerBordered>
           <div role="radiogroup" aria-label={t('settings.languageGroup')}>
             <Radio.Group
               name="locale"

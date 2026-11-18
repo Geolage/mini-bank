@@ -37,7 +37,9 @@ describe('readAuditParams', () => {
 
 describe('withAuditPagination', () => {
   it('omits default values while preserving filters', () => {
-    const current = new URLSearchParams('page=3&pageSize=50&action=TRANSFER_CREATED')
+    const current = new URLSearchParams(
+      'page=3&pageSize=50&action=TRANSFER_CREATED',
+    )
 
     expect(withAuditPagination(current, 1, 20).toString()).toBe(
       'action=TRANSFER_CREATED',

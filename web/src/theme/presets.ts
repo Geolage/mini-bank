@@ -22,7 +22,12 @@ export interface ThemePreset {
   }
 }
 
-function build(id: ThemeId, primary: string, hover: string, soft: string): ThemePreset {
+function build(
+  id: ThemeId,
+  primary: string,
+  hover: string,
+  soft: string,
+): ThemePreset {
   return {
     id,
     nameKey: `settings.theme.${id}` as MessageKey,

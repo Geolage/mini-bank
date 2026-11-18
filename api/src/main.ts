@@ -11,7 +11,9 @@ async function bootstrap() {
 
   const config = app.get(ConfigService);
   const port = Number(config.get('PORT') ?? 3000);
-  const corsOrigins = (config.get<string>('CORS_ORIGIN') ?? 'http://localhost:8080')
+  const corsOrigins = (
+    config.get<string>('CORS_ORIGIN') ?? 'http://localhost:8080'
+  )
     .split(',')
     .map((origin) => origin.trim())
     .filter(Boolean);
@@ -28,7 +30,9 @@ async function bootstrap() {
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('MiniBank API')
-    .setDescription('Accounts, transactions and transfers for the MiniBank demo app')
+    .setDescription(
+      'Accounts, transactions and transfers for the MiniBank demo app',
+    )
     .setVersion('0.1.0')
     .addBearerAuth()
     .build();

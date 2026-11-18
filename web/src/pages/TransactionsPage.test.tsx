@@ -5,11 +5,7 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useAuthStore } from '../app/authStore'
-import type {
-  Account,
-  AccountTransaction,
-  Paginated,
-} from '../types/api'
+import type { Account, AccountTransaction, Paginated } from '../types/api'
 import { TransactionsPage } from './TransactionsPage'
 
 const account: Account = {
@@ -170,9 +166,7 @@ describe('TransactionsPage', () => {
   })
 
   it('renders an empty state when no transactions match', async () => {
-    mockApi(
-      jsonResponse({ items: [], page: 1, pageSize: 20, total: 0 }),
-    )
+    mockApi(jsonResponse({ items: [], page: 1, pageSize: 20, total: 0 }))
     renderTransactionsPage()
 
     expect(
@@ -182,10 +176,7 @@ describe('TransactionsPage', () => {
 
   it('renders an API error with a retry action', async () => {
     mockApi(
-      jsonResponse(
-        { statusCode: 500, message: 'Database unavailable' },
-        500,
-      ),
+      jsonResponse({ statusCode: 500, message: 'Database unavailable' }, 500),
     )
     renderTransactionsPage()
 

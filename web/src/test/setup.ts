@@ -33,5 +33,8 @@ if (!window.ResizeObserver) {
 // set it through usePreferencesStore explicitly.
 localStorage.setItem(
   'mini-bank.preferences',
-  JSON.stringify({ state: { locale: 'en-US', themeId: 'antd-blue' }, version: 0 }),
+  JSON.stringify({
+    state: { locale: 'en-US', themeId: 'antd-blue' },
+    version: 0,
+  }),
 )

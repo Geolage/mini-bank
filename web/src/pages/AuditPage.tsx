@@ -191,7 +191,9 @@ export function AuditPage() {
           showIcon
           message={t('audit.errorTitle')}
           description={
-            audit.error instanceof Error ? audit.error.message : t('errors.generic')
+            audit.error instanceof Error
+              ? audit.error.message
+              : t('errors.generic')
           }
           action={
             <Button size="small" onClick={() => audit.refetch()}>

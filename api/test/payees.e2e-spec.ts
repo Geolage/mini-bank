@@ -6,7 +6,15 @@ import {
 import { Test } from '@nestjs/testing';
 import { Prisma } from '@prisma/client';
 import request from 'supertest';
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 import { JwtAuthGuard } from '../src/common/guards/jwt-auth.guard.js';
 import { PayeesController } from '../src/payees/payees.controller.js';
 import { PayeesService } from '../src/payees/payees.service.js';

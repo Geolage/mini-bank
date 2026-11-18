@@ -24,7 +24,9 @@ describe('payees', () => {
     cy.contains('Visitor checking').should('be.visible')
     cy.contains('Visitor HKD').should('be.visible')
 
-    cy.get('input[placeholder="Search name, account or bank"]').type('hkd{enter}')
+    cy.get('input[placeholder="Search name, account or bank"]').type(
+      'hkd{enter}',
+    )
     cy.location('search').should('contain', 'q=hkd')
     cy.contains('Visitor HKD').should('be.visible')
     cy.contains('Visitor checking').should('not.exist')
@@ -68,8 +70,12 @@ describe('payees', () => {
     cy.viewport(1180, 720)
     openPayees()
 
-    cy.get('.ant-table-tbody tr.ant-table-row .ant-checkbox-input').eq(0).check()
-    cy.get('.ant-table-tbody tr.ant-table-row .ant-checkbox-input').eq(1).check()
+    cy.get('.ant-table-tbody tr.ant-table-row .ant-checkbox-input')
+      .eq(0)
+      .check()
+    cy.get('.ant-table-tbody tr.ant-table-row .ant-checkbox-input')
+      .eq(1)
+      .check()
     cy.contains('2 selected').should('be.visible')
     cy.contains('button', 'Delete selected').click()
 

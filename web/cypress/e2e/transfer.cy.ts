@@ -29,7 +29,10 @@ describe('transfer', () => {
     cy.wait('@transfer')
       .its('request.headers')
       .should('have.property', 'idempotency-key')
-      .and('match', /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)
+      .and(
+        'match',
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+      )
 
     cy.contains('Transfer submitted').should('be.visible')
     cy.contains('TXN-CYPRESS-1').should('be.visible')

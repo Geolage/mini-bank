@@ -23,7 +23,11 @@ export interface BreadcrumbTrailItem {
 
 export function buildMenuRoutes(role: Role | null): MenuRoute[] {
   const routes: MenuRoute[] = [
-    { path: '/dashboard', nameKey: 'nav.dashboard', icon: <DashboardOutlined /> },
+    {
+      path: '/dashboard',
+      nameKey: 'nav.dashboard',
+      icon: <DashboardOutlined />,
+    },
     { path: '/accounts', nameKey: 'nav.accounts', icon: <BankOutlined /> },
     { path: '/payees', nameKey: 'nav.payees', icon: <ContactsOutlined /> },
   ]
@@ -35,7 +39,11 @@ export function buildMenuRoutes(role: Role | null): MenuRoute[] {
     )
   }
 
-  routes.push({ path: '/settings', nameKey: 'nav.settings', icon: <SettingOutlined /> })
+  routes.push({
+    path: '/settings',
+    nameKey: 'nav.settings',
+    icon: <SettingOutlined />,
+  })
 
   return routes
 }

@@ -57,9 +57,7 @@ async function removeLegacyUsers(): Promise<void> {
     where: {
       OR: [
         { actorId: { in: userIds } },
-        ...(accountIds.length > 0
-          ? [{ resourceId: { in: accountIds } }]
-          : []),
+        ...(accountIds.length > 0 ? [{ resourceId: { in: accountIds } }] : []),
       ],
     },
   });

@@ -84,7 +84,9 @@ describe('TransfersService', () => {
       },
       transaction: {
         findUnique: vi.fn().mockResolvedValue(null),
-        create: vi.fn().mockResolvedValue({ id: 'txn-new', reference: 'TXN-new' }),
+        create: vi
+          .fn()
+          .mockResolvedValue({ id: 'txn-new', reference: 'TXN-new' }),
       },
       auditLog: {
         create: vi.fn().mockResolvedValue({ id: 'audit-new' }),
@@ -104,12 +106,12 @@ describe('TransfersService', () => {
   });
 
   it('requires a UUID idempotency key', async () => {
-    await expect(service.create(userId, dto(), undefined)).rejects.toBeInstanceOf(
-      BadRequestException,
-    );
-    await expect(service.create(userId, dto(), 'not-a-uuid')).rejects.toBeInstanceOf(
-      BadRequestException,
-    );
+    await expect(
+      service.create(userId, dto(), undefined),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    await expect(
+      service.create(userId, dto(), 'not-a-uuid'),
+    ).rejects.toBeInstanceOf(BadRequestException);
     expect(tx.account.findFirst).not.toHaveBeenCalled();
   });
 
@@ -137,9 +139,9 @@ describe('TransfersService', () => {
     tx.transaction.findUnique.mockResolvedValue(existingTransaction);
     tx.account.findFirst.mockResolvedValue(null);
 
-    await expect(service.create(userId, dto(), idempotencyKey)).rejects.toBeInstanceOf(
-      ConflictException,
-    );
+    await expect(
+      service.create(userId, dto(), idempotencyKey),
+    ).rejects.toBeInstanceOf(ConflictException);
   });
 
   it('creates an atomic transfer with locks and an audit entry', async () => {
@@ -147,7 +149,11 @@ describe('TransfersService', () => {
     tx.account.findUnique.mockResolvedValue(targetAccount);
     tx.account.findMany.mockResolvedValue([sourceAccount, targetAccount]);
 
-    const result = await service.create(userId, dto({ note: 'Rent' }), idempotencyKey);
+    const result = await service.create(
+      userId,
+      dto({ note: 'Rent' }),
+      idempotencyKey,
+    );
 
     expect(result.id).toBe('txn-new');
     expect(result.reference).toMatch(/^TXN-/);
@@ -190,18 +196,18 @@ describe('TransfersService', () => {
     tx.account.findFirst.mockResolvedValue(sourceAccount);
     tx.account.findUnique.mockResolvedValue({ ...targetAccount, id: sourceId });
 
-    await expect(service.create(userId, dto(), idempotencyKey)).rejects.toBeInstanceOf(
-      BadRequestException,
-    );
+    await expect(
+      service.create(userId, dto(), idempotencyKey),
+    ).rejects.toBeInstanceOf(BadRequestException);
 
     tx.account.findUnique.mockResolvedValue({
       ...targetAccount,
       currency: Currency.HKD,
     });
 
-    await expect(service.create(userId, dto(), idempotencyKey)).rejects.toBeInstanceOf(
-      BadRequestException,
-    );
+    await expect(
+      service.create(userId, dto(), idempotencyKey),
+    ).rejects.toBeInstanceOf(BadRequestException);
     expect(tx.account.update).not.toHaveBeenCalled();
   });
 
@@ -213,23 +219,23 @@ describe('TransfersService', () => {
       targetAccount,
     ]);
 
-    await expect(service.create(userId, dto(), idempotencyKey)).rejects.toBeInstanceOf(
-      BadRequestException,
-    );
+    await expect(
+      service.create(userId, dto(), idempotencyKey),
+    ).rejects.toBeInstanceOf(BadRequestException);
     expect(tx.account.update).not.toHaveBeenCalled();
   });
 
   it('returns 404 when source or destination is missing', async () => {
     tx.account.findFirst.mockResolvedValue(null);
-    await expect(service.create(userId, dto(), idempotencyKey)).rejects.toBeInstanceOf(
-      NotFoundException,
-    );
+    await expect(
+      service.create(userId, dto(), idempotencyKey),
+    ).rejects.toBeInstanceOf(NotFoundException);
 
     tx.account.findFirst.mockResolvedValue(sourceAccount);
     tx.account.findUnique.mockResolvedValue(null);
-    await expect(service.create(userId, dto(), idempotencyKey)).rejects.toBeInstanceOf(
-      NotFoundException,
-    );
+    await expect(
+      service.create(userId, dto(), idempotencyKey),
+    ).rejects.toBeInstanceOf(NotFoundException);
   });
 
   it('replays a concurrent idempotency conflict', async () => {

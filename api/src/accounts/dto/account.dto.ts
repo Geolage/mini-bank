@@ -14,6 +14,9 @@ export class AccountDto {
   @ApiProperty({ enum: Currency, example: Currency.USD })
   currency!: Currency;
 
-  @ApiProperty({ example: '12500.00', description: 'Decimal string with 2 places' })
+  @ApiProperty({
+    example: '12500.00',
+    description: 'Decimal string with 2 places',
+  })
   balance!: string;
 }

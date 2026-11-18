@@ -14,13 +14,19 @@ export class TransactionDto {
   @ApiProperty({ example: '9a0c1e2d-3c4b-5a69-8d4e-4b6f3f2b8c1a' })
   toAccountId!: string;
 
-  @ApiProperty({ example: '250.00', description: 'Decimal string with 2 places' })
+  @ApiProperty({
+    example: '250.00',
+    description: 'Decimal string with 2 places',
+  })
   amount!: string;
 
   @ApiProperty({ enum: Currency, example: Currency.USD })
   currency!: Currency;
 
-  @ApiProperty({ enum: TransactionStatus, example: TransactionStatus.COMPLETED })
+  @ApiProperty({
+    enum: TransactionStatus,
+    example: TransactionStatus.COMPLETED,
+  })
   status!: TransactionStatus;
 
   @ApiProperty({ example: 'Dinner split', nullable: true, type: String })

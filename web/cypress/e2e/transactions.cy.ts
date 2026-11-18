@@ -22,7 +22,9 @@ describe('transaction history', () => {
     cy.contains('Outgoing').should('be.visible')
     cy.contains('1–4 of 4').should('be.visible')
 
-    cy.get('.ant-table-thead th').eq(3).should('have.css', 'text-align', 'center')
+    cy.get('.ant-table-thead th')
+      .eq(3)
+      .should('have.css', 'text-align', 'center')
     cy.get('.ant-table-tbody tr.ant-table-row')
       .first()
       .find('td')

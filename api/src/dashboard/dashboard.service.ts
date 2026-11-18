@@ -3,7 +3,6 @@ import type { Currency, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service.js';
 import type {
   DashboardOverviewDto,
-  DashboardSeriesDto,
   RecentTransactionDto,
 } from './dto/dashboard-overview.dto.js';
 
@@ -64,7 +63,10 @@ export class DashboardService {
     }
 
     const month = new Map<Currency, { incoming: number; outgoing: number }>();
-    const series = new Map<Currency, Map<string, { incoming: number; outgoing: number }>>();
+    const series = new Map<
+      Currency,
+      Map<string, { incoming: number; outgoing: number }>
+    >();
     const days: string[] = [];
     for (let index = 0; index < SERIES_DAYS; index += 1) {
       const day = new Date(seriesStart);
@@ -117,9 +119,9 @@ export class DashboardService {
           outgoing: fromCents(series.get(currency)?.get(day)?.outgoing ?? 0),
         })),
       })),
-      recent: transactions.slice(0, RECENT_LIMIT).map((transaction) =>
-        toRecent(transaction, owned),
-      ),
+      recent: transactions
+        .slice(0, RECENT_LIMIT)
+        .map((transaction) => toRecent(transaction, owned)),
     };
   }
 }
@@ -138,9 +140,7 @@ function toRecent(
     counterpartyAccountNumber: outgoing
       ? transaction.toAccount.accountNumber
       : transaction.fromAccount.accountNumber,
-    accountId: outgoing
-      ? transaction.fromAccountId
-      : transaction.toAccountId,
+    accountId: outgoing ? transaction.fromAccountId : transaction.toAccountId,
     note: transaction.note,
     createdAt: transaction.createdAt.toISOString(),
   };

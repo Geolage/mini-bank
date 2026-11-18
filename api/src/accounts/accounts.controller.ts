@@ -1,4 +1,11 @@
-import { Controller, Get, Param, ParseUUIDPipe, Req, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiNotFoundResponse,
@@ -22,7 +29,9 @@ export class AccountsController {
   @Get()
   @ApiOperation({ summary: 'List accounts owned by the authenticated user' })
   @ApiOkResponse({ type: [AccountDto] })
-  list(@Req() request: Request & { user: AuthenticatedUser }): Promise<AccountDto[]> {
+  list(
+    @Req() request: Request & { user: AuthenticatedUser },
+  ): Promise<AccountDto[]> {
     return this.accountsService.listForUser(request.user.id);
   }
 

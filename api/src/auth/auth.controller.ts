@@ -21,7 +21,9 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
-  @ApiOperation({ summary: 'Exchange a username or email and password for a JWT' })
+  @ApiOperation({
+    summary: 'Exchange a username or email and password for a JWT',
+  })
   @ApiBody({
     type: LoginDto,
     examples: {

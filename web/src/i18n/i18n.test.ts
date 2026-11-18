@@ -5,8 +5,8 @@ import { resolveMessage } from './translate'
 
 function keys(value: unknown, prefix = ''): string[] {
   if (typeof value === 'string') return [prefix]
-  return Object.entries(value as Record<string, unknown>).flatMap(([key, child]) =>
-    keys(child, prefix ? `${prefix}.${key}` : key),
+  return Object.entries(value as Record<string, unknown>).flatMap(
+    ([key, child]) => keys(child, prefix ? `${prefix}.${key}` : key),
   )
 }
 
@@ -45,6 +45,8 @@ describe('message catalogues', () => {
   })
 
   it('leave the placeholder intact when a variable is missing', () => {
-    expect(resolveMessage(enUS, 'accounts.balanceOf')).toBe('Balance for {name}')
+    expect(resolveMessage(enUS, 'accounts.balanceOf')).toBe(
+      'Balance for {name}',
+    )
   })
 })

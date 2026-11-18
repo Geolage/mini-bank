@@ -1,6 +1,15 @@
 import { BankOutlined, DownOutlined, LogoutOutlined } from '@ant-design/icons'
 import { ProLayout } from '@ant-design/pro-components'
-import { Avatar, Breadcrumb, Button, Dropdown, Flex, Grid, Space, Tag } from 'antd'
+import {
+  Avatar,
+  Breadcrumb,
+  Button,
+  Dropdown,
+  Flex,
+  Grid,
+  Space,
+  Tag,
+} from 'antd'
 import type { MenuProps } from 'antd'
 import { Suspense } from 'react'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
@@ -70,7 +79,9 @@ export function AppLayout() {
 
       <ProLayout
         title={t('app.name')}
-        logo={<BankOutlined style={{ color: preset.config.token?.colorPrimary }} />}
+        logo={
+          <BankOutlined style={{ color: preset.config.token?.colorPrimary }} />
+        }
         layout="mix"
         navTheme="light"
         fixedHeader
@@ -92,7 +103,12 @@ export function AppLayout() {
         menuHeaderRender={(logo, title) => (
           <Link
             to="/dashboard"
-            style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              minWidth: 0,
+            }}
           >
             {logo}
             {title}
@@ -142,7 +158,9 @@ export function AppLayout() {
                 <Space size={8}>
                   <Avatar
                     size="small"
-                    style={{ backgroundColor: preset.config.token?.colorPrimary }}
+                    style={{
+                      backgroundColor: preset.config.token?.colorPrimary,
+                    }}
                   >
                     {initial}
                   </Avatar>

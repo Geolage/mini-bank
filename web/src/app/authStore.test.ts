@@ -39,7 +39,12 @@ describe('loadStoredAuth', () => {
       STORAGE_KEY,
       JSON.stringify({
         token: 'jwt',
-        user: { id: 'u', name: 'Admin', email: 'admin@minibank.dev', role: 'OPERATOR' },
+        user: {
+          id: 'u',
+          name: 'Admin',
+          email: 'admin@minibank.dev',
+          role: 'OPERATOR',
+        },
       }),
     )
 

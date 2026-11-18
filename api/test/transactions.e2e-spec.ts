@@ -6,7 +6,15 @@ import {
 import { Test } from '@nestjs/testing';
 import { Currency, Prisma, TransactionStatus } from '@prisma/client';
 import request from 'supertest';
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 import { JwtAuthGuard } from '../src/common/guards/jwt-auth.guard.js';
 import { PrismaService } from '../src/prisma/prisma.service.js';
 import { TransactionsController } from '../src/transactions/transactions.controller.js';

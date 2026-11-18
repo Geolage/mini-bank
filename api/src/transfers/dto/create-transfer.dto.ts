@@ -18,7 +18,10 @@ export class CreateTransferDto {
   @Length(4, 32)
   toAccountNumber!: string;
 
-  @ApiProperty({ example: '120.50', description: 'Decimal string, up to 2 places' })
+  @ApiProperty({
+    example: '120.50',
+    description: 'Decimal string, up to 2 places',
+  })
   @IsString()
   @Matches(/^\d{1,12}(\.\d{1,2})?$/, {
     message: 'amount must be a positive decimal with up to 2 places',

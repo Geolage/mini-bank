@@ -53,7 +53,9 @@ describe('SettingsPage', () => {
 
     await user.click(screen.getByRole('radio', { name: '简体中文' }))
 
-    expect(await screen.findByRole('heading', { name: '设置' })).toBeInTheDocument()
+    expect(
+      await screen.findByRole('heading', { name: '设置' }),
+    ).toBeInTheDocument()
     expect(usePreferencesStore.getState().locale).toBe('zh-CN')
     expect(screen.getByRole('radio', { name: '翡翠绿' })).toBeInTheDocument()
     expect(screen.getByRole('radio', { name: '沉稳蓝' })).toBeInTheDocument()
@@ -83,7 +85,11 @@ describe('SettingsPage', () => {
   it('labels each option group so the controls are announced', () => {
     renderSettings()
 
-    expect(screen.getByRole('radiogroup', { name: 'Language' })).toBeInTheDocument()
-    expect(screen.getByRole('radiogroup', { name: 'Theme' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('radiogroup', { name: 'Language' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('radiogroup', { name: 'Theme' }),
+    ).toBeInTheDocument()
   })
 })

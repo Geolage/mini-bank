@@ -7,7 +7,15 @@ import { Reflector } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
 import type { Role } from '@prisma/client';
 import request from 'supertest';
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 import { AuditController } from '../src/audit/audit.controller.js';
 import { AuditService } from '../src/audit/audit.service.js';
 import { JwtAuthGuard } from '../src/common/guards/jwt-auth.guard.js';
@@ -116,7 +124,9 @@ describe('GET /audit-logs (e2e)', () => {
   });
 
   it('rejects page sizes above the limit', async () => {
-    await request(app.getHttpServer()).get('/audit-logs?pageSize=101').expect(400);
+    await request(app.getHttpServer())
+      .get('/audit-logs?pageSize=101')
+      .expect(400);
   });
 
   it('rejects an invalid actor filter', async () => {

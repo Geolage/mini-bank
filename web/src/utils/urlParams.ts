@@ -1,4 +1,7 @@
-export function readPositiveInt(value: string | null, fallback: number): number {
+export function readPositiveInt(
+  value: string | null,
+  fallback: number,
+): number {
   const parsed = Number(value)
   return Number.isInteger(parsed) && parsed >= 1 ? parsed : fallback
 }

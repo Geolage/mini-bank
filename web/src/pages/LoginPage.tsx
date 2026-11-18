@@ -37,7 +37,9 @@ export function LoginPage() {
   const token = useAuthStore((state) => state.token)
   const signIn = useAuthStore((state) => state.signIn)
   const sessionExpired = useAuthStore((state) => state.sessionExpired)
-  const dismissExpiredNotice = useAuthStore((state) => state.dismissExpiredNotice)
+  const dismissExpiredNotice = useAuthStore(
+    (state) => state.dismissExpiredNotice,
+  )
   const { t } = useI18n()
 
   // The shell owns the document title while signed in and the login page sits outside it,
@@ -62,9 +64,7 @@ export function LoginPage() {
     return <Navigate to={redirectTo} replace />
   }
 
-  const errorMessage = loginMutation.error
-    ? loginMutation.error.message
-    : null
+  const errorMessage = loginMutation.error ? loginMutation.error.message : null
 
   function fillDemo(username: 'admin' | 'visitor') {
     form.setFieldsValue({
@@ -88,20 +88,34 @@ export function LoginPage() {
       }}
       aria-hidden="true"
     >
-      <svg viewBox="0 0 24 24" fill="none" width={size * 0.55} height={size * 0.55}>
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        width={size * 0.55}
+        height={size * 0.55}
+      >
         <path d="M3 9.5 12 4l9 5.5V11H3V9.5Z" fill="currentColor" />
-        <path d="M5 13h3v6H5zm5.5 0h3v6h-3zM16 13h3v6h-3z" fill="currentColor" />
+        <path
+          d="M5 13h3v6H5zm5.5 0h3v6h-3zM16 13h3v6h-3z"
+          fill="currentColor"
+        />
         <path d="M3 20h18v2H3z" fill="currentColor" />
       </svg>
     </span>
   )
 
-  const brandBlock = (size: number, background: string, taglineColor: string) => (
+  const brandBlock = (
+    size: number,
+    background: string,
+    taglineColor: string,
+  ) => (
     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
       {brandMark(size, background)}
       <div>
         <div style={{ fontSize: 18, fontWeight: 600 }}>{t('app.name')}</div>
-        <div style={{ fontSize: 12, color: taglineColor }}>{t('app.tagline')}</div>
+        <div style={{ fontSize: 12, color: taglineColor }}>
+          {t('app.tagline')}
+        </div>
       </div>
     </div>
   )
@@ -128,7 +142,9 @@ export function LoginPage() {
             <div style={{ fontSize: 36, fontWeight: 600, lineHeight: 1.2 }}>
               {t('auth.heroTitle')}
             </div>
-            <Paragraph style={{ marginTop: 16, fontSize: 16, color: '#cbd5e1' }}>
+            <Paragraph
+              style={{ marginTop: 16, fontSize: 16, color: '#cbd5e1' }}
+            >
               {t('auth.heroBody')}
             </Paragraph>
           </div>
@@ -201,7 +217,9 @@ export function LoginPage() {
               <Form.Item
                 label={t('auth.identifier')}
                 name="identifier"
-                rules={[{ required: true, message: t('auth.identifierRequired') }]}
+                rules={[
+                  { required: true, message: t('auth.identifierRequired') },
+                ]}
               >
                 <Input
                   name="identifier"
@@ -247,11 +265,21 @@ export function LoginPage() {
               </Button>
             </Form>
 
-            <div style={{ marginTop: 24, paddingTop: 16, borderTop: '1px solid #e2e8f0' }}>
+            <div
+              style={{
+                marginTop: 24,
+                paddingTop: 16,
+                borderTop: '1px solid #e2e8f0',
+              }}
+            >
               <Text
                 strong
                 type="secondary"
-                style={{ fontSize: 12, letterSpacing: 0.5, textTransform: 'uppercase' }}
+                style={{
+                  fontSize: 12,
+                  letterSpacing: 0.5,
+                  textTransform: 'uppercase',
+                }}
               >
                 {t('auth.demoAccounts')}
               </Text>

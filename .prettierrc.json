@@ -1,0 +1,15 @@
+{
+  "singleQuote": true,
+  "trailingComma": "all",
+  "printWidth": 80,
+  "overrides": [
+    {
+      "files": "web/**",
+      "options": { "semi": false }
+    },
+    {
+      "files": ["*.md", "*.yml", "*.yaml"],
+      "options": { "proseWrap": "preserve" }
+    }
+  ]
+}

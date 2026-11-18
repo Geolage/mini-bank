@@ -29,10 +29,7 @@ import {
   fetchAllTransactions,
   transactionsQueryOptions,
 } from '../services/transactions'
-import type {
-  AccountTransaction,
-  TransactionDirection,
-} from '../types/api'
+import type { AccountTransaction, TransactionDirection } from '../types/api'
 import { formatDateTime, formatMoney, maskAccountNumber } from '../utils/format'
 import { downloadTextFile, toCsv } from '../utils/statement'
 import {
@@ -60,9 +57,7 @@ export function TransactionsPage() {
   const listParams = readTransactionParams(searchParams)
 
   const account = useQuery(accountQueryOptions(accountId))
-  const transactions = useQuery(
-    transactionsQueryOptions(accountId, listParams),
-  )
+  const transactions = useQuery(transactionsQueryOptions(accountId, listParams))
 
   const { type, from, to } = listParams
   const hasFilters = Boolean(type || from || to)
@@ -263,9 +258,7 @@ export function TransactionsPage() {
         <ProCard bordered style={{ marginBottom: 16 }}>
           <Flex wrap gap={16} align="center" justify="space-between">
             <Space size={12} wrap>
-              <Tag
-                color={account.data.type === 'CHECKING' ? 'blue' : 'purple'}
-              >
+              <Tag color={account.data.type === 'CHECKING' ? 'blue' : 'purple'}>
                 {account.data.type === 'CHECKING'
                   ? t('enum.accountType.CHECKING')
                   : t('enum.accountType.SAVINGS')}
@@ -397,11 +390,7 @@ export function TransactionsPage() {
             }
 
             setSearchParams(
-              withTransactionPagination(
-                searchParams,
-                nextPage,
-                nextPageSize,
-              ),
+              withTransactionPagination(searchParams, nextPage, nextPageSize),
             )
           }}
           locale={{
@@ -415,8 +404,11 @@ export function TransactionsPage() {
           <h1>{t('transactions.statementTitle')}</h1>
           <p>
             {account.data?.accountNumber ?? accountId} ·{' '}
-            {account.data?.currency ?? ''} · {t('transactions.statementGenerated')}{' '}
-            {new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(now)}
+            {account.data?.currency ?? ''} ·{' '}
+            {t('transactions.statementGenerated')}{' '}
+            {new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(
+              now,
+            )}
           </p>
           <p>{t('transactions.statementCount', { count: printRows.length })}</p>
           {printRows.length === 0 ? (

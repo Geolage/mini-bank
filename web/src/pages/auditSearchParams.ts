@@ -17,10 +17,7 @@ export function readAuditParams(params: URLSearchParams): AuditListParams {
 
   return {
     page: readPositiveInt(params.get('page'), 1),
-    pageSize: readPageSize(
-      params.get('pageSize'),
-      DEFAULT_AUDIT_PAGE_SIZE,
-    ),
+    pageSize: readPageSize(params.get('pageSize'), DEFAULT_AUDIT_PAGE_SIZE),
     ...(action ? { action } : {}),
     ...(actorId ? { actorId } : {}),
     ...(isDateOnly(from) ? { from } : {}),

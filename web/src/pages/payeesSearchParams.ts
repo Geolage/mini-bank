@@ -1,9 +1,18 @@
 import type { PayeeListParams, PayeeSort } from '../types/api'
-import { readPageSize, readPositiveInt, setOrDeleteParam } from '../utils/urlParams'
+import {
+  readPageSize,
+  readPositiveInt,
+  setOrDeleteParam,
+} from '../utils/urlParams'
 
 export const DEFAULT_PAYEE_PAGE_SIZE = 10
 export const PAYEE_PAGE_SIZE_OPTIONS = [10, 20, 50] as const
-export const PAYEE_SORTS: PayeeSort[] = ['name', 'nameDesc', 'updated', 'created']
+export const PAYEE_SORTS: PayeeSort[] = [
+  'name',
+  'nameDesc',
+  'updated',
+  'created',
+]
 
 export function readPayeeParams(params: URLSearchParams): PayeeListParams {
   const q = params.get('q')?.trim()

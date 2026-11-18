@@ -36,7 +36,9 @@ export function TransferPage() {
   const [searchParams] = useSearchParams()
   const queryClient = useQueryClient()
   const accounts = useQuery(accountsQueryOptions)
-  const [idempotencyKey, setIdempotencyKey] = useState(() => crypto.randomUUID())
+  const [idempotencyKey, setIdempotencyKey] = useState(() =>
+    crypto.randomUUID(),
+  )
   const [receipt, setReceipt] = useState<TransferResult | null>(null)
 
   const transfer = useMutation({
@@ -124,7 +126,9 @@ export function TransferPage() {
                 extra={t('transfer.fromExtra')}
                 // AntD puts aria-required on the Select wrapper div, where ARIA forbids it.
                 required={false}
-                rules={[{ required: true, message: t('transfer.fromRequired') }]}
+                rules={[
+                  { required: true, message: t('transfer.fromRequired') },
+                ]}
               >
                 <Select
                   placeholder={t('transfer.selectAccount')}

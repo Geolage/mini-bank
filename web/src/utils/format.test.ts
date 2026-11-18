@@ -32,7 +32,9 @@ describe('locale-aware formatting', () => {
   })
 
   it('keeps the thousands grouping per locale', () => {
-    expect(formatMoney('1234567.5', 'USD', 'zh-CN')).toBe(`USD${NBSP}1,234,567.50`)
+    expect(formatMoney('1234567.5', 'USD', 'zh-CN')).toBe(
+      `USD${NBSP}1,234,567.50`,
+    )
   })
 
   it('formats dates per locale', () => {

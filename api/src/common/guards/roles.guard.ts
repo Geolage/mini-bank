@@ -29,7 +29,9 @@ export class RolesGuard implements CanActivate {
       .getRequest<Request & { user?: AuthenticatedUser }>();
 
     if (!request.user || !requiredRoles.includes(request.user.role)) {
-      throw new ForbiddenException('You do not have permission to perform this action');
+      throw new ForbiddenException(
+        'You do not have permission to perform this action',
+      );
     }
 
     return true;

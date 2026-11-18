@@ -7,7 +7,15 @@ import { Reflector } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
 import type { Role } from '@prisma/client';
 import request from 'supertest';
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 import { JwtAuthGuard } from '../src/common/guards/jwt-auth.guard.js';
 import { RolesGuard } from '../src/common/guards/roles.guard.js';
 import { PrismaService } from '../src/prisma/prisma.service.js';

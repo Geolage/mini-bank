@@ -39,12 +39,16 @@ describe('RolesGuard', () => {
   it('rejects a viewer on an operator-only route', () => {
     getAllAndOverride.mockReturnValue(['OPERATOR']);
 
-    expect(() => guard.canActivate(createContext('VIEWER'))).toThrow(ForbiddenException);
+    expect(() => guard.canActivate(createContext('VIEWER'))).toThrow(
+      ForbiddenException,
+    );
   });
 
   it('rejects anonymous requests on a protected route', () => {
     getAllAndOverride.mockReturnValue(['OPERATOR']);
 
-    expect(() => guard.canActivate(createContext())).toThrow(ForbiddenException);
+    expect(() => guard.canActivate(createContext())).toThrow(
+      ForbiddenException,
+    );
   });
 });

@@ -28,7 +28,9 @@ export class AuditController {
   @ApiOkResponse({ type: PaginatedAuditLogsDto })
   @ApiBadRequestResponse({ description: 'Invalid pagination or filter values' })
   @ApiForbiddenResponse({ description: 'Operator role required' })
-  findAll(@Query() query: ListAuditLogsQueryDto): Promise<PaginatedAuditLogsDto> {
+  findAll(
+    @Query() query: ListAuditLogsQueryDto,
+  ): Promise<PaginatedAuditLogsDto> {
     return this.auditService.list(query);
   }
 }

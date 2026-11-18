@@ -51,7 +51,9 @@ export function ThemeSwitcher() {
         style={{ height: 40 }}
       >
         <SkinOutlined aria-hidden="true" />
-        {screens.md ? <span style={{ marginInlineStart: 8 }}>{currentName}</span> : null}
+        {screens.md ? (
+          <span style={{ marginInlineStart: 8 }}>{currentName}</span>
+        ) : null}
       </Button>
     </Dropdown>
   )

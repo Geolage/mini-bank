@@ -2,7 +2,10 @@
 
 const PREFERENCES_KEY = 'mini-bank.preferences'
 
-const EN_DEFAULT = { state: { locale: 'en-US', themeId: 'antd-blue' }, version: 0 }
+const EN_DEFAULT = {
+  state: { locale: 'en-US', themeId: 'antd-blue' },
+  version: 0,
+}
 
 // Cypress wipes storage between tests, but a shared browser profile can still carry
 // preferences written by the very first page load of a test. Pin the English default on

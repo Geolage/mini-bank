@@ -47,9 +47,7 @@ describe('withTransactionPagination', () => {
 
     const next = withTransactionPagination(current, 1, 20)
 
-    expect(next.toString()).toBe(
-      'type=OUTGOING&from=2026-10-01&to=2026-10-31',
-    )
+    expect(next.toString()).toBe('type=OUTGOING&from=2026-10-01&to=2026-10-31')
   })
 
   it('stores non-default pagination', () => {

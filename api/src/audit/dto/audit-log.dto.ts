@@ -25,7 +25,11 @@ export class AuditLogDto {
   @ApiProperty({ example: 'Transaction' })
   resourceType!: string;
 
-  @ApiProperty({ example: '9a0c1e2d-3c4b-5a69-8d4e-4b6f3f2b8c1a', nullable: true, type: String })
+  @ApiProperty({
+    example: '9a0c1e2d-3c4b-5a69-8d4e-4b6f3f2b8c1a',
+    nullable: true,
+    type: String,
+  })
   resourceId!: string | null;
 
   @ApiProperty({

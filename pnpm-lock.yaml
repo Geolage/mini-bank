@@ -164,7 +164,11 @@ settings:
 
 importers:
 
-  .: {}
+  .:
+    devDependencies:
+      prettier:
+        specifier: ^3.6.2
+        version: 3.9.10
 
   api:
     dependencies:
@@ -259,9 +263,6 @@ importers:
       pino-pretty:
         specifier: ^13.2.0
         version: 13.2.0
-      prettier:
-        specifier: ^3.4.2
-        version: 3.9.10
       prisma:
         specifier: 6.19.3
         version: 6.19.3(typescript@6.0.3)

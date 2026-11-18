@@ -1,6 +1,16 @@
 import { ArrowRightOutlined, ReloadOutlined } from '@ant-design/icons'
 import { ProCard } from '@ant-design/pro-components'
-import { Alert, Button, Col, Empty, Flex, Row, Space, Tag, Typography } from 'antd'
+import {
+  Alert,
+  Button,
+  Col,
+  Empty,
+  Flex,
+  Row,
+  Space,
+  Tag,
+  Typography,
+} from 'antd'
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { useI18n } from '../i18n/useI18n'
@@ -89,7 +99,9 @@ export function AccountsPage() {
                 headerBordered
                 title={
                   <Space size={8} wrap>
-                    <Tag color={account.type === 'CHECKING' ? 'blue' : 'purple'}>
+                    <Tag
+                      color={account.type === 'CHECKING' ? 'blue' : 'purple'}
+                    >
                       {account.type === 'CHECKING'
                         ? t('enum.accountType.CHECKING')
                         : t('enum.accountType.SAVINGS')}
@@ -101,7 +113,10 @@ export function AccountsPage() {
               >
                 <Text type="secondary">{t('accounts.availableBalance')}</Text>
                 <div style={{ margin: '4px 0 12px' }}>
-                  <Text strong style={{ fontSize: 28, letterSpacing: '-0.02em' }}>
+                  <Text
+                    strong
+                    style={{ fontSize: 28, letterSpacing: '-0.02em' }}
+                  >
                     {formatMoney(account.balance, account.currency, locale)}
                   </Text>
                 </div>

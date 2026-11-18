@@ -9,4 +9,5 @@ coverage/
 .vite/
 web/cypress/screenshots/
 web/cypress/videos/
+web/cypress/downloads/
 *.tsbuildinfo

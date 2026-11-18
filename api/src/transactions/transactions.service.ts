@@ -35,10 +35,7 @@ export class TransactionsService {
         : type === TransactionDirection.INCOMING
           ? { toAccountId: accountId }
           : {
-              OR: [
-                { fromAccountId: accountId },
-                { toAccountId: accountId },
-              ],
+              OR: [{ fromAccountId: accountId }, { toAccountId: accountId }],
             }),
       ...(createdAt ? { createdAt } : {}),
     };

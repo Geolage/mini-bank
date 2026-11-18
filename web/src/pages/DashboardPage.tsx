@@ -130,7 +130,10 @@ export function DashboardPage() {
                     <Tag>{total.currency}</Tag>
                   </Flex>
                   <div style={{ margin: '4px 0 8px' }}>
-                    <Text strong style={{ fontSize: 28, letterSpacing: '-0.02em' }}>
+                    <Text
+                      strong
+                      style={{ fontSize: 28, letterSpacing: '-0.02em' }}
+                    >
                       {formatMoney(total.balance, total.currency, locale)}
                     </Text>
                   </div>
@@ -149,7 +152,11 @@ export function DashboardPage() {
                 <div style={{ margin: '4px 0 8px' }}>
                   <Link
                     to="/payees"
-                    style={{ fontSize: 20, fontWeight: 600, color: 'var(--accent-strong-color)' }}
+                    style={{
+                      fontSize: 20,
+                      fontWeight: 600,
+                      color: 'var(--accent-strong-color)',
+                    }}
                   >
                     {t('dashboard.payeesHint')}
                   </Link>
@@ -184,7 +191,12 @@ export function DashboardPage() {
                 </Text>
                 <div>
                   <Text strong style={{ color: '#047857' }}>
-                    +{formatMoney(month?.incoming ?? '0', activeCurrency, locale)}
+                    +
+                    {formatMoney(
+                      month?.incoming ?? '0',
+                      activeCurrency,
+                      locale,
+                    )}
                   </Text>
                 </div>
               </div>
@@ -194,7 +206,12 @@ export function DashboardPage() {
                 </Text>
                 <div>
                   <Text strong style={{ color: '#d4380d' }}>
-                    -{formatMoney(month?.outgoing ?? '0', activeCurrency, locale)}
+                    -
+                    {formatMoney(
+                      month?.outgoing ?? '0',
+                      activeCurrency,
+                      locale,
+                    )}
                   </Text>
                 </div>
               </div>
@@ -258,7 +275,9 @@ export function DashboardPage() {
                     />
                     <Text
                       strong
-                      type={item.direction === 'INCOMING' ? 'success' : 'danger'}
+                      type={
+                        item.direction === 'INCOMING' ? 'success' : 'danger'
+                      }
                     >
                       {item.direction === 'INCOMING' ? '+' : '-'}
                       {formatMoney(item.amount, item.currency, locale)}

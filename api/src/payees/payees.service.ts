@@ -6,7 +6,10 @@ import {
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service.js';
 import type { CreatePayeeDto } from './dto/create-payee.dto.js';
-import type { ListPayeesQueryDto, PayeeSort } from './dto/list-payees-query.dto.js';
+import type {
+  ListPayeesQueryDto,
+  PayeeSort,
+} from './dto/list-payees-query.dto.js';
 import type { PayeeDto, PaginatedPayeesDto } from './dto/payee.dto.js';
 import type { UpdatePayeeDto } from './dto/update-payee.dto.js';
 

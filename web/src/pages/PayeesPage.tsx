@@ -181,7 +181,10 @@ export function PayeesPage() {
       width: 220,
       render: (_, payee) => (
         <Space size={8}>
-          <Avatar size="small" style={{ backgroundColor: preset.config.token?.colorPrimary }}>
+          <Avatar
+            size="small"
+            style={{ backgroundColor: preset.config.token?.colorPrimary }}
+          >
             {payee.name.slice(0, 1).toUpperCase()}
           </Avatar>
           <Text strong>{payee.name}</Text>
@@ -468,7 +471,9 @@ export function PayeesPage() {
         title={drawer?.mode === 'edit' ? t('payees.edit') : t('payees.new')}
         footer={
           <Flex justify="flex-end" gap={8}>
-            <Button onClick={() => setDrawer(null)}>{t('payees.cancel')}</Button>
+            <Button onClick={() => setDrawer(null)}>
+              {t('payees.cancel')}
+            </Button>
             <Button
               type="primary"
               loading={saveMutation.isPending}
@@ -529,10 +534,7 @@ export function PayeesPage() {
         footer={
           drawer?.mode === 'detail' ? (
             <Flex justify="space-between" gap={8}>
-              <Button
-                danger
-                onClick={() => removePayees([drawer.payee.id])}
-              >
+              <Button danger onClick={() => removePayees([drawer.payee.id])}>
                 {t('payees.delete')}
               </Button>
               <Space size={8}>

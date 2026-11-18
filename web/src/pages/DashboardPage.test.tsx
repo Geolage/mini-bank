@@ -92,7 +92,9 @@ describe('DashboardPage', () => {
     renderDashboard()
 
     expect(
-      await screen.findByRole('heading', { name: /Good (morning|afternoon|evening), Admin/ }),
+      await screen.findByRole('heading', {
+        name: /Good (morning|afternoon|evening), Admin/,
+      }),
     ).toBeInTheDocument()
     expect(await screen.findByText(/USD\s12,500\.00/)).toBeInTheDocument()
     expect(screen.getByText(/HKD\s48,000\.00/)).toBeInTheDocument()
@@ -121,7 +123,9 @@ describe('DashboardPage', () => {
     expect(groups).toHaveLength(30)
 
     fireEvent.mouseOver(groups[29])
-    expect(screen.getByText(/Oct 30 · In USD\s18\.75 · Out USD\s42\.00/)).toBeInTheDocument()
+    expect(
+      screen.getByText(/Oct 30 · In USD\s18\.75 · Out USD\s42\.00/),
+    ).toBeInTheDocument()
 
     fireEvent.mouseOut(groups[29])
     expect(

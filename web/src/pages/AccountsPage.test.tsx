@@ -94,10 +94,7 @@ describe('AccountsPage', () => {
 
     const links = screen.getAllByRole('link', { name: /view transactions/i })
     expect(links).toHaveLength(2)
-    expect(links[0]).toHaveAttribute(
-      'href',
-      '/accounts/account-1/transactions',
-    )
+    expect(links[0]).toHaveAttribute('href', '/accounts/account-1/transactions')
 
     const [, init] = fetchMock.mock.calls[0] as [string, RequestInit]
     expect((init.headers as Headers).get('Authorization')).toBe('Bearer jwt')
@@ -125,10 +122,7 @@ describe('AccountsPage', () => {
 
   it('renders the API error with a retry action', async () => {
     fetchMock.mockResolvedValue(
-      jsonResponse(
-        { statusCode: 500, message: 'Database unavailable' },
-        500,
-      ),
+      jsonResponse({ statusCode: 500, message: 'Database unavailable' }, 500),
     )
     renderAccountsPage()
 

@@ -38,9 +38,7 @@ export function withTransactionPagination(
   setOrDeleteParam(
     next,
     'pageSize',
-    pageSize !== DEFAULT_TRANSACTION_PAGE_SIZE
-      ? String(pageSize)
-      : undefined,
+    pageSize !== DEFAULT_TRANSACTION_PAGE_SIZE ? String(pageSize) : undefined,
   )
   return next
 }

@@ -6,13 +6,14 @@ export type TransactionDirection = 'INCOMING' | 'OUTGOING'
 
 export interface User {
   id: string
+  username: string
   name: string
   email: string
   role: Role
 }
 
 export interface LoginRequest {
-  email: string
+  identifier: string
   password: string
 }
 

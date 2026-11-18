@@ -6,8 +6,9 @@ const STORAGE_KEY = 'mini-bank.auth'
 
 const user: User = {
   id: 'user-1',
-  name: 'Alex Chen',
-  email: 'alex@minibank.dev',
+  username: 'admin',
+  name: 'Admin',
+  email: 'admin@minibank.dev',
   role: 'OPERATOR',
 }
 
@@ -31,6 +32,18 @@ describe('loadStoredAuth', () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ token: 'jwt', user }))
 
     expect(loadStoredAuth()).toEqual({ token: 'jwt', user })
+  })
+
+  it('rejects a session stored before the username field existed', () => {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        token: 'jwt',
+        user: { id: 'u', name: 'Admin', email: 'admin@minibank.dev', role: 'OPERATOR' },
+      }),
+    )
+
+    expect(loadStoredAuth()).toEqual({ token: null, user: null })
   })
 })
 

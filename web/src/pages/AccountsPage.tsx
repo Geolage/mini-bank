@@ -3,12 +3,16 @@ import { ProCard } from '@ant-design/pro-components'
 import { Alert, Button, Col, Empty, Flex, Row, Space, Tag, Typography } from 'antd'
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
+import { useI18n } from '../i18n/useI18n'
 import { accountsQueryOptions } from '../services/accounts'
+import { useTheme } from '../theme/useTheme'
 import { formatMoney, maskAccountNumber } from '../utils/format'
 
 const { Title, Text } = Typography
 
 export function AccountsPage() {
+  const { locale, t } = useI18n()
+  const theme = useTheme()
   const {
     data: accounts,
     isLoading,
@@ -29,23 +33,23 @@ export function AccountsPage() {
       >
         <div>
           <Title level={1} style={{ margin: 0, fontSize: 24 }}>
-            Accounts
+            {t('accounts.title')}
           </Title>
-          <Text type="secondary">Balances for the signed-in customer.</Text>
+          <Text type="secondary">{t('accounts.subtitle')}</Text>
         </div>
         <Button
           icon={<ReloadOutlined aria-hidden="true" />}
           onClick={() => refetch()}
           loading={isFetching}
         >
-          Refresh
+          {t('accounts.refresh')}
         </Button>
       </Flex>
 
       {isLoading ? (
         <div>
           <span role="status" className="sr-only">
-            Loading accounts…
+            {t('accounts.loading')}
           </span>
           <Row gutter={[16, 16]} aria-hidden="true">
             <Col xs={24} sm={12}>
@@ -60,24 +64,20 @@ export function AccountsPage() {
         <Alert
           type="error"
           showIcon
-          message="Could not load accounts"
+          message={t('accounts.errorTitle')}
           description={
-            error instanceof Error
-              ? error.message
-              : 'Something went wrong. Please try again.'
+            error instanceof Error ? error.message : t('errors.generic')
           }
           action={
             <Button size="small" onClick={() => refetch()}>
-              Try again
+              {t('transfer.tryAgain')}
             </Button>
           }
         />
       ) : !accounts || accounts.length === 0 ? (
         <ProCard bordered>
-          <Empty description="No accounts yet">
-            <Text type="secondary">
-              Seed the database to create demo accounts.
-            </Text>
+          <Empty description={t('accounts.emptyTitle')}>
+            <Text type="secondary">{t('accounts.emptyHint')}</Text>
           </Empty>
         </ProCard>
       ) : (
@@ -97,10 +97,10 @@ export function AccountsPage() {
                 }
                 extra={<Tag>{account.currency}</Tag>}
               >
-                <Text type="secondary">Available balance</Text>
+                <Text type="secondary">{t('accounts.availableBalance')}</Text>
                 <div style={{ margin: '4px 0 12px' }}>
                   <Text strong style={{ fontSize: 28, letterSpacing: '-0.02em' }}>
-                    {formatMoney(account.balance, account.currency)}
+                    {formatMoney(account.balance, account.currency, locale)}
                   </Text>
                 </div>
                 <Link
@@ -110,10 +110,10 @@ export function AccountsPage() {
                     alignItems: 'center',
                     gap: 8,
                     fontWeight: 600,
-                    color: 'var(--accent-strong-color)',
+                    color: theme.config.token?.colorLink,
                   }}
                 >
-                  View transactions
+                  {t('accounts.viewTransactions')}
                   <ArrowRightOutlined aria-hidden="true" />
                 </Link>
               </ProCard>

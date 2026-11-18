@@ -13,6 +13,7 @@ import {
 } from 'antd'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
+import { useI18n } from '../i18n/useI18n'
 import { accountsQueryOptions } from '../services/accounts'
 import { queryKeys } from '../services/queryKeys'
 import { transferAccount } from '../services/transfers'
@@ -29,6 +30,7 @@ interface TransferFormValues {
 }
 
 export function TransferPage() {
+  const { locale, t } = useI18n()
   const [form] = Form.useForm<TransferFormValues>()
   const queryClient = useQueryClient()
   const accounts = useQuery(accountsQueryOptions)
@@ -66,15 +68,15 @@ export function TransferPage() {
     <div>
       <div style={{ marginBottom: 24 }}>
         <Title level={1} style={{ margin: 0, fontSize: 24 }}>
-          Transfer
+          {t('transfer.title')}
         </Title>
-        <Text type="secondary">Move money between MiniBank accounts.</Text>
+        <Text type="secondary">{t('transfer.subtitle')}</Text>
       </div>
 
       {accounts.isLoading ? (
         <div>
           <span role="status" className="sr-only">
-            Loading accounts…
+            {t('transfer.loading')}
           </span>
           <ProCard bordered aria-hidden="true">
             <Skeleton active paragraph={{ rows: 6 }} />
@@ -84,15 +86,15 @@ export function TransferPage() {
         <Alert
           type="error"
           showIcon
-          message="Could not load accounts"
+          message={t('transfer.errorLoadAccounts')}
           description={
             accounts.error instanceof Error
               ? accounts.error.message
-              : 'Something went wrong. Please try again.'
+              : t('errors.generic')
           }
           action={
             <Button size="small" onClick={() => accounts.refetch()}>
-              Try again
+              {t('transfer.tryAgain')}
             </Button>
           }
         />
@@ -115,53 +117,48 @@ export function TransferPage() {
               }}
             >
               <Form.Item
-                label="From account"
+                label={t('transfer.from')}
                 name="fromAccountId"
-                extra="Transfers require the operator demo account."
+                extra={t('transfer.fromExtra')}
                 // AntD puts aria-required on the Select wrapper div, where ARIA forbids it.
                 required={false}
-                rules={[{ required: true, message: 'Choose an account' }]}
+                rules={[{ required: true, message: t('transfer.fromRequired') }]}
               >
                 <Select
-                  placeholder="Select an account"
+                  placeholder={t('transfer.selectAccount')}
                   loading={accounts.isFetching}
                   options={(accounts.data ?? []).map((account) => ({
                     value: account.id,
                     label: `${maskAccountNumber(account.accountNumber)} · ${formatMoney(
                       account.balance,
                       account.currency,
+                      locale,
                     )} · ${account.currency}`,
                   }))}
                 />
               </Form.Item>
 
               <Form.Item
-                label="To account number"
+                label={t('transfer.to')}
                 name="toAccountNumber"
                 rules={[
-                  {
-                    required: true,
-                    message: 'Enter the recipient account number',
-                  },
-                  { min: 4, message: 'Enter the recipient account number' },
-                  { max: 32, message: 'Account number is too long' },
+                  { required: true, message: t('transfer.toRequired') },
+                  { min: 4, message: t('transfer.toLength') },
+                  { max: 32, message: t('transfer.tooLong') },
                 ]}
               >
                 <Input placeholder="MB-2001-0001" autoComplete="off" />
               </Form.Item>
 
               <Form.Item
-                label="Amount"
+                label={t('transfer.amount')}
                 name="amount"
-                extra="Up to 2 decimal places. Currency follows the source account."
+                extra={t('transfer.amountExtra')}
                 rules={[
-                  {
-                    required: true,
-                    message: 'Enter a positive amount with up to 2 decimal places',
-                  },
+                  { required: true, message: t('transfer.amountInvalid') },
                   {
                     pattern: /^\d{1,12}(\.\d{1,2})?$/,
-                    message: 'Enter a positive amount with up to 2 decimal places',
+                    message: t('transfer.amountInvalid'),
                   },
                 ]}
               >
@@ -173,13 +170,14 @@ export function TransferPage() {
               </Form.Item>
 
               <Form.Item
-                label="Note (optional)"
+                label={t('transfer.note')}
                 name="note"
-                rules={[
-                  { max: 140, message: 'Note must be 140 characters or fewer' },
-                ]}
+                rules={[{ max: 140, message: t('transfer.noteTooLong') }]}
               >
-                <Input placeholder="Rent share" autoComplete="off" />
+                <Input
+                  placeholder={t('transfer.notePlaceholder')}
+                  autoComplete="off"
+                />
               </Form.Item>
 
               {transfer.isError ? (
@@ -189,7 +187,7 @@ export function TransferPage() {
                   message={
                     transfer.error instanceof Error
                       ? transfer.error.message
-                      : 'The transfer could not be completed.'
+                      : t('transfer.errorTitle')
                   }
                   style={{ marginBottom: 16 }}
                 />
@@ -199,10 +197,11 @@ export function TransferPage() {
                 <Alert
                   type="success"
                   showIcon
-                  message="Transfer submitted"
+                  message={t('transfer.success')}
                   description={
                     <span>
-                      Reference: <Text code>{receipt.reference}</Text>
+                      {t('transfer.reference')}{' '}
+                      <Text code>{receipt.reference}</Text>
                     </span>
                   }
                   style={{ marginBottom: 16 }}
@@ -215,7 +214,7 @@ export function TransferPage() {
                 size="large"
                 loading={transfer.isPending}
               >
-                Submit transfer
+                {t('transfer.submit')}
               </Button>
             </Form>
           </ProCard>
@@ -225,7 +224,7 @@ export function TransferPage() {
             title={
               <Space size={8}>
                 <KeyOutlined aria-hidden="true" />
-                <span>Idempotency-Key</span>
+                <span>{t('transfer.idempotencyKey')}</span>
               </Space>
             }
             style={{ height: 'fit-content', flex: '1 1 240px' }}
@@ -239,15 +238,14 @@ export function TransferPage() {
                 icon={<ReloadOutlined aria-hidden="true" />}
                 onClick={() => setIdempotencyKey(crypto.randomUUID())}
               >
-                Regenerate
+                {t('transfer.regenerate')}
               </Button>
             </div>
             <Text
               type="secondary"
               style={{ display: 'block', fontSize: 12, marginTop: 12 }}
             >
-              Repeating a request with the same key returns the original transfer
-              instead of moving money twice.
+              {t('transfer.idempotencyHint')}
             </Text>
           </ProCard>
         </Flex>

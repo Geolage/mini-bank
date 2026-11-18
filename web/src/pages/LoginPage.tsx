@@ -14,10 +14,19 @@ import {
 } from 'antd'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../app/authStore'
+import { LanguageSwitcher } from '../components/LanguageSwitcher'
+import { useI18n } from '../i18n/useI18n'
+import type { MessageKey } from '../i18n/types'
 import { login } from '../services/auth'
 import type { LoginRequest } from '../types/api'
 
 const { Paragraph, Text, Title } = Typography
+
+const HERO_STACK_KEYS: MessageKey[] = [
+  'auth.heroStackUi',
+  'auth.heroStackApi',
+  'auth.heroStackQuality',
+]
 
 export function LoginPage() {
   const [form] = Form.useForm<LoginRequest>()
@@ -26,6 +35,7 @@ export function LoginPage() {
   const screens = Grid.useBreakpoint()
   const token = useAuthStore((state) => state.token)
   const signIn = useAuthStore((state) => state.signIn)
+  const { t } = useI18n()
 
   const redirectTo =
     (location.state as { from?: string } | null)?.from ?? '/accounts'
@@ -46,10 +56,10 @@ export function LoginPage() {
     ? loginMutation.error.message
     : null
 
-  function fillDemo(role: 'operator' | 'viewer') {
+  function fillDemo(username: 'admin' | 'visitor') {
     form.setFieldsValue({
-      email: `${role}@minibank.dev`,
-      password: 'Password123!',
+      identifier: username,
+      password: username === 'admin' ? '11111111' : '00000000',
     })
   }
 
@@ -76,6 +86,16 @@ export function LoginPage() {
     </span>
   )
 
+  const brandBlock = (size: number, background: string, taglineColor: string) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+      {brandMark(size, background)}
+      <div>
+        <div style={{ fontSize: 18, fontWeight: 600 }}>{t('app.name')}</div>
+        <div style={{ fontSize: 12, color: taglineColor }}>{t('app.tagline')}</div>
+      </div>
+    </div>
+  )
+
   return (
     <Row style={{ minHeight: '100vh' }}>
       {heroPanel ? (
@@ -92,31 +112,23 @@ export function LoginPage() {
             color: '#f1f5f9',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            {brandMark(44, 'rgba(16, 185, 129, 0.15)')}
-            <div>
-              <div style={{ fontSize: 18, fontWeight: 600 }}>MiniBank</div>
-              <div style={{ fontSize: 12, color: '#94a3b8' }}>Account Console</div>
-            </div>
-          </div>
+          {brandBlock(44, 'rgba(16, 185, 129, 0.15)', '#94a3b8')}
 
           <div style={{ maxWidth: 480 }}>
             <div style={{ fontSize: 36, fontWeight: 600, lineHeight: 1.2 }}>
-              Banking operations, without the noise.
+              {t('auth.heroTitle')}
             </div>
             <Paragraph style={{ marginTop: 16, fontSize: 16, color: '#cbd5e1' }}>
-              A full-stack demo covering authentication, account balances, transfers,
-              audit trails and WCAG AA accessibility.
+              {t('auth.heroBody')}
             </Paragraph>
           </div>
 
           <Flex vertical gap={12} style={{ fontSize: 14, color: '#cbd5e1' }}>
-            {[
-              'React + TypeScript + TanStack Query',
-              'NestJS + PostgreSQL + Prisma',
-              'Ant Design, tested and CI-ready',
-            ].map((item) => (
-              <div key={item} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            {HERO_STACK_KEYS.map((labelKey) => (
+              <div
+                key={labelKey}
+                style={{ display: 'flex', alignItems: 'center', gap: 12 }}
+              >
                 <span
                   style={{
                     width: 6,
@@ -126,7 +138,7 @@ export function LoginPage() {
                   }}
                   aria-hidden="true"
                 />
-                {item}
+                {t(labelKey)}
               </div>
             ))}
           </Flex>
@@ -144,21 +156,17 @@ export function LoginPage() {
         }}
       >
         <main style={{ width: '100%', maxWidth: 420 }}>
-          {heroPanel ? null : (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 32 }}>
-              {brandMark(40, '#020617')}
-              <div>
-                <div style={{ fontSize: 18, fontWeight: 600 }}>MiniBank</div>
-                <div style={{ fontSize: 12, color: '#475569' }}>Account Console</div>
-              </div>
-            </div>
-          )}
+          <Flex justify="flex-end" style={{ marginBottom: 8 }}>
+            <LanguageSwitcher />
+          </Flex>
+
+          {heroPanel ? null : brandBlock(40, '#020617', '#475569')}
 
           <Title level={1} style={{ margin: 0, fontSize: 24 }}>
-            Sign in
+            {t('auth.signIn')}
           </Title>
           <Paragraph style={{ marginTop: 4, color: '#475569' }}>
-            Use a demo account to explore the console.
+            {t('auth.signInSubtitle')}
           </Paragraph>
 
           <Card style={{ marginTop: 24 }}>
@@ -166,45 +174,35 @@ export function LoginPage() {
               form={form}
               layout="vertical"
               requiredMark={false}
-              initialValues={{ email: '', password: '' }}
+              initialValues={{ identifier: '', password: '' }}
               onFinish={(values) => loginMutation.mutate(values)}
             >
               <Form.Item
-                label="Email"
-                name="email"
-                rules={[
-                  { required: true, message: 'Email is required' },
-                  { type: 'email', message: 'Enter a valid email address' },
-                ]}
+                label={t('auth.identifier')}
+                name="identifier"
+                rules={[{ required: true, message: t('auth.identifierRequired') }]}
               >
                 <Input
-                  name="email"
-                  type="email"
+                  name="identifier"
                   size="large"
-                  autoComplete="email"
-                  placeholder="you@minibank.dev"
+                  autoComplete="username"
+                  placeholder={t('auth.identifierPlaceholder')}
                 />
               </Form.Item>
 
               <Form.Item
-                label="Password"
+                label={t('auth.password')}
                 name="password"
                 rules={[
-                  {
-                    required: true,
-                    message: 'Password must be at least 8 characters',
-                  },
-                  {
-                    min: 8,
-                    message: 'Password must be at least 8 characters',
-                  },
+                  { required: true, message: t('auth.passwordRequired') },
+                  { min: 8, message: t('auth.passwordRequired') },
                 ]}
               >
                 <Input.Password
                   name="password"
                   size="large"
                   autoComplete="current-password"
-                  placeholder="At least 8 characters"
+                  placeholder={t('auth.passwordPlaceholder')}
                 />
               </Form.Item>
 
@@ -224,7 +222,7 @@ export function LoginPage() {
                 block
                 loading={loginMutation.isPending}
               >
-                Sign in
+                {t('auth.signIn')}
               </Button>
             </Form>
 
@@ -234,22 +232,25 @@ export function LoginPage() {
                 type="secondary"
                 style={{ fontSize: 12, letterSpacing: 0.5, textTransform: 'uppercase' }}
               >
-                Demo accounts
+                {t('auth.demoAccounts')}
               </Text>
               <div style={{ marginTop: 8 }}>
                 <Space wrap size={8}>
-                  <Button size="small" onClick={() => fillDemo('operator')}>
-                    Use operator
+                  <Button size="small" onClick={() => fillDemo('admin')}>
+                    {t('auth.useAdmin')}
                   </Button>
-                  <Button size="small" onClick={() => fillDemo('viewer')}>
-                    Use viewer
+                  <Button size="small" onClick={() => fillDemo('visitor')}>
+                    {t('auth.useVisitor')}
                   </Button>
                 </Space>
               </div>
-              <Text type="secondary" style={{ display: 'block', fontSize: 12, marginTop: 8 }}>
-                operator@minibank.dev · viewer@minibank.dev
+              <Text
+                type="secondary"
+                style={{ display: 'block', fontSize: 12, marginTop: 8 }}
+              >
+                {t('auth.demoHint')}
                 <br />
-                Password: Password123!
+                {t('auth.demoHintPassword')}
               </Text>
             </div>
           </Card>

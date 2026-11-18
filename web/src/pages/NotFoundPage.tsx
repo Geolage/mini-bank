@@ -1,8 +1,10 @@
 import { Button, Result } from 'antd'
 import { useNavigate } from 'react-router-dom'
+import { useI18n } from '../i18n/useI18n'
 
 export function NotFoundPage() {
   const navigate = useNavigate()
+  const { t } = useI18n()
 
   return (
     <main
@@ -14,14 +16,14 @@ export function NotFoundPage() {
         padding: 16,
       }}
     >
-      <h1 className="sr-only">Page not found</h1>
+      <h1 className="sr-only">{t('errors.notFoundTitle')}</h1>
       <Result
         status="404"
         title="404"
-        subTitle="The page you requested does not exist or has moved."
+        subTitle={t('errors.notFoundBody')}
         extra={
           <Button type="primary" onClick={() => navigate('/accounts')}>
-            Back to accounts
+            {t('errors.backToAccounts')}
           </Button>
         }
       />

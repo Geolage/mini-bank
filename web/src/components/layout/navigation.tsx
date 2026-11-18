@@ -1,23 +1,37 @@
-import { AuditOutlined, BankOutlined, SwapOutlined } from '@ant-design/icons'
-import type { MenuDataItem } from '@ant-design/pro-components'
+import {
+  AuditOutlined,
+  BankOutlined,
+  SettingOutlined,
+  SwapOutlined,
+} from '@ant-design/icons'
+import type { ReactNode } from 'react'
+import type { MessageKey } from '../../i18n/types'
 import type { Role } from '../../types/api'
 
+export interface MenuRoute {
+  path: string
+  nameKey: MessageKey
+  icon: ReactNode
+}
+
 export interface BreadcrumbTrailItem {
-  label: string
+  labelKey: MessageKey
   to?: string
 }
 
-export function buildMenuRoutes(role: Role | null): MenuDataItem[] {
-  const routes: MenuDataItem[] = [
-    { path: '/accounts', name: 'Accounts', icon: <BankOutlined /> },
+export function buildMenuRoutes(role: Role | null): MenuRoute[] {
+  const routes: MenuRoute[] = [
+    { path: '/accounts', nameKey: 'nav.accounts', icon: <BankOutlined /> },
   ]
 
   if (role === 'OPERATOR') {
     routes.push(
-      { path: '/transfer', name: 'Transfer', icon: <SwapOutlined /> },
-      { path: '/audit', name: 'Audit log', icon: <AuditOutlined /> },
+      { path: '/transfer', nameKey: 'nav.transfer', icon: <SwapOutlined /> },
+      { path: '/audit', nameKey: 'nav.audit', icon: <AuditOutlined /> },
     )
   }
+
+  routes.push({ path: '/settings', nameKey: 'nav.settings', icon: <SettingOutlined /> })
 
   return routes
 }
@@ -32,24 +46,30 @@ export function getSelectedMenuKeys(pathname: string): string[] {
   if (pathname === '/audit' || pathname.startsWith('/audit/')) {
     return ['/audit']
   }
+  if (pathname === '/settings' || pathname.startsWith('/settings/')) {
+    return ['/settings']
+  }
   return []
 }
 
 export function getBreadcrumbTrail(pathname: string): BreadcrumbTrailItem[] {
   if (pathname === '/accounts') {
-    return [{ label: 'Accounts' }]
+    return [{ labelKey: 'nav.accounts' }]
   }
   if (/^\/accounts\/[^/]+\/transactions$/.test(pathname)) {
     return [
-      { label: 'Accounts', to: '/accounts' },
-      { label: 'Transaction history' },
+      { labelKey: 'nav.accounts', to: '/accounts' },
+      { labelKey: 'breadcrumb.transactionHistory' },
     ]
   }
   if (pathname === '/transfer') {
-    return [{ label: 'Transfer' }]
+    return [{ labelKey: 'nav.transfer' }]
   }
   if (pathname === '/audit') {
-    return [{ label: 'Audit log' }]
+    return [{ labelKey: 'nav.audit' }]
+  }
+  if (pathname === '/settings') {
+    return [{ labelKey: 'nav.settings' }]
   }
   return []
 }

@@ -19,8 +19,14 @@ export function loadStoredAuth(): AuthSession {
     if (!raw) return { token: null, user: null }
 
     const parsed = JSON.parse(raw) as Partial<AuthSession>
-    if (typeof parsed.token === 'string' && parsed.user) {
-      return { token: parsed.token, user: parsed.user }
+    const user = parsed.user
+    if (
+      typeof parsed.token === 'string' &&
+      user &&
+      typeof user.username === 'string' &&
+      typeof user.email === 'string'
+    ) {
+      return { token: parsed.token, user }
     }
   } catch {
     // Corrupted storage should not prevent the app from starting.

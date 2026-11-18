@@ -9,8 +9,9 @@ import { TransferPage } from './TransferPage'
 
 const operator: User = {
   id: 'operator-1',
-  name: 'Alex Chen',
-  email: 'operator@minibank.dev',
+  username: 'admin',
+  name: 'Admin',
+  email: 'admin@minibank.dev',
   role: 'OPERATOR',
 }
 

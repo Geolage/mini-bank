@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useAuthStore } from '../app/authStore'
+import { usePreferencesStore } from '../app/preferencesStore'
 import { AppLayout } from '../components/layout/AppLayout'
 import { RequireRole } from '../components/layout/RequireRole'
 import { AccountsPage } from '../pages/AccountsPage'
@@ -23,15 +24,17 @@ import { expectNoAccessibilityViolations } from './a11y'
 
 const operator: User = {
   id: 'operator-1',
-  name: 'Alex Chen',
-  email: 'operator@minibank.dev',
+  username: 'admin',
+  name: 'Admin',
+  email: 'admin@minibank.dev',
   role: 'OPERATOR',
 }
 
 const viewer: User = {
   id: 'viewer-1',
-  name: 'Jamie Lee',
-  email: 'viewer@minibank.dev',
+  username: 'visitor',
+  name: 'Visitor',
+  email: 'visitor@minibank.dev',
   role: 'VIEWER',
 }
 
@@ -200,6 +203,7 @@ function renderShell(initialEntry: string) {
 
 beforeEach(() => {
   localStorage.clear()
+  usePreferencesStore.setState({ locale: 'en-US', themeId: 'antd-blue' })
   useAuthStore.setState({ token: 'jwt', user: operator })
   fetchMock = vi.fn()
   vi.stubGlobal('fetch', fetchMock)
@@ -273,12 +277,16 @@ describe('accessibility', () => {
 
     await user.click(screen.getByRole('button', { name: 'Sign in' }))
 
-    const email = screen.getByLabelText('Email')
-    expect(await screen.findByText('Email is required')).toBeInTheDocument()
-    expect(email).toHaveAttribute('aria-invalid', 'true')
-    const describedBy = email.getAttribute('aria-describedby')?.split(' ') ?? []
+    const identifier = screen.getByLabelText('Username or email')
     expect(
-      describedBy.some((id) => document.getElementById(id)?.textContent?.includes('Email is required')),
+      await screen.findByText('Username or email is required'),
+    ).toBeInTheDocument()
+    expect(identifier).toHaveAttribute('aria-invalid', 'true')
+    const describedBy = identifier.getAttribute('aria-describedby')?.split(' ') ?? []
+    expect(
+      describedBy.some((id) =>
+        document.getElementById(id)?.textContent?.includes('Username or email is required'),
+      ),
     ).toBe(true)
   })
 

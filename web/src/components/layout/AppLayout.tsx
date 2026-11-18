@@ -5,6 +5,9 @@ import type { MenuProps } from 'antd'
 import { Suspense } from 'react'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../../app/authStore'
+import { LanguageSwitcher } from '../LanguageSwitcher'
+import { useI18n } from '../../i18n/useI18n'
+import { useTheme } from '../../theme/useTheme'
 import { RouteFallback } from './RouteFallback'
 import {
   buildMenuRoutes,
@@ -21,12 +24,19 @@ export function AppLayout() {
   const navigate = useNavigate()
   const location = useLocation()
   const screens = Grid.useBreakpoint()
+  const { t } = useI18n()
+  const preset = useTheme()
 
   function handleLogout() {
     signOut()
     navigate('/login', { replace: true })
   }
 
+  const menuRoutes = buildMenuRoutes(user?.role ?? null).map((route) => ({
+    path: route.path,
+    name: t(route.nameKey),
+    icon: route.icon,
+  }))
   const breadcrumbTrail = getBreadcrumbTrail(location.pathname)
   const initial = user?.name.trim().charAt(0).toUpperCase() || '?'
 
@@ -48,18 +58,18 @@ export function AppLayout() {
       ),
     },
     { type: 'divider' },
-    { key: 'logout', icon: <LogoutOutlined />, label: 'Sign out' },
+    { key: 'logout', icon: <LogoutOutlined />, label: t('app.signOut') },
   ]
 
   return (
     <>
       <a href="#main-content" className="skip-link">
-        Skip to main content
+        {t('app.skipToMain')}
       </a>
 
       <ProLayout
-        title="MiniBank"
-        logo={<BankOutlined style={{ color: '#047857' }} />}
+        title={t('app.name')}
+        logo={<BankOutlined style={{ color: preset.config.token?.colorPrimary }} />}
         layout="side"
         navTheme="light"
         fixedHeader
@@ -67,28 +77,27 @@ export function AppLayout() {
         siderWidth={224}
         token={{
           bgLayout: '#f1f5f9',
-          sider: {
-            colorBgMenuItemHover: '#f8fafc',
-            colorBgMenuItemSelected: '#ecfdf5',
-            colorTextMenuSelected: '#047857',
-            colorTextMenuActive: '#047857',
-          },
+          sider: preset.sider,
         }}
-        route={{ path: '/', routes: buildMenuRoutes(user?.role ?? null) }}
+        route={{ path: '/', routes: menuRoutes }}
         location={{ pathname: location.pathname }}
         selectedKeys={getSelectedMenuKeys(location.pathname)}
         pageTitleRender={() => {
-          const currentPage = breadcrumbTrail.at(-1)?.label
-          return currentPage ? `${currentPage} - MiniBank` : 'MiniBank'
+          const currentPage = breadcrumbTrail.at(-1)
+          return currentPage
+            ? `${t(currentPage.labelKey)} - ${t('app.name')}`
+            : t('app.name')
         }}
         menuHeaderRender={(logo, title) => (
-          <span
+          <Link
+            to="/accounts"
             style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}
           >
             {logo}
             {title}
-          </span>
+          </Link>
         )}
+        onMenuHeaderClick={() => navigate('/accounts')}
         menuItemRender={(item, dom) =>
           item.path ? (
             <Link
@@ -104,6 +113,7 @@ export function AppLayout() {
           )
         }
         actionsRender={() => [
+          <LanguageSwitcher key="language" />,
           <Dropdown
             key="user-menu"
             menu={{
@@ -117,11 +127,14 @@ export function AppLayout() {
           >
             <Button
               type="text"
-              aria-label="Account menu"
+              aria-label={t('app.accountMenu')}
               style={{ height: 40, paddingInline: 8 }}
             >
               <Space size={8}>
-                <Avatar size="small" style={{ backgroundColor: '#047857' }}>
+                <Avatar
+                  size="small"
+                  style={{ backgroundColor: preset.config.token?.colorPrimary }}
+                >
                   {initial}
                 </Avatar>
                 {screens.sm ? <span>{user?.name}</span> : null}
@@ -146,9 +159,9 @@ export function AppLayout() {
               <Breadcrumb
                 items={breadcrumbTrail.map((item) => ({
                   title: item.to ? (
-                    <Link to={item.to}>{item.label}</Link>
+                    <Link to={item.to}>{t(item.labelKey)}</Link>
                   ) : (
-                    item.label
+                    t(item.labelKey)
                   ),
                 }))}
                 style={{ marginBottom: 16 }}

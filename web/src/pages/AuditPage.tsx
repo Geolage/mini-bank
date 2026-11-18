@@ -15,6 +15,7 @@ import {
 import { useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { useSearchParams } from 'react-router-dom'
+import { useI18n } from '../i18n/useI18n'
 import { auditQueryOptions } from '../services/audit'
 import type { AuditListParams, AuditLog } from '../types/api'
 import { formatDateTime } from '../utils/format'
@@ -39,6 +40,7 @@ function describeMetadata(metadata: unknown): string {
 }
 
 export function AuditPage() {
+  const { locale, t } = useI18n()
   const [searchParams, setSearchParams] = useSearchParams()
   const listParams = readAuditParams(searchParams)
   const audit = useQuery(auditQueryOptions(listParams))
@@ -54,13 +56,13 @@ export function AuditPage() {
 
   const columns: ProColumns<AuditLog>[] = [
     {
-      title: 'Time',
+      title: t('audit.column.time'),
       dataIndex: 'createdAt',
       width: 190,
-      render: (_, log) => formatDateTime(log.createdAt),
+      render: (_, log) => formatDateTime(log.createdAt, locale),
     },
     {
-      title: 'Actor',
+      title: t('audit.column.actor'),
       width: 200,
       render: (_, log) => (
         <Space direction="vertical" size={0}>
@@ -72,13 +74,13 @@ export function AuditPage() {
       ),
     },
     {
-      title: 'Action',
+      title: t('audit.column.action'),
       dataIndex: 'action',
       width: 220,
       render: (_, log) => <Tag>{log.action}</Tag>,
     },
     {
-      title: 'Resource',
+      title: t('audit.column.resource'),
       width: 220,
       render: (_, log) =>
         log.resourceId
@@ -86,7 +88,7 @@ export function AuditPage() {
           : log.resourceType,
     },
     {
-      title: 'Details',
+      title: t('audit.column.details'),
       dataIndex: 'metadata',
       ellipsis: true,
       render: (_, log) => <Text code>{describeMetadata(log.metadata)}</Text>,
@@ -97,11 +99,9 @@ export function AuditPage() {
     <div>
       <div style={{ marginBottom: 24 }}>
         <Title level={1} style={{ margin: 0, fontSize: 24 }}>
-          Audit log
+          {t('audit.title')}
         </Title>
-        <Text type="secondary">
-          Who did what, and when. Visible to operators only.
-        </Text>
+        <Text type="secondary">{t('audit.subtitle')}</Text>
       </div>
 
       <Flex wrap gap={12} align="flex-end" style={{ marginBottom: 16 }}>
@@ -110,12 +110,12 @@ export function AuditPage() {
             type="secondary"
             style={{ display: 'block', fontSize: 12, marginBottom: 4 }}
           >
-            Action
+            {t('audit.action')}
           </Text>
           <Input.Search
             key={action ?? 'all-actions'}
             defaultValue={action}
-            placeholder="TRANSFER_CREATED"
+            placeholder={t('audit.actionPlaceholder')}
             allowClear
             style={{ width: 240 }}
             onSearch={(value) =>
@@ -133,7 +133,7 @@ export function AuditPage() {
             type="secondary"
             style={{ display: 'block', fontSize: 12, marginBottom: 4 }}
           >
-            Date range
+            {t('audit.dateRange')}
           </Text>
           <RangePicker
             value={from && to ? [dayjs(from), dayjs(to)] : null}
@@ -149,14 +149,14 @@ export function AuditPage() {
           />
         </div>
         <Button disabled={!hasFilters} onClick={() => updateFilters({})}>
-          Clear filters
+          {t('audit.clearFilters')}
         </Button>
       </Flex>
 
       {audit.isLoading ? (
         <div>
           <span role="status" className="sr-only">
-            Loading audit logs…
+            {t('audit.loading')}
           </span>
           <ProCard bordered aria-hidden="true">
             <Skeleton active paragraph={{ rows: 6 }} />
@@ -166,15 +166,13 @@ export function AuditPage() {
         <Alert
           type="error"
           showIcon
-          message="Could not load audit logs"
+          message={t('audit.errorTitle')}
           description={
-            audit.error instanceof Error
-              ? audit.error.message
-              : 'Something went wrong. Please try again.'
+            audit.error instanceof Error ? audit.error.message : t('errors.generic')
           }
           action={
             <Button size="small" onClick={() => audit.refetch()}>
-              Try again
+              {t('transfer.tryAgain')}
             </Button>
           }
         />
@@ -194,7 +192,8 @@ export function AuditPage() {
             total: audit.data?.total ?? 0,
             showSizeChanger: true,
             pageSizeOptions: [...AUDIT_PAGE_SIZE_OPTIONS],
-            showTotal: (total, range) => `${range[0]}–${range[1]} of ${total}`,
+            showTotal: (total, range) =>
+              t('audit.range', { from: range[0], to: range[1], total }),
           }}
           onChange={(pagination) => {
             const nextPageSize = pagination.pageSize ?? listParams.pageSize
@@ -215,7 +214,7 @@ export function AuditPage() {
             )
           }}
           locale={{
-            emptyText: <Empty description="No audit entries match these filters." />,
+            emptyText: <Empty description={t('audit.empty')} />,
           }}
         />
       )}

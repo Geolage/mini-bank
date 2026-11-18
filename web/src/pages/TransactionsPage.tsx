@@ -16,6 +16,7 @@ import {
 import { useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { useI18n } from '../i18n/useI18n'
 import { accountQueryOptions } from '../services/accounts'
 import { transactionsQueryOptions } from '../services/transactions'
 import type {
@@ -41,6 +42,7 @@ function directionOf(
 }
 
 export function TransactionsPage() {
+  const { locale, t } = useI18n()
   const { accountId = '' } = useParams<{ accountId: string }>()
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -64,31 +66,33 @@ export function TransactionsPage() {
 
   const columns: ProColumns<AccountTransaction>[] = [
     {
-      title: 'Date',
+      title: t('transactions.column.date'),
       dataIndex: 'createdAt',
       width: 190,
-      render: (_, transaction) => formatDateTime(transaction.createdAt),
+      render: (_, transaction) => formatDateTime(transaction.createdAt, locale),
     },
     {
-      title: 'Reference',
+      title: t('transactions.column.reference'),
       dataIndex: 'reference',
       width: 170,
       render: (_, transaction) => <Text code>{transaction.reference}</Text>,
     },
     {
-      title: 'Direction',
+      title: t('transactions.column.direction'),
       width: 120,
       render: (_, transaction) => {
         const direction = directionOf(transaction, accountId)
         return (
           <Tag color={direction === 'INCOMING' ? 'green' : 'orange'}>
-            {direction === 'INCOMING' ? 'Incoming' : 'Outgoing'}
+            {direction === 'INCOMING'
+              ? t('transactions.incoming')
+              : t('transactions.outgoing')}
           </Tag>
         )
       },
     },
     {
-      title: 'Amount',
+      title: t('transactions.column.amount'),
       dataIndex: 'amount',
       align: 'right',
       width: 150,
@@ -97,23 +101,25 @@ export function TransactionsPage() {
         return (
           <Text strong type={direction === 'INCOMING' ? 'success' : 'danger'}>
             {direction === 'INCOMING' ? '+' : '-'}
-            {formatMoney(transaction.amount, transaction.currency)}
+            {formatMoney(transaction.amount, transaction.currency, locale)}
           </Text>
         )
       },
     },
     {
-      title: 'Status',
+      title: t('transactions.column.status'),
       dataIndex: 'status',
       width: 120,
       render: (_, transaction) => (
         <Tag color={transaction.status === 'COMPLETED' ? 'green' : 'red'}>
-          {transaction.status}
+          {transaction.status === 'COMPLETED'
+            ? t('enum.transactionStatus.COMPLETED')
+            : t('enum.transactionStatus.FAILED')}
         </Tag>
       ),
     },
     {
-      title: 'Note',
+      title: t('transactions.column.note'),
       dataIndex: 'note',
       ellipsis: true,
       render: (_, transaction) => transaction.note ?? '—',
@@ -131,15 +137,15 @@ export function TransactionsPage() {
       >
         <div>
           <Title level={1} style={{ margin: 0, fontSize: 24 }}>
-            Transaction history
+            {t('transactions.title')}
           </Title>
-          <Text type="secondary">Statement lines for one account.</Text>
+          <Text type="secondary">{t('transactions.subtitle')}</Text>
         </div>
         <Button
           icon={<ArrowLeftOutlined aria-hidden="true" />}
           onClick={() => navigate('/accounts')}
         >
-          Back to accounts
+          {t('transactions.backToAccounts')}
         </Button>
       </Flex>
 
@@ -152,16 +158,22 @@ export function TransactionsPage() {
               <Tag
                 color={account.data.type === 'CHECKING' ? 'blue' : 'purple'}
               >
-                {account.data.type}
+                {account.data.type === 'CHECKING'
+                  ? t('enum.accountType.CHECKING')
+                  : t('enum.accountType.SAVINGS')}
               </Tag>
               <Text code>{maskAccountNumber(account.data.accountNumber)}</Text>
               <Tag>{account.data.currency}</Tag>
             </Space>
             <div>
-              <Text type="secondary">Current balance</Text>
+              <Text type="secondary">{t('transactions.currentBalance')}</Text>
               <div>
                 <Text strong style={{ fontSize: 24 }}>
-                  {formatMoney(account.data.balance, account.data.currency)}
+                  {formatMoney(
+                    account.data.balance,
+                    account.data.currency,
+                    locale,
+                  )}
                 </Text>
               </div>
             </div>
@@ -175,7 +187,7 @@ export function TransactionsPage() {
             type="secondary"
             style={{ display: 'block', fontSize: 12, marginBottom: 4 }}
           >
-            Date range
+            {t('transactions.dateRange')}
           </Text>
           <RangePicker
             value={from && to ? [dayjs(from), dayjs(to)] : null}
@@ -194,30 +206,30 @@ export function TransactionsPage() {
             type="secondary"
             style={{ display: 'block', fontSize: 12, marginBottom: 4 }}
           >
-            Direction
+            {t('transactions.direction')}
           </Text>
           <Select<TransactionDirection>
             allowClear
-            aria-label="Direction"
-            placeholder="All directions"
+            aria-label={t('transactions.direction')}
+            placeholder={t('transactions.allDirections')}
             value={type}
             onChange={(value) => updateFilters({ from, to, type: value })}
             style={{ width: 170 }}
             options={[
-              { value: 'INCOMING', label: 'Incoming' },
-              { value: 'OUTGOING', label: 'Outgoing' },
+              { value: 'INCOMING', label: t('transactions.incoming') },
+              { value: 'OUTGOING', label: t('transactions.outgoing') },
             ]}
           />
         </div>
         <Button disabled={!hasFilters} onClick={() => updateFilters({})}>
-          Clear filters
+          {t('transactions.clearFilters')}
         </Button>
       </Flex>
 
       {transactions.isLoading ? (
         <div>
           <span role="status" className="sr-only">
-            Loading transactions…
+            {t('transactions.loading')}
           </span>
           <ProCard bordered aria-hidden="true">
             <Skeleton active paragraph={{ rows: 6 }} />
@@ -227,15 +239,15 @@ export function TransactionsPage() {
         <Alert
           type="error"
           showIcon
-          message="Could not load transactions"
+          message={t('transactions.errorTitle')}
           description={
             transactions.error instanceof Error
               ? transactions.error.message
-              : 'Something went wrong. Please try again.'
+              : t('errors.generic')
           }
           action={
             <Button size="small" onClick={() => transactions.refetch()}>
-              Try again
+              {t('transfer.tryAgain')}
             </Button>
           }
         />
@@ -255,7 +267,12 @@ export function TransactionsPage() {
             total: transactions.data?.total ?? 0,
             showSizeChanger: true,
             pageSizeOptions: [...TRANSACTION_PAGE_SIZE_OPTIONS],
-            showTotal: (total, range) => `${range[0]}–${range[1]} of ${total}`,
+            showTotal: (total, range) =>
+              t('transactions.range', {
+                from: range[0],
+                to: range[1],
+                total,
+              }),
           }}
           onChange={(pagination) => {
             const nextPageSize = pagination.pageSize ?? listParams.pageSize
@@ -280,9 +297,7 @@ export function TransactionsPage() {
             )
           }}
           locale={{
-            emptyText: (
-              <Empty description="No transactions match these filters." />
-            ),
+            emptyText: <Empty description={t('transactions.empty')} />,
           }}
         />
       )}

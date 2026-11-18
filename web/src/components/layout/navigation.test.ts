@@ -6,12 +6,14 @@ import {
 } from './navigation'
 
 describe('navigation', () => {
-  it('limits viewers to account navigation', () => {
+  it('limits viewers to account and settings navigation', () => {
     expect(buildMenuRoutes('VIEWER').map((route) => route.path)).toEqual([
       '/accounts',
+      '/settings',
     ])
     expect(buildMenuRoutes(null).map((route) => route.path)).toEqual([
       '/accounts',
+      '/settings',
     ])
   })
 
@@ -20,6 +22,7 @@ describe('navigation', () => {
       '/accounts',
       '/transfer',
       '/audit',
+      '/settings',
     ])
   })
 
@@ -34,13 +37,33 @@ describe('navigation', () => {
   })
 
   it('builds breadcrumbs only for known routes', () => {
-    expect(getBreadcrumbTrail('/accounts')).toEqual([{ label: 'Accounts' }])
-    expect(getBreadcrumbTrail('/accounts/abc/transactions')).toEqual([
-      { label: 'Accounts', to: '/accounts' },
-      { label: 'Transaction history' },
+    expect(getBreadcrumbTrail('/accounts')).toEqual([
+      { labelKey: 'nav.accounts' },
     ])
-    expect(getBreadcrumbTrail('/transfer')).toEqual([{ label: 'Transfer' }])
-    expect(getBreadcrumbTrail('/audit')).toEqual([{ label: 'Audit log' }])
+    expect(getBreadcrumbTrail('/accounts/abc/transactions')).toEqual([
+      { labelKey: 'nav.accounts', to: '/accounts' },
+      { labelKey: 'breadcrumb.transactionHistory' },
+    ])
+    expect(getBreadcrumbTrail('/transfer')).toEqual([
+      { labelKey: 'nav.transfer' },
+    ])
+    expect(getBreadcrumbTrail('/audit')).toEqual([{ labelKey: 'nav.audit' }])
+    expect(getBreadcrumbTrail('/settings')).toEqual([
+      { labelKey: 'nav.settings' },
+    ])
     expect(getBreadcrumbTrail('/unknown')).toEqual([])
+  })
+
+  it('selects the settings entry', () => {
+    expect(getSelectedMenuKeys('/settings')).toEqual(['/settings'])
+  })
+
+  it('names menu entries with message keys so they can be translated', () => {
+    expect(buildMenuRoutes('OPERATOR').map((route) => route.nameKey)).toEqual([
+      'nav.accounts',
+      'nav.transfer',
+      'nav.audit',
+      'nav.settings',
+    ])
   })
 })

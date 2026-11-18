@@ -2,21 +2,24 @@ import { render, screen } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { useAuthStore } from '../../app/authStore'
+import { usePreferencesStore } from '../../app/preferencesStore'
 import type { User } from '../../types/api'
 import { ProtectedRoute } from './ProtectedRoute'
 import { RequireRole } from './RequireRole'
 
 const operator: User = {
   id: 'operator-1',
-  name: 'Alex Chen',
-  email: 'operator@minibank.dev',
+  username: 'admin',
+  name: 'Admin',
+  email: 'admin@minibank.dev',
   role: 'OPERATOR',
 }
 
 const viewer: User = {
   id: 'viewer-1',
-  name: 'Jamie Lee',
-  email: 'viewer@minibank.dev',
+  username: 'visitor',
+  name: 'Visitor',
+  email: 'visitor@minibank.dev',
   role: 'VIEWER',
 }
 
@@ -42,6 +45,7 @@ function renderAuditRoute() {
 
 beforeEach(() => {
   localStorage.clear()
+  usePreferencesStore.setState({ locale: 'en-US', themeId: 'antd-blue' })
   useAuthStore.setState({ token: null, user: null })
 })
 
@@ -64,6 +68,6 @@ describe('route guards', () => {
     renderAuditRoute()
 
     expect(screen.getByText('403')).toBeInTheDocument()
-    expect(screen.getByText(/requires the operator role/)).toBeInTheDocument()
+    expect(screen.getByText(/requires the Operator role/)).toBeInTheDocument()
   })
 })

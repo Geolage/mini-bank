@@ -9,6 +9,7 @@ import {
   AuditPage,
   LoginPage,
   NotFoundPage,
+  SettingsPage,
   TransactionsPage,
   TransferPage,
 } from './pages/lazy'
@@ -49,6 +50,7 @@ export const router = createBrowserRouter([
           </RequireRole>
         ),
       },
+      { path: 'settings', element: <SettingsPage /> },
     ],
   },
   {

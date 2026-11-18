@@ -16,6 +16,24 @@ describe('audit log', () => {
     cy.contains('visitor@minibank.dev').should('be.visible')
     cy.contains('1–2 of 2').should('be.visible')
 
+    // The details cell clips visually but keeps the full payload in the DOM and under a
+    // tooltip, so nothing is unreadable. The code element is partly hidden by the cell,
+    // which is exactly why the hover needs force.
+    cy.get('.ant-table-tbody tr.ant-table-row')
+      .first()
+      .find('td')
+      .last()
+      .should('contain.text', '"source":"seed"')
+      .find('code')
+      .trigger('mouseover', { force: true })
+    cy.get('.ant-tooltip').should('be.visible').and('contain.text', '"source":"seed"')
+    cy.get('.ant-table-tbody tr.ant-table-row')
+      .first()
+      .find('td')
+      .last()
+      .find('code')
+      .trigger('mouseout', { force: true })
+
     cy.get('input[placeholder="TRANSFER_CREATED"]').type(
       'SEED_ACCOUNTS_CREATED{enter}',
     )

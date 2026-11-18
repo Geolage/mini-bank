@@ -10,6 +10,7 @@ import {
   Skeleton,
   Space,
   Tag,
+  Tooltip,
   Typography,
 } from 'antd'
 import { useQuery } from '@tanstack/react-query'
@@ -58,11 +59,13 @@ export function AuditPage() {
     {
       title: t('audit.column.time'),
       dataIndex: 'createdAt',
+      align: 'center',
       width: 190,
       render: (_, log) => formatDateTime(log.createdAt, locale),
     },
     {
       title: t('audit.column.actor'),
+      align: 'center',
       width: 200,
       render: (_, log) => (
         <Space direction="vertical" size={0}>
@@ -76,22 +79,42 @@ export function AuditPage() {
     {
       title: t('audit.column.action'),
       dataIndex: 'action',
+      align: 'center',
       width: 220,
       render: (_, log) => <Tag>{log.action}</Tag>,
     },
     {
       title: t('audit.column.resource'),
+      align: 'center',
       width: 220,
-      render: (_, log) =>
-        log.resourceId
-          ? `${log.resourceType} · ${log.resourceId.slice(0, 8)}…`
-          : log.resourceType,
+      ellipsis: { showTitle: false },
+      render: (_, log) => {
+        const resource = log.resourceId
+          ? `${log.resourceType} · ${log.resourceId}`
+          : log.resourceType
+        return (
+          <Tooltip placement="topLeft" title={resource}>
+            <span>{resource}</span>
+          </Tooltip>
+        )
+      },
     },
     {
       title: t('audit.column.details'),
       dataIndex: 'metadata',
-      ellipsis: true,
-      render: (_, log) => <Text code>{describeMetadata(log.metadata)}</Text>,
+      align: 'center',
+      ellipsis: { showTitle: false },
+      render: (_, log) => {
+        const details = describeMetadata(log.metadata)
+        return (
+          <Tooltip
+            placement="topLeft"
+            title={<span style={{ wordBreak: 'break-all' }}>{details}</span>}
+          >
+            <Text code>{details}</Text>
+          </Tooltip>
+        )
+      },
     },
   ]
 

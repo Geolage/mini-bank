@@ -11,6 +11,7 @@ import {
   Skeleton,
   Space,
   Tag,
+  Tooltip,
   Typography,
 } from 'antd'
 import { useQuery } from '@tanstack/react-query'
@@ -68,17 +69,20 @@ export function TransactionsPage() {
     {
       title: t('transactions.column.date'),
       dataIndex: 'createdAt',
+      align: 'center',
       width: 190,
       render: (_, transaction) => formatDateTime(transaction.createdAt, locale),
     },
     {
       title: t('transactions.column.reference'),
       dataIndex: 'reference',
+      align: 'center',
       width: 170,
       render: (_, transaction) => <Text code>{transaction.reference}</Text>,
     },
     {
       title: t('transactions.column.direction'),
+      align: 'center',
       width: 120,
       render: (_, transaction) => {
         const direction = directionOf(transaction, accountId)
@@ -94,7 +98,7 @@ export function TransactionsPage() {
     {
       title: t('transactions.column.amount'),
       dataIndex: 'amount',
-      align: 'right',
+      align: 'center',
       width: 150,
       render: (_, transaction) => {
         const direction = directionOf(transaction, accountId)
@@ -109,6 +113,7 @@ export function TransactionsPage() {
     {
       title: t('transactions.column.status'),
       dataIndex: 'status',
+      align: 'center',
       width: 120,
       render: (_, transaction) => (
         <Tag color={transaction.status === 'COMPLETED' ? 'green' : 'red'}>
@@ -121,8 +126,16 @@ export function TransactionsPage() {
     {
       title: t('transactions.column.note'),
       dataIndex: 'note',
-      ellipsis: true,
-      render: (_, transaction) => transaction.note ?? '—',
+      align: 'center',
+      ellipsis: { showTitle: false },
+      render: (_, transaction) =>
+        transaction.note ? (
+          <Tooltip placement="topLeft" title={transaction.note}>
+            <span>{transaction.note}</span>
+          </Tooltip>
+        ) : (
+          '—'
+        ),
     },
   ]
 

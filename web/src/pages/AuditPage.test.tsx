@@ -82,7 +82,7 @@ describe('AuditPage', () => {
     expect(await screen.findByText('Admin')).toBeInTheDocument()
     expect(screen.getByText('admin@minibank.dev')).toBeInTheDocument()
     expect(screen.getByText('TRANSFER_CREATED')).toBeInTheDocument()
-    expect(screen.getByText('Transaction · txn-1…')).toBeInTheDocument()
+    expect(screen.getByText('Transaction · txn-1')).toBeInTheDocument()
     expect(screen.getByText('{"reference":"TXN-abc"}')).toBeInTheDocument()
 
     expect(String(fetchMock.mock.calls[0][0])).toBe(

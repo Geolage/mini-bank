@@ -34,6 +34,15 @@ describe('loadPreferences', () => {
     expect(loadPreferences().themeId).toBe('emerald')
   })
 
+  it('drops a stored theme that no longer exists', () => {
+    localStorage.setItem(
+      PREF_STORAGE_KEY,
+      JSON.stringify({ state: { locale: 'zh-CN', themeId: 'geekblue' }, version: 0 }),
+    )
+
+    expect(loadPreferences()).toEqual({ locale: 'zh-CN', themeId: 'antd-blue' })
+  })
+
   it('falls back to defaults when localStorage throws', () => {
     const original = window.localStorage.getItem
     window.localStorage.getItem = () => {

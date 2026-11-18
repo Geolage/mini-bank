@@ -22,10 +22,17 @@ describe('SettingsPage', () => {
   it('lists every theme preset with the current one selected', () => {
     renderSettings()
 
-    for (const name of ['AntD Blue', 'Emerald', 'Geek Blue', 'Volcano', 'Slate']) {
+    for (const name of [
+      'Calm Blue',
+      'Elegant Blue',
+      'Aurora Purple',
+      'Emerald',
+      'Volcano',
+      'Slate',
+    ]) {
       expect(screen.getByRole('radio', { name })).toBeInTheDocument()
     }
-    expect(screen.getByRole('radio', { name: 'AntD Blue' })).toBeChecked()
+    expect(screen.getByRole('radio', { name: 'Calm Blue' })).toBeChecked()
   })
 
   it('switches the theme', async () => {
@@ -49,13 +56,16 @@ describe('SettingsPage', () => {
     expect(await screen.findByRole('heading', { name: '设置' })).toBeInTheDocument()
     expect(usePreferencesStore.getState().locale).toBe('zh-CN')
     expect(screen.getByRole('radio', { name: '翡翠绿' })).toBeInTheDocument()
+    expect(screen.getByRole('radio', { name: '沉稳蓝' })).toBeInTheDocument()
+    expect(screen.getByRole('radio', { name: '优雅蓝' })).toBeInTheDocument()
+    expect(screen.getByRole('radio', { name: '极光紫' })).toBeInTheDocument()
   })
 
   it('restores both preferences', async () => {
     const user = userEvent.setup()
     renderSettings()
 
-    await user.click(screen.getByRole('radio', { name: 'Geek Blue' }))
+    await user.click(screen.getByRole('radio', { name: 'Aurora Purple' }))
     await user.click(screen.getByRole('radio', { name: '简体中文' }))
     await user.click(await screen.findByRole('button', { name: '恢复默认' }))
 

@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 import type { Locale } from '../i18n/types'
-import type { ThemeId } from '../theme/presets'
+import { THEME_PRESETS, type ThemeId } from '../theme/presets'
 
 export const PREF_STORAGE_KEY = 'mini-bank.preferences'
 
@@ -20,6 +20,7 @@ interface PreferencesState extends Preferences {
 }
 
 const KNOWN_LOCALES: Locale[] = ['en-US', 'zh-CN']
+const KNOWN_THEMES: ThemeId[] = THEME_PRESETS.map((preset) => preset.id)
 
 /**
  * persist reads storage before the app mounts, so a storage that throws (private
@@ -53,6 +54,12 @@ function isLocale(value: unknown): value is Locale {
   return typeof value === 'string' && KNOWN_LOCALES.includes(value as Locale)
 }
 
+// A preset can be renamed or dropped between releases and localStorage outlives the build
+// that wrote it, so an unknown id falls back instead of selecting a theme that is gone.
+function isThemeId(value: unknown): value is ThemeId {
+  return typeof value === 'string' && KNOWN_THEMES.includes(value as ThemeId)
+}
+
 export function loadPreferences(): Preferences {
   const raw = safeStorage.getItem(PREF_STORAGE_KEY)
   if (!raw) return { locale: DEFAULT_LOCALE, themeId: DEFAULT_THEME_ID }
@@ -62,10 +69,7 @@ export function loadPreferences(): Preferences {
     const state = parsed.state ?? {}
     return {
       locale: isLocale(state.locale) ? state.locale : DEFAULT_LOCALE,
-      themeId:
-        typeof state.themeId === 'string'
-          ? (state.themeId as ThemeId)
-          : DEFAULT_THEME_ID,
+      themeId: isThemeId(state.themeId) ? state.themeId : DEFAULT_THEME_ID,
     }
   } catch {
     return { locale: DEFAULT_LOCALE, themeId: DEFAULT_THEME_ID }

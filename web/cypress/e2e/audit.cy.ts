@@ -1,24 +1,19 @@
 /// <reference types="cypress" />
 
-function signIn(email: string) {
-  cy.visit('/login')
-  cy.get('input[name="email"]').type(email)
-  cy.get('input[name="password"]').type('Password123!')
-  cy.contains('button', 'Sign in').click()
-  cy.location('pathname').should('eq', '/accounts')
-}
+import { ADMIN, signIn } from '../support/session'
 
 describe('audit log', () => {
   it('lists entries and keeps action filters in the URL', () => {
     cy.viewport(1180, 720)
-    signIn('operator@minibank.dev')
+    signIn(ADMIN)
 
     cy.get('.ant-menu').contains('a', 'Audit log').click()
     cy.location('pathname').should('eq', '/audit')
 
     cy.contains('SEED_TRANSACTIONS_CREATED').should('be.visible')
     cy.contains('SEED_ACCOUNTS_CREATED').should('be.visible')
-    cy.contains('Alex Chen').should('be.visible')
+    cy.contains('admin@minibank.dev').should('be.visible')
+    cy.contains('visitor@minibank.dev').should('be.visible')
     cy.contains('1–2 of 2').should('be.visible')
 
     cy.get('input[placeholder="TRANSFER_CREATED"]').type(
@@ -35,7 +30,7 @@ describe('audit log', () => {
 
   it('shows an empty state when no entries match', () => {
     cy.viewport(1180, 720)
-    signIn('operator@minibank.dev')
+    signIn(ADMIN)
 
     cy.visit('/audit?action=NOT_A_REAL_ACTION')
     cy.contains('No audit entries match these filters.').should('be.visible')

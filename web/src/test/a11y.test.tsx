@@ -11,6 +11,7 @@ import { AccountsPage } from '../pages/AccountsPage'
 import { AuditPage } from '../pages/AuditPage'
 import { LoginPage } from '../pages/LoginPage'
 import { NotFoundPage } from '../pages/NotFoundPage'
+import { SettingsPage } from '../pages/SettingsPage'
 import { TransactionsPage } from '../pages/TransactionsPage'
 import { TransferPage } from '../pages/TransferPage'
 import type {
@@ -89,7 +90,7 @@ const auditLogs: Paginated<AuditLog> = {
   items: [
     {
       id: 'audit-1',
-      actor: { id: 'operator-1', name: 'Alex Chen', email: 'operator@minibank.dev' },
+      actor: { id: 'operator-1', name: 'Admin', email: 'admin@minibank.dev' },
       action: 'TRANSFER_CREATED',
       resourceType: 'Transaction',
       resourceId: 'txn-out',
@@ -185,6 +186,7 @@ function renderShell(initialEntry: string) {
                 </RequireRole>
               }
             />
+            <Route path="/settings" element={<SettingsPage />} />
             <Route
               path="/forbidden"
               element={
@@ -251,6 +253,21 @@ describe('accessibility', () => {
 
     expect(await screen.findByText('TRANSFER_CREATED')).toBeInTheDocument()
     await expectNoAccessibilityViolations(container)
+  })
+
+  it('settings page is accessible in both languages', async () => {
+    for (const locale of ['en-US', 'zh-CN'] as const) {
+      usePreferencesStore.setState({ locale, themeId: 'antd-blue' })
+      const { container, unmount } = renderShell('/settings')
+
+      expect(
+        await screen.findByRole('heading', {
+          name: locale === 'zh-CN' ? '设置' : 'Settings',
+        }),
+      ).toBeInTheDocument()
+      await expectNoAccessibilityViolations(container)
+      unmount()
+    }
   })
 
   it('403 page is accessible', async () => {

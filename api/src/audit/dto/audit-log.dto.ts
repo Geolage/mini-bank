@@ -5,10 +5,10 @@ export class AuditActorDto {
   @ApiProperty({ example: '3f2b8c1a-8d4e-4b6f-9a0c-1e2d3c4b5a69' })
   id!: string;
 
-  @ApiProperty({ example: 'Alex Chen' })
+  @ApiProperty({ example: 'Admin' })
   name!: string;
 
-  @ApiProperty({ example: 'operator@minibank.dev' })
+  @ApiProperty({ example: 'admin@minibank.dev' })
   email!: string;
 }
 

@@ -13,8 +13,8 @@ const log = {
   createdAt: new Date('2026-10-31T10:00:00.000Z'),
   actor: {
     id: 'user-1',
-    name: 'Alex Chen',
-    email: 'operator@minibank.dev',
+    name: 'Admin',
+    email: 'admin@minibank.dev',
   },
 };
 

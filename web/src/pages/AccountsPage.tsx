@@ -90,7 +90,9 @@ export function AccountsPage() {
                 title={
                   <Space size={8} wrap>
                     <Tag color={account.type === 'CHECKING' ? 'blue' : 'purple'}>
-                      {account.type}
+                      {account.type === 'CHECKING'
+                        ? t('enum.accountType.CHECKING')
+                        : t('enum.accountType.SAVINGS')}
                     </Tag>
                     <Text code>{maskAccountNumber(account.accountNumber)}</Text>
                   </Space>

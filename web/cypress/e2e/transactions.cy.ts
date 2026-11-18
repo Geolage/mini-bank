@@ -1,15 +1,9 @@
 /// <reference types="cypress" />
 
-function signIn(email = 'operator@minibank.dev') {
-  cy.visit('/login')
-  cy.get('input[name="email"]').type(email)
-  cy.get('input[name="password"]').type('Password123!')
-  cy.contains('button', 'Sign in').click()
-  cy.location('pathname').should('eq', '/accounts')
-}
+import { ADMIN, signIn } from '../support/session'
 
 function openFirstAccountTransactions() {
-  signIn()
+  signIn(ADMIN)
   cy.contains('a', 'View transactions').first().click()
   cy.location('pathname').should('match', /\/accounts\/.+\/transactions$/)
   cy.contains('h1', 'Transaction history').should('be.visible')

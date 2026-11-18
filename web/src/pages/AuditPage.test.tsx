@@ -10,8 +10,8 @@ const log: AuditLog = {
   id: 'audit-1',
   actor: {
     id: 'user-1',
-    name: 'Alex Chen',
-    email: 'operator@minibank.dev',
+    name: 'Admin',
+    email: 'admin@minibank.dev',
   },
   action: 'TRANSFER_CREATED',
   resourceType: 'Transaction',
@@ -79,8 +79,8 @@ describe('AuditPage', () => {
     fetchMock.mockResolvedValue(jsonResponse(page))
     renderAuditPage()
 
-    expect(await screen.findByText('Alex Chen')).toBeInTheDocument()
-    expect(screen.getByText('operator@minibank.dev')).toBeInTheDocument()
+    expect(await screen.findByText('Admin')).toBeInTheDocument()
+    expect(screen.getByText('admin@minibank.dev')).toBeInTheDocument()
     expect(screen.getByText('TRANSFER_CREATED')).toBeInTheDocument()
     expect(screen.getByText('Transaction · txn-1…')).toBeInTheDocument()
     expect(screen.getByText('{"reference":"TXN-abc"}')).toBeInTheDocument()

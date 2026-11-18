@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatMoney, maskAccountNumber } from './format'
+import { formatDateTime, formatMoney, maskAccountNumber } from './format'
 
 describe('formatMoney', () => {
   it('formats USD with two decimals', () => {
@@ -18,5 +18,22 @@ describe('formatMoney', () => {
 describe('maskAccountNumber', () => {
   it('keeps only the last four characters', () => {
     expect(maskAccountNumber('MB-1001-0001')).toBe('•••• 0001')
+  })
+})
+
+describe('locale-aware formatting', () => {
+  it('formats USD with the English grouping by default', () => {
+    expect(formatMoney('12500', 'USD')).toBe('$12,500.00')
+  })
+
+  it('formats USD with the Chinese locale marker', () => {
+    expect(formatMoney('12500', 'USD', 'zh-CN')).toBe('US$12,500.00')
+  })
+
+  it('formats dates per locale', () => {
+    const iso = '2026-10-31T10:00:00.000Z'
+
+    expect(formatDateTime(iso)).toContain('Oct 31, 2026')
+    expect(formatDateTime(iso, 'zh-CN')).toContain('2026年10月31日')
   })
 })

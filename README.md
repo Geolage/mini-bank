@@ -1,8 +1,10 @@
 # MiniBank · Account Console
 
-A full-stack banking demo. It covers authentication, account balances, money transfers, audit trails, accessibility and CI-ready testing.
+A full-stack banking demo. It covers authentication, account balances, money transfers, audit trails, bilingual UI, theming, accessibility and CI-ready testing.
 
-> Status: authentication, accounts, transaction history, transfers and audit logs are implemented end to end, on the final frontend stack. Remaining work is deployment and stretch goals (see [Build tasks](#build-tasks)).
+> Status: authentication, accounts, transaction history, transfers, audit logs, bilingual
+> UI (English / 简体中文) and user settings are implemented end to end, on the final
+> frontend stack. Remaining work is deployment and stretch goals (see [Build tasks](#build-tasks)).
 >
 > The frontend runs on React Router + TanStack Query + Zustand + Ant Design/ProComponents.
 
@@ -25,6 +27,8 @@ Vite · TanStack Query       JWT · RBAC · Swagger      Prisma · migrations
 | Session state | Zustand 5 |
 | Forms | Ant Design Form |
 | UI | Ant Design 5 + ProComponents (ProLayout, ProCard, ProTable) |
+| Internationalisation | Hand-written typed zh/en catalogues + Ant Design and dayjs locales (no i18n library) |
+| Theming | `ConfigProvider` token presets (5 palettes) + ProLayout sider tokens |
 | Frontend tests | Vitest 5 + React Testing Library + jest-dom (Jest-compatible API) |
 | E2E | Cypress 16 |
 | Backend | NestJS 12 (ESM), Passport JWT |
@@ -38,10 +42,12 @@ Vite · TanStack Query       JWT · RBAC · Swagger      Prisma · migrations
 ```
 mini-bank/
 ├── web/                     # React SPA
-│   ├── src/app/             # providers, auth store, query client
+│   ├── src/app/             # providers, auth + preferences stores, query client
+│   ├── src/i18n/            # typed t(), locales/en-US.ts + locales/zh-CN.ts
+│   ├── src/theme/           # theme presets and useTheme
 │   ├── src/services/        # typed fetch client + query options
 │   ├── src/pages/           # route-level pages
-│   └── cypress/             # E2E specs
+│   └── cypress/             # E2E specs and support helpers
 ├── api/                     # NestJS API
 │   ├── src/auth/            # login, JWT strategy, guards
 │   ├── src/accounts/        # accounts read model
@@ -101,6 +107,13 @@ pnpm db:migrate
 pnpm db:seed
 ```
 
+Seeding is idempotent. If a demo run moved money and you want the original balances and
+statement rows back, reset the schema and re-seed:
+
+```bash
+pnpm --filter api exec prisma migrate reset --force
+```
+
 ### 5. Run
 
 ```bash
@@ -116,10 +129,14 @@ pnpm dev
 
 ### Demo accounts
 
-| Role | Email | Password |
-|---|---|---|
-| Operator (can transfer) | `operator@minibank.dev` | `Password123!` |
-| Viewer (read only) | `viewer@minibank.dev` | `Password123!` |
+| Role | Username | Email | Nickname | Password |
+|---|---|---|---|---|
+| Operator (can transfer, sees audit) | `admin` | `admin@minibank.dev` | Admin | `11111111` |
+| Viewer (read only) | `visitor` | `visitor@minibank.dev` | Visitor | `00000000` |
+
+Sign in with either the username or the email; both are case-insensitive. The sign-in page
+also has **Use admin** / **Use visitor** buttons that fill the form for you, in whichever
+language the page is currently using.
 
 ## Scripts
 
@@ -171,9 +188,10 @@ accessibility and stretch goals.
 
 ### 4. Test depth (in progress)
 
-- Done: Vitest for the auth store, guards and every page state; axe-core checks for all
-  pages; Supertest e2e for transactions, transfers and audit; Cypress for login, shell,
-  transactions, audit and the transfer UI
+- Done: Vitest for the auth store, the preferences store, the i18n resolver, locale-aware
+  formatting, guards and every page state; axe-core checks for all pages, including Settings
+  in both languages; Supertest e2e for auth, transactions, transfers and audit; 22 Cypress
+  scenarios for login (username and email), shell, transactions, audit, transfer and settings
 - Remaining: a Cypress transfer scenario against the real database with automatic
   demo-data reset
 
@@ -188,7 +206,21 @@ accessibility and stretch goals.
   `colorPrimary` and `colorTextDescription` with AA-passing values
 - Remaining: dialogs and the ProLayout mobile drawer in a real browser
 
-### 6. Stretch goals
+### 6. Localisation, theming and settings (implemented)
+
+- Every string (including Ant Design locale data and `dayjs`) renders through one typed `t()`;
+  `MessageKey` is derived from the English catalogue, so a missing or misspelled key fails
+  the type check rather than showing a blank label
+- Language switcher sits in the app header on every screen, including sign-in; the choice
+  is stored in `localStorage` (`mini-bank.preferences`) and sets `<html lang>`
+- Settings page: language, five AA-checked colour palettes, and **Restore defaults**
+- The sidebar logo and title navigate to `/accounts` instead of doing nothing
+- Login identity: `POST /api/auth/login` takes one `identifier` field (username or email);
+  unknown users and wrong passwords return the same 401 message
+- Verified: Lighthouse on the production build still scores Accessibility 100 with the
+  Chinese UI and with the weakest palette (Volcano) as defaults
+
+### 7. Stretch goals
 
 - Refresh tokens / httpOnly cookies
 - Redis caching for account summaries
@@ -204,22 +236,39 @@ accessibility and stretch goals.
 - **Idempotency key + DB transaction + row locks.** Built for retries and concurrent transfers.
 - **RBAC enforced in the API, mirrored in the UI.** UI hiding is never the security boundary.
 - **Vitest instead of Jest.** Jest-compatible API with native Vite integration; Cypress covers E2E.
+- **One login identifier.** `identifier` accepts a username or an email, the same pattern
+  GitHub, Google and most account systems use; it keeps the form to two fields and the
+  lookup to one normalised query (`trim().toLowerCase()`).
+- **Preferences stay in the browser.** Language and theme are UX state, not bank state, so
+  they live in `localStorage` behind one Zustand store and cost no API round trip.
+- **Typed message keys, no i18n library.** The catalogue is a plain object and `t()` is
+  ~40 lines; the key union is derived from it, so the whole UI is localised without a
+  runtime dependency or a locale-loading waterfall.
 
 ## Known limitations
 
 - JWT is stored in `localStorage` for demo simplicity. Production should use httpOnly, secure cookies with CSRF protection.
+- The demo passwords (`11111111` / `00000000`) are intentionally simple and repeat digits so
+anyone can try the app without setup. The API only enforces `@MinLength(8)`; a real
+deployment needs a password policy, MFA, reuse checks and rate limiting.
 - No refresh token, rate limiting or account lockout.
 - Seed data only; no real banking integration.
 - The API runs without HTTPS locally.
 
 ## Accessibility
 
+- Language switcher (English / 简体中文) with Ant Design and dayjs locales wired through
+  `ConfigProvider`; every theme preset is AA-contrast checked
 - Skip link, landmarks, semantic headings
 - Labelled form controls with `aria-invalid` / `aria-describedby`
 - Visible focus rings and `prefers-reduced-motion` support
 - Alerts announced via `role="alert"` / `role="status"`
+- `<html lang>` follows the selected locale, and every palette is checked for AA contrast
+  on both light surfaces and the sidebar
 - `pnpm --filter web test` runs axe-core over every page and fails on critical or
   serious violations
+- axe also renders the Settings page in English **and** Chinese, so a translated label
+  cannot break an accessible name
 - Lighthouse Accessibility scores 100 on the production build (mobile and desktop)
 
 ## License

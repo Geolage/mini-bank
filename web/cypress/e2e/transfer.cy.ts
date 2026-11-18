@@ -1,12 +1,6 @@
 /// <reference types="cypress" />
 
-function signIn(email: string) {
-  cy.visit('/login')
-  cy.get('input[name="email"]').type(email)
-  cy.get('input[name="password"]').type('Password123!')
-  cy.contains('button', 'Sign in').click()
-  cy.location('pathname').should('eq', '/accounts')
-}
+import { ADMIN, VISITOR, signIn } from '../support/session'
 
 describe('transfer', () => {
   it('submits with an idempotency key and refreshes accounts', () => {
@@ -23,7 +17,7 @@ describe('transfer', () => {
       body: { id: 'cypress-txn', reference: 'TXN-CYPRESS-1' },
     }).as('transfer')
 
-    signIn('operator@minibank.dev')
+    signIn(ADMIN)
     cy.get('.ant-menu').contains('a', 'Transfer').click()
     cy.location('pathname').should('eq', '/transfer')
     cy.contains('•••• 0001').should('be.visible')
@@ -46,12 +40,12 @@ describe('transfer', () => {
 
   it('hides transfer from viewers and blocks direct access', () => {
     cy.viewport(1180, 720)
-    signIn('viewer@minibank.dev')
+    signIn(VISITOR)
 
     cy.get('.ant-menu').should('not.contain', 'Transfer')
 
     cy.visit('/transfer')
     cy.contains('403').should('be.visible')
-    cy.contains('requires the operator role').should('be.visible')
+    cy.contains('requires the Operator role').should('be.visible')
   })
 })

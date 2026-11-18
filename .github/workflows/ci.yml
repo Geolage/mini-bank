@@ -5,9 +5,14 @@ on:
     branches: [main]
   pull_request:
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   verify:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
@@ -30,6 +35,9 @@ jobs:
       - run: pnpm typecheck
 
       - run: pnpm test
+
+      - name: API endpoint suites
+        run: pnpm --filter api test:e2e
 
       - run: pnpm build
 

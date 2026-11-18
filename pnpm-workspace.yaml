@@ -8,4 +8,5 @@ allowBuilds:
   '@scarf/scarf': true
   cypress: true
   esbuild: true
+  lefthook: true
   prisma: true

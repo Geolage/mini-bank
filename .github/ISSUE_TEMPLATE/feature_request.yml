@@ -1,0 +1,35 @@
+name: Feature request
+description: Propose a new capability or an improvement to an existing one
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What can't you do today, and who is affected?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behaviour
+      description: Include the user-visible flow and any API shape you imagine.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+    validations:
+      required: false
+  - type: checkboxes
+    id: constraints
+    attributes:
+      label: Constraints this must respect
+      options:
+        - label: Bilingual copy (en-US and zh-CN catalogues)
+        - label: WCAG AA contrast and axe-clean pages
+        - label: Money as decimal strings, per-currency aggregation
+        - label: Initial payload under the 400 kB gzip budget
+    validations:
+      required: false

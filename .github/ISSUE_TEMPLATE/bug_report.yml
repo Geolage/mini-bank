@@ -1,0 +1,48 @@
+name: Bug report
+description: Something behaves incorrectly in the web app or the API
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What did you see, and what did you expect instead?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Include the account used (admin / visitor), the route, and the locale.
+      placeholder: |
+        1. Sign in as visitor
+        2. Open /payees
+        3. …
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Commit or branch
+      placeholder: main @ abc1234
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - web UI
+        - API
+        - database / seed
+        - CI / tooling
+        - docs
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or screenshots
+      description: Browser console, API response body, or a screenshot. Redact tokens.
+    validations:
+      required: false

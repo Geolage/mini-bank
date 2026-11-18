@@ -308,6 +308,19 @@ deployment needs a password policy, MFA, reuse checks and rate limiting.
   cannot break an accessible name
 - Lighthouse Accessibility scores 100 on the production build (mobile and desktop)
 
+## Collaborating
+
+- [CONTRIBUTING.md](CONTRIBUTING.md) covers setup, the command matrix, branch/commit/PR
+  conventions and the review checklist; [SECURITY.md](SECURITY.md) covers private reports.
+- `pnpm install` installs git hooks via lefthook: `pre-commit` formats staged files and
+  lints, `commit-msg` enforces Conventional Commits (commitlint), `pre-push` runs typecheck
+  and unit tests.
+- Issue and pull-request templates live in `.github/`; Dependabot proposes weekly npm and
+  monthly GitHub-Actions updates as grouped `chore`/`ci` PRs.
+- CI (`.github/workflows/ci.yml`) runs lint, format check, typecheck, unit tests, API e2e,
+  build and the bundle budget on every push to `main` and every PR, with concurrency
+  cancellation so superseded runs stop early.
+
 ## License
 
 MIT — see [LICENSE](LICENSE). The demo data is synthetic; no real bank or personal data.

@@ -1,0 +1,93 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  VIEWER
+  OPERATOR
+}
+
+enum AccountType {
+  CHECKING
+  SAVINGS
+}
+
+enum Currency {
+  USD
+  HKD
+  CNY
+}
+
+enum TransactionStatus {
+  COMPLETED
+  FAILED
+}
+
+model User {
+  id           String     @id @default(uuid())
+  email        String     @unique
+  passwordHash String     @map("password_hash")
+  name         String
+  role         Role       @default(VIEWER)
+  accounts     Account[]
+  auditLogs    AuditLog[] @relation("ActorAuditLogs")
+  createdAt    DateTime   @default(now()) @map("created_at")
+
+  @@map("users")
+}
+
+model Account {
+  id            String        @id @default(uuid())
+  userId        String        @map("user_id")
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accountNumber String        @unique @map("account_number")
+  type          AccountType
+  currency      Currency      @default(USD)
+  balance       Decimal       @db.Decimal(14, 2)
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+  outgoing      Transaction[] @relation("FromAccount")
+  incoming      Transaction[] @relation("ToAccount")
+
+  @@index([userId])
+  @@map("accounts")
+}
+
+model Transaction {
+  id             String            @id @default(uuid())
+  reference      String            @unique
+  fromAccountId  String            @map("from_account_id")
+  fromAccount    Account           @relation("FromAccount", fields: [fromAccountId], references: [id])
+  toAccountId    String            @map("to_account_id")
+  toAccount      Account           @relation("ToAccount", fields: [toAccountId], references: [id])
+  amount         Decimal           @db.Decimal(14, 2)
+  currency       Currency
+  status         TransactionStatus @default(COMPLETED)
+  idempotencyKey String            @unique @map("idempotency_key")
+  note           String?
+  createdAt      DateTime          @default(now()) @map("created_at")
+
+  @@index([fromAccountId, createdAt(sort: Desc)])
+  @@index([toAccountId, createdAt(sort: Desc)])
+  @@map("transactions")
+}
+
+model AuditLog {
+  id           String   @id @default(uuid())
+  actorId      String   @map("actor_id")
+  actor        User     @relation("ActorAuditLogs", fields: [actorId], references: [id])
+  action       String
+  resourceType String   @map("resource_type")
+  resourceId   String?  @map("resource_id")
+  metadata     Json?
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@index([actorId, createdAt(sort: Desc)])
+  @@index([resourceType, resourceId])
+  @@map("audit_logs")
+}

@@ -1,5 +1,5 @@
 import { GlobalOutlined } from '@ant-design/icons'
-import { Button, Dropdown } from 'antd'
+import { Button, Dropdown, Grid } from 'antd'
 import type { MenuProps } from 'antd'
 import { usePreferencesStore } from '../app/preferencesStore'
 import { useI18n } from '../i18n/useI18n'
@@ -7,6 +7,7 @@ import type { Locale } from '../i18n/types'
 
 export function LanguageSwitcher() {
   const { locale, t } = useI18n()
+  const screens = Grid.useBreakpoint()
   const setLocale = usePreferencesStore((state) => state.setLocale)
 
   const items: MenuProps['items'] = [
@@ -28,8 +29,15 @@ export function LanguageSwitcher() {
       placement="bottomRight"
       trigger={['click']}
     >
-      <Button type="text" aria-label={`${t('app.language')}: ${current}`}>
-        <GlobalOutlined aria-hidden="true" /> {current}
+      <Button
+        type="text"
+        aria-label={`${t('app.language')}: ${current}`}
+        style={{ height: 40 }}
+      >
+        <GlobalOutlined aria-hidden="true" />
+        {screens.md ? (
+          <span style={{ marginInlineStart: 8 }}>{current}</span>
+        ) : null}
       </Button>
     </Dropdown>
   )

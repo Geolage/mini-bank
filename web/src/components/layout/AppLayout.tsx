@@ -1,11 +1,12 @@
 import { BankOutlined, DownOutlined, LogoutOutlined } from '@ant-design/icons'
 import { ProLayout } from '@ant-design/pro-components'
-import { Avatar, Breadcrumb, Button, Dropdown, Grid, Space, Tag } from 'antd'
+import { Avatar, Breadcrumb, Button, Dropdown, Flex, Grid, Space, Tag } from 'antd'
 import type { MenuProps } from 'antd'
 import { Suspense } from 'react'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../../app/authStore'
 import { LanguageSwitcher } from '../LanguageSwitcher'
+import { ThemeSwitcher } from '../ThemeSwitcher'
 import { useI18n } from '../../i18n/useI18n'
 import { useTheme } from '../../theme/useTheme'
 import { RouteFallback } from './RouteFallback'
@@ -70,7 +71,7 @@ export function AppLayout() {
       <ProLayout
         title={t('app.name')}
         logo={<BankOutlined style={{ color: preset.config.token?.colorPrimary }} />}
-        layout="side"
+        layout="mix"
         navTheme="light"
         fixedHeader
         fixSiderbar
@@ -113,35 +114,44 @@ export function AppLayout() {
           )
         }
         actionsRender={() => [
-          <LanguageSwitcher key="language" />,
-          <Dropdown
-            key="user-menu"
-            menu={{
-              items: userMenuItems,
-              onClick: ({ key }) => {
-                if (key === 'logout') handleLogout()
-              },
-            }}
-            placement="bottomRight"
-            trigger={['click']}
+          // One row, pushed to the right edge of the header and vertically centred in its
+          // 56px band, so the three controls cannot drift apart as their labels change.
+          <Flex
+            key="actions"
+            align="center"
+            gap={4}
+            style={{ marginInlineStart: 'auto', height: 56 }}
           >
-            <Button
-              type="text"
-              aria-label={t('app.accountMenu')}
-              style={{ height: 40, paddingInline: 8 }}
+            <ThemeSwitcher />
+            <LanguageSwitcher />
+            <Dropdown
+              menu={{
+                items: userMenuItems,
+                onClick: ({ key }) => {
+                  if (key === 'logout') handleLogout()
+                },
+              }}
+              placement="bottomRight"
+              trigger={['click']}
             >
-              <Space size={8}>
-                <Avatar
-                  size="small"
-                  style={{ backgroundColor: preset.config.token?.colorPrimary }}
-                >
-                  {initial}
-                </Avatar>
-                {screens.sm ? <span>{user?.name}</span> : null}
-                <DownOutlined style={{ fontSize: 10 }} />
-              </Space>
-            </Button>
-          </Dropdown>,
+              <Button
+                type="text"
+                aria-label={t('app.accountMenu')}
+                style={{ height: 40, paddingInline: 8 }}
+              >
+                <Space size={8}>
+                  <Avatar
+                    size="small"
+                    style={{ backgroundColor: preset.config.token?.colorPrimary }}
+                  >
+                    {initial}
+                  </Avatar>
+                  {screens.sm ? <span>{user?.name}</span> : null}
+                  <DownOutlined style={{ fontSize: 10 }} />
+                </Space>
+              </Button>
+            </Dropdown>
+          </Flex>,
         ]}
         contentStyle={{ padding: 0 }}
         footerRender={false}

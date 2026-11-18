@@ -36,12 +36,17 @@ beforeEach(() => {
 })
 
 describe('AppLayout', () => {
-  it('renders the language switcher in the header', () => {
+  it('puts the theme, language and account controls in one header row', () => {
     renderShell()
 
-    expect(
-      screen.getByRole('button', { name: 'Language: English' }),
-    ).toBeInTheDocument()
+    const language = screen.getByRole('button', { name: 'Language: English' })
+    const theme = screen.getByRole('button', { name: 'Theme: Calm Blue' })
+    const account = screen.getByRole('button', { name: 'Account menu' })
+
+    const row = language.closest('.ant-flex')
+    expect(row).not.toBeNull()
+    expect(row).toContainElement(theme)
+    expect(row).toContainElement(account)
   })
 
   it('translates the menu when the locale changes', async () => {

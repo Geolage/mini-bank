@@ -9,6 +9,7 @@ const zhCN: Messages = {
     accountMenu: '账户菜单',
     signOut: '退出登录',
     language: '语言',
+    theme: '主题',
     languageEnglish: 'English',
     languageChinese: '简体中文',
   },

@@ -7,6 +7,7 @@ const enUS = {
     accountMenu: 'Account menu',
     signOut: 'Sign out',
     language: 'Language',
+    theme: 'Theme',
     languageEnglish: 'English',
     languageChinese: '简体中文',
   },

@@ -28,7 +28,7 @@ Vite · TanStack Query       JWT · RBAC · Swagger      Prisma · migrations
 | Forms | Ant Design Form |
 | UI | Ant Design 5 + ProComponents (ProLayout, ProCard, ProTable) |
 | Internationalisation | Hand-written typed zh/en catalogues + Ant Design and dayjs locales (no i18n library); Simplified Chinese is the default |
-| Theming | `ConfigProvider` token presets (5 palettes) + ProLayout sider tokens |
+| Theming | `ConfigProvider` token presets (6 AA-checked palettes) + ProLayout sider tokens |
 | Frontend tests | Vitest 5 + React Testing Library + jest-dom (Jest-compatible API) |
 | E2E | Cypress 16 |
 | Backend | NestJS 12 (ESM), Passport JWT |
@@ -214,7 +214,10 @@ accessibility and stretch goals.
 - The interface opens in Simplified Chinese; the language switcher sits in the app header on
   every screen, including sign-in, and the choice is stored in `localStorage`
   (`mini-bank.preferences`) and sets `<html lang>`
-- Settings page: language, five AA-checked colour palettes, and **Restore defaults**
+- Settings page: language, six AA-checked colour palettes (Calm Blue, Elegant Blue, Aurora
+  Purple, Emerald, Volcano, Slate), and **Restore defaults**
+- Tables centre-align headers and cells; cells that would overflow (audit details,
+  transaction notes) clip with `…` and expose the full value in a tooltip
 - The sidebar logo and title navigate to `/accounts` instead of doing nothing
 - Login identity: `POST /api/auth/login` takes one `identifier` field (username or email);
   unknown users and wrong passwords return the same 401 message
@@ -251,6 +254,14 @@ accessibility and stretch goals.
 - **Typed message keys, no i18n library.** The catalogue is a plain object and `t()` is
   ~40 lines; the key union is derived from it, so the whole UI is localised without a
   runtime dependency or a locale-loading waterfall.
+- **Ant Design locale is imported from `antd/es/locale/*`.** The documented
+  `antd/locale/*` path is a CommonJS shim, and Vite's pre-bundler wraps it in an extra
+  `{ default: … }`, so `ConfigProvider` silently kept English date pickers, pagination and
+  table text while every string in our own catalogue was Chinese. jsdom never showed this —
+  a Cypress spec asserts the pickers render 开始日期 / 条/页.
+- **AA contrast is a test, not a note.** `theme/presets.test.ts` recomputes white-on-primary,
+  link-on-white and sidebar-selection ratios for every palette, so a new colour cannot ship
+  below 4.5:1. This is what ruled `#0088ff` (3.52:1) out as a primary.
 
 ## Known limitations
 

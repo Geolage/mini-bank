@@ -4,6 +4,7 @@ import { ADMIN, VISITOR, signIn } from '../support/session'
 
 const BLUE_SELECTED = 'rgb(9, 75, 176)'
 const EMERALD_SELECTED = 'rgb(6, 95, 70)'
+const ELEGANT_SELECTED = 'rgb(8, 87, 168)'
 
 function readPreferences() {
   return cy
@@ -117,6 +118,56 @@ describe('settings', () => {
     cy.contains('button', 'Restore defaults').click()
     cy.get('.ant-menu-item-selected').should('have.css', 'color', BLUE_SELECTED)
     readPreferences().its('state.themeId').should('eq', 'antd-blue')
+  })
+
+  it('pins the header controls to one aligned row at the top right', () => {
+    cy.viewport(1180, 720)
+    signIn(ADMIN)
+
+    // The header actions mount a tick after the route, so wait for all three before
+    // measuring; the rect lookups below are synchronous.
+    cy.get('button[aria-label^="Theme:"]').should('be.visible')
+    cy.get('button[aria-label^="Language:"]').should('be.visible')
+    cy.get('button[aria-label="Account menu"]').should('be.visible')
+
+    cy.window().then((win) => {
+      const rect = (selector: string) => {
+        const element = win.document.querySelector(selector)
+        assert.exists(element, selector)
+        return element!.getBoundingClientRect()
+      }
+
+      const theme = rect('button[aria-label^="Theme:"]')
+      const language = rect('button[aria-label^="Language:"]')
+      const account = rect('button[aria-label="Account menu"]')
+
+      for (const box of [theme, language, account]) {
+        expect(box.height).to.equal(40)
+        expect(Math.abs(box.top - language.top)).to.be.lessThan(1)
+        // Inside the fixed header band at the very top of the viewport.
+        expect(box.top).to.be.lessThan(56)
+      }
+
+      // Ordered left to right and hugging the top-right corner.
+      expect(account.right).to.be.greaterThan(language.right)
+      expect(language.right).to.be.greaterThan(theme.right)
+      expect(win.innerWidth - account.right).to.be.lessThan(48)
+    })
+  })
+
+  it('switches the palette from the header and keeps it', () => {
+    cy.viewport(1180, 720)
+    signIn(ADMIN)
+
+    cy.get('button[aria-label="Theme: Calm Blue"]').click()
+    cy.get('[role=menuitem]').contains('Elegant Blue').click()
+
+    cy.get('.ant-menu-item-selected').should('have.css', 'color', ELEGANT_SELECTED)
+    readPreferences().its('state.themeId').should('eq', 'elegant-blue')
+
+    cy.reload()
+    cy.get('button[aria-label="Theme: Elegant Blue"]').should('be.visible')
+    cy.get('.ant-menu-item-selected').should('have.css', 'color', ELEGANT_SELECTED)
   })
 
   it('lets a visitor sign in with an email address and hides operator pages', () => {

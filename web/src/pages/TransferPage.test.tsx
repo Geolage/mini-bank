@@ -104,7 +104,7 @@ describe('TransferPage', () => {
     renderTransferPage()
 
     expect(
-      await screen.findByText('•••• 0001 · $12,500.00 · USD'),
+      await screen.findByText(/•••• 0001 · USD\s12,500\.00/),
     ).toBeInTheDocument()
   })
 
@@ -112,7 +112,7 @@ describe('TransferPage', () => {
     mockApi()
     renderTransferPage()
 
-    await screen.findByText('•••• 0001 · $12,500.00 · USD')
+    await screen.findByText(/•••• 0001 · USD\s12,500\.00/)
     await userEvent.click(screen.getByRole('button', { name: 'Submit transfer' }))
 
     expect(
@@ -130,7 +130,7 @@ describe('TransferPage', () => {
     mockApi()
     renderTransferPage()
 
-    await screen.findByText('•••• 0001 · $12,500.00 · USD')
+    await screen.findByText(/•••• 0001 · USD\s12,500\.00/)
     await userEvent.type(
       screen.getByLabelText('To account number'),
       'MB-2001-0001',
@@ -169,7 +169,7 @@ describe('TransferPage', () => {
     )
     renderTransferPage()
 
-    await screen.findByText('•••• 0001 · $12,500.00 · USD')
+    await screen.findByText(/•••• 0001 · USD\s12,500\.00/)
     await userEvent.type(
       screen.getByLabelText('To account number'),
       'MB-2001-0001',

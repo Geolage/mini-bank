@@ -64,7 +64,7 @@ describe('settings', () => {
 
     cy.get('.ant-menu').contains('a', '账户').click()
     cy.contains('h1', '账户').should('be.visible')
-    cy.contains('US$12,500.00').should('be.visible')
+    cy.contains(/USD\s12,500\.00/).should('be.visible')
     cy.contains('a', '查看交易').should('be.visible')
     cy.window().then(noHorizontalOverflow)
     cy.screenshot('accounts-page-zh', { capture: 'viewport' })

@@ -9,6 +9,9 @@ export function formatMoney(
   return new Intl.NumberFormat(locale, {
     style: 'currency',
     currency,
+    // ISO 4217 codes, not symbols: "$" would mean USD in en-US and US$ in zh-CN, and
+    // HKD/CNY collide the same way. A banking console has to stay unambiguous.
+    currencyDisplay: 'code',
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(Number.isFinite(value) ? value : 0)

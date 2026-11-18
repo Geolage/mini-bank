@@ -88,8 +88,8 @@ describe('AccountsPage', () => {
 
     renderAccountsPage()
 
-    expect(await screen.findByText('$12,500.00')).toBeInTheDocument()
-    expect(screen.getByText('HK$48,000.00')).toBeInTheDocument()
+    expect(await screen.findByText(/USD\s12,500\.00/)).toBeInTheDocument()
+    expect(screen.getByText(/HKD\s48,000\.00/)).toBeInTheDocument()
     expect(screen.getByText('•••• 0001')).toBeInTheDocument()
 
     const links = screen.getAllByRole('link', { name: /view transactions/i })
@@ -107,7 +107,7 @@ describe('AccountsPage', () => {
     fetchMock.mockResolvedValue(jsonResponse(accounts))
     renderAccountsPage()
 
-    await screen.findByText('$12,500.00')
+    await screen.findByText(/USD\s12,500\.00/)
     await userEvent.click(screen.getByRole('button', { name: 'Refresh' }))
 
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2))

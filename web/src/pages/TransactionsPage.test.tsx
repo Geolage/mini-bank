@@ -133,9 +133,9 @@ describe('TransactionsPage', () => {
     expect(await screen.findByText('SEED-TXN-006')).toBeInTheDocument()
     expect(screen.getByText('SEED-TXN-005')).toBeInTheDocument()
     expect(screen.getByText('•••• 0001')).toBeInTheDocument()
-    expect(screen.getByText('$12,500.00')).toBeInTheDocument()
-    expect(screen.getByText('+$18.75')).toBeInTheDocument()
-    expect(screen.getByText('-$42.00')).toBeInTheDocument()
+    expect(screen.getByText(/USD\s12,500\.00/)).toBeInTheDocument()
+    expect(screen.getByText(/\+USD\s18\.75/)).toBeInTheDocument()
+    expect(screen.getByText(/-USD\s42\.00/)).toBeInTheDocument()
     expect(screen.getByText('Incoming')).toBeInTheDocument()
     expect(screen.getByText('Outgoing')).toBeInTheDocument()
 

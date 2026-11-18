@@ -40,15 +40,15 @@ describe('authentication', () => {
   it('clears cached account data between sessions', () => {
     cy.viewport(1180, 720)
     signIn(ADMIN)
-    cy.contains('$12,500.00').should('be.visible')
+    cy.contains(/USD\s12,500\.00/).should('be.visible')
 
     cy.get('button[aria-label="Account menu"]').click()
     cy.contains('Sign out').click()
     cy.location('pathname').should('eq', '/login')
 
     signIn(VISITOR)
-    cy.contains('$3,200.00').should('be.visible')
-    cy.contains('$12,500.00').should('not.exist')
+    cy.contains(/USD\s3,200\.00/).should('be.visible')
+    cy.contains(/USD\s12,500\.00/).should('not.exist')
   })
 
   it('shows an API error for invalid credentials and stays on login', () => {
@@ -80,6 +80,9 @@ describe('authentication', () => {
 
     cy.visit('/accounts')
     cy.location('pathname').should('eq', '/login')
+    cy.contains('Your session has expired. Please sign in again.').should(
+      'be.visible',
+    )
     cy.window().then((win) => {
       expect(win.localStorage.getItem('mini-bank.auth')).to.equal(null)
     })

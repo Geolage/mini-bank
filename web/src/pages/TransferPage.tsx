@@ -133,7 +133,7 @@ export function TransferPage() {
                       account.balance,
                       account.currency,
                       locale,
-                    )} · ${account.currency}`,
+                    )}`,
                   }))}
                 />
               </Form.Item>

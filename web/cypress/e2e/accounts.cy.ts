@@ -8,8 +8,8 @@ describe('accounts', () => {
     signIn(ADMIN)
 
     cy.contains('h1', 'Accounts').should('be.visible')
-    cy.contains('$12,500.00').should('be.visible')
-    cy.contains('HK$48,000.00').should('be.visible')
+    cy.contains(/USD\s12,500\.00/).should('be.visible')
+    cy.contains(/HKD\s48,000\.00/).should('be.visible')
     cy.screenshot('accounts-page', { capture: 'viewport' })
   })
 })

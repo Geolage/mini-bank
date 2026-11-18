@@ -1,5 +1,7 @@
 # MiniBank · Account Console
 
+**English** · [简体中文](README.zh-CN.md)
+
 A full-stack online-banking demo. It walks through authentication, accounts, statements,
 idempotent transfers, an audit trail, a payee address book, an overview dashboard,
 bilingual UI, theming and accessibility — built so developers can read how an internet
@@ -145,22 +147,23 @@ language the page is currently using.
 
 ## Scripts
 
-| Command                      | Description                                                 |
-| ---------------------------- | ----------------------------------------------------------- |
-| `pnpm dev`                   | Run web + API in watch mode                                 |
-| `pnpm build`                 | Build both apps                                             |
-| `pnpm --filter web size`     | Check the initial gzipped payload against the 400 kB budget |
-| `pnpm lint`                  | Oxlint both apps                                            |
-| `pnpm typecheck`             | TypeScript checks                                           |
-| `pnpm test`                  | Unit tests (Vitest)                                         |
-| `pnpm --filter api test:e2e` | API e2e tests (no DB required)                              |
-| `pnpm db:up` / `db:down`     | Start / stop PostgreSQL                                     |
-| `pnpm db:migrate`            | `prisma migrate dev` (also generates the Prisma client)     |
-| `pnpm db:generate`           | Generate the Prisma client without migrating (used by CI)   |
-| `pnpm db:seed`               | Seed demo users, accounts and transactions                  |
-| `pnpm db:studio`             | Prisma Studio                                               |
-| `pnpm --filter web cy:open`  | Cypress interactive runner                                  |
-| `pnpm --filter web cy:run`   | Cypress headless (requires web + API + DB)                  |
+| Command                        | Description                                                  |
+| ------------------------------ | ------------------------------------------------------------ |
+| `pnpm dev`                     | Run web + API in watch mode                                  |
+| `pnpm build`                   | Build both apps                                              |
+| `pnpm --filter web size`       | Check the initial gzipped payload against the 400 kB budget  |
+| `pnpm lint`                    | Oxlint both apps                                             |
+| `pnpm format` / `format:check` | Prettier write / verify (root config, per-package overrides) |
+| `pnpm typecheck`               | TypeScript checks                                            |
+| `pnpm test`                    | Unit tests (Vitest)                                          |
+| `pnpm --filter api test:e2e`   | API e2e tests (no DB required)                               |
+| `pnpm db:up` / `db:down`       | Start / stop PostgreSQL                                      |
+| `pnpm db:migrate`              | `prisma migrate dev` (also generates the Prisma client)      |
+| `pnpm db:generate`             | Generate the Prisma client without migrating (used by CI)    |
+| `pnpm db:seed`                 | Seed demo users, accounts and transactions                   |
+| `pnpm db:studio`               | Prisma Studio                                                |
+| `pnpm --filter web cy:open`    | Cypress interactive runner                                   |
+| `pnpm --filter web cy:run`     | Cypress headless (requires web + API + DB)                   |
 
 ## Build tasks
 
@@ -195,8 +198,10 @@ accessibility and stretch goals.
 
 - Done: Vitest for the auth store, the preferences store, the i18n resolver, locale-aware
   formatting, guards and every page state; axe-core checks for all pages, including Settings
-  in both languages; Supertest e2e for auth, transactions, transfers and audit; 22 Cypress
-  scenarios for login (username and email), shell, transactions, audit, transfer and settings
+  in both languages; Supertest e2e for auth, transactions, transfers and audit; 34 Cypress
+  scenarios for login (username and email), shell, transactions, audit, transfer, settings,
+  payees and the dashboard
+- Current totals: 38 API unit + 35 API e2e + 127 web unit tests
 - Remaining: a Cypress transfer scenario against the real database with automatic
   demo-data reset
 
@@ -206,7 +211,7 @@ accessibility and stretch goals.
   serious findings), skip-link tab order, `aria-invalid` / `aria-describedby` wiring and
   loading announcements
 - Done: Lighthouse on the production build — Accessibility 100, Best Practices 100 and
-  SEO 100 on both form factors (mobile Performance 84 under simulated slow 4G, desktop
+  SEO 100 on both form factors (mobile Performance 81 under simulated slow 4G, desktop
   99). The audit caught contrast failures jsdom cannot see, so the theme overrides
   `colorPrimary` and `colorTextDescription` with AA-passing values
 - Remaining: dialogs and the ProLayout mobile drawer in a real browser
@@ -225,7 +230,7 @@ accessibility and stretch goals.
   Purple, Emerald, Volcano, Slate), and **Restore defaults**
 - Tables centre-align headers and cells; cells that would overflow (audit details,
   transaction notes) clip with `…` and expose the full value in a tooltip
-- The sidebar logo and title navigate to `/accounts` instead of doing nothing
+- The sidebar logo and title navigate to the overview (`/dashboard`) instead of doing nothing
 - Login identity: `POST /api/auth/login` takes one `identifier` field (username or email);
   unknown users and wrong passwords return the same 401 message
 - When a stored token is rejected, the API client signs the session out centrally, clears the

@@ -218,6 +218,9 @@ accessibility and stretch goals.
 - The sidebar logo and title navigate to `/accounts` instead of doing nothing
 - Login identity: `POST /api/auth/login` takes one `identifier` field (username or email);
   unknown users and wrong passwords return the same 401 message
+- When a stored token is rejected, the API client signs the session out centrally, clears the
+  query cache and the sign-in page says 登录状态已过期 / Your session has expired, so a
+  bounce back to login is never silent
 - Verified: Lighthouse on the production build still scores Accessibility 100 with the
   Chinese UI and with the weakest palette (Volcano) as defaults
 
@@ -231,6 +234,9 @@ accessibility and stretch goals.
 ## Design decisions worth knowing
 
 - **Money is a decimal string, never a float.** Prisma `Decimal(14, 2)` end to end.
+- **Balances carry the ISO 4217 code, not a symbol.** `Intl` with `currencyDisplay: 'code'`
+  renders `USD 12,500.00` / `HKD 48,000.00` in both locales; the symbol form would show
+  `$` in English and `US$` in Chinese for the same account, and HKD/CNY collide the same way.
 - **TanStack Query with a hand-written fetch client.** One `apiFetch` owns the JWT, error
   parsing and 401 sign-out; query keys and prefix invalidation keep balances, statements
   and the audit log coherent after a transfer.

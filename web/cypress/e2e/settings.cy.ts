@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-import { ADMIN, signIn } from '../support/session'
+import { ADMIN, VISITOR, signIn } from '../support/session'
 
 const BLUE_SELECTED = 'rgb(9, 75, 176)'
 const EMERALD_SELECTED = 'rgb(6, 95, 70)'
@@ -29,6 +29,22 @@ describe('settings', () => {
     cy.get('html').should('have.attr', 'lang', 'zh-CN')
     cy.window().then(noHorizontalOverflow)
     cy.screenshot('login-page-zh', { capture: 'viewport' })
+  })
+
+  it('localises Ant Design widgets, not only our own copy', () => {
+    cy.viewport(1180, 720)
+    signIn(VISITOR)
+
+    cy.get('button[aria-label="Language: English"]').click()
+    cy.get('[role=menuitem]').contains('简体中文').click()
+
+    cy.contains('a', '查看交易').first().click()
+    cy.location('pathname').should('match', /\/accounts\/.+\/transactions$/)
+
+    cy.get('input[placeholder="开始日期"]').should('exist')
+    cy.get('input[placeholder="结束日期"]').should('exist')
+    cy.contains('.ant-select-selection-item', '条/页').should('be.visible')
+    cy.get('.ant-pagination-prev').should('have.attr', 'title', '上一页')
   })
 
   it('opens in Chinese when the browser has no stored preference', () => {

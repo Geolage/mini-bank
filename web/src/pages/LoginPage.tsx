@@ -12,6 +12,7 @@ import {
   Space,
   Typography,
 } from 'antd'
+import { useEffect } from 'react'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../app/authStore'
 import { LanguageSwitcher } from '../components/LanguageSwitcher'
@@ -38,6 +39,13 @@ export function LoginPage() {
   const sessionExpired = useAuthStore((state) => state.sessionExpired)
   const dismissExpiredNotice = useAuthStore((state) => state.dismissExpiredNotice)
   const { t } = useI18n()
+
+  // The shell owns the document title while signed in and the login page sits outside it,
+  // so without this the tab keeps the previous page's name after being bounced back.
+  const documentTitle = `${t('auth.signIn')} · ${t('app.name')}`
+  useEffect(() => {
+    document.title = documentTitle
+  }, [documentTitle])
 
   const redirectTo =
     (location.state as { from?: string } | null)?.from ?? '/accounts'

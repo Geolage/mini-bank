@@ -11,7 +11,7 @@ async function bootstrap() {
 
   const config = app.get(ConfigService);
   const port = Number(config.get('PORT') ?? 3000);
-  const corsOrigins = (config.get<string>('CORS_ORIGIN') ?? 'http://localhost:5173')
+  const corsOrigins = (config.get<string>('CORS_ORIGIN') ?? 'http://localhost:8080')
     .split(',')
     .map((origin) => origin.trim())
     .filter(Boolean);

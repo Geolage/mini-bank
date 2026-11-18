@@ -27,7 +27,7 @@ Vite · TanStack Query       JWT · RBAC · Swagger      Prisma · migrations
 | Session state | Zustand 5 |
 | Forms | Ant Design Form |
 | UI | Ant Design 5 + ProComponents (ProLayout, ProCard, ProTable) |
-| Internationalisation | Hand-written typed zh/en catalogues + Ant Design and dayjs locales (no i18n library) |
+| Internationalisation | Hand-written typed zh/en catalogues + Ant Design and dayjs locales (no i18n library); Simplified Chinese is the default |
 | Theming | `ConfigProvider` token presets (5 palettes) + ProLayout sider tokens |
 | Frontend tests | Vitest 5 + React Testing Library + jest-dom (Jest-compatible API) |
 | E2E | Cypress 16 |
@@ -122,7 +122,7 @@ pnpm dev
 
 | Service | URL |
 |---|---|
-| Web app | http://localhost:5173 |
+| Web app | http://localhost:8080 |
 | API | http://localhost:3000/api |
 | Swagger | http://localhost:3000/docs |
 | Health | http://localhost:3000/api/health |
@@ -211,8 +211,9 @@ accessibility and stretch goals.
 - Every string (including Ant Design locale data and `dayjs`) renders through one typed `t()`;
   `MessageKey` is derived from the English catalogue, so a missing or misspelled key fails
   the type check rather than showing a blank label
-- Language switcher sits in the app header on every screen, including sign-in; the choice
-  is stored in `localStorage` (`mini-bank.preferences`) and sets `<html lang>`
+- The interface opens in Simplified Chinese; the language switcher sits in the app header on
+  every screen, including sign-in, and the choice is stored in `localStorage`
+  (`mini-bank.preferences`) and sets `<html lang>`
 - Settings page: language, five AA-checked colour palettes, and **Restore defaults**
 - The sidebar logo and title navigate to `/accounts` instead of doing nothing
 - Login identity: `POST /api/auth/login` takes one `identifier` field (username or email);
@@ -257,8 +258,8 @@ deployment needs a password policy, MFA, reuse checks and rate limiting.
 
 ## Accessibility
 
-- Language switcher (English / 简体中文) with Ant Design and dayjs locales wired through
-  `ConfigProvider`; every theme preset is AA-contrast checked
+- Language switcher (简体中文 by default, English on demand) with Ant Design and dayjs
+  locales wired through `ConfigProvider`; every theme preset is AA-contrast checked
 - Skip link, landmarks, semantic headings
 - Labelled form controls with `aria-invalid` / `aria-describedby`
 - Visible focus rings and `prefers-reduced-motion` support

@@ -10,11 +10,20 @@ describe('audit log', () => {
     cy.get('.ant-menu').contains('a', 'Audit log').click()
     cy.location('pathname').should('eq', '/audit')
 
-    cy.contains('SEED_TRANSACTIONS_CREATED').should('be.visible')
-    cy.contains('SEED_ACCOUNTS_CREATED').should('be.visible')
+    // Other specs write payee audit entries, so the seed rows are not guaranteed to sit
+    // on page one; narrow to them explicitly instead of assuming their position.
+    cy.get('.ant-table-tbody tr.ant-table-row').should(
+      'have.length.greaterThan',
+      0,
+    )
     cy.contains('admin@minibank.dev').should('be.visible')
-    cy.contains('visitor@minibank.dev').should('be.visible')
-    cy.contains('1–2 of 2').should('be.visible')
+
+    cy.get('input[placeholder="TRANSFER_CREATED"]').type(
+      'SEED_TRANSACTIONS_CREATED{enter}',
+    )
+    cy.location('search').should('contain', 'action=SEED_TRANSACTIONS_CREATED')
+    cy.contains('SEED_TRANSACTIONS_CREATED').should('be.visible')
+    cy.contains('1–1 of 1').should('be.visible')
 
     // The details cell clips visually but keeps the full payload in the DOM and under a
     // tooltip, so nothing is unreadable. The code element is partly hidden by the cell,
@@ -34,9 +43,9 @@ describe('audit log', () => {
       .find('code')
       .trigger('mouseout', { force: true })
 
-    cy.get('input[placeholder="TRANSFER_CREATED"]').type(
-      'SEED_ACCOUNTS_CREATED{enter}',
-    )
+    cy.get('input[placeholder="TRANSFER_CREATED"]')
+      .clear()
+      .type('SEED_ACCOUNTS_CREATED{enter}')
     cy.location('search').should('contain', 'action=SEED_ACCOUNTS_CREATED')
     cy.contains('SEED_TRANSACTIONS_CREATED').should('not.exist')
     cy.contains('SEED_ACCOUNTS_CREATED').should('be.visible')

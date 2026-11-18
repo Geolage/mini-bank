@@ -51,6 +51,7 @@ function renderLoginPage() {
           <Routes>
             <Route path="/login" element={<LoginPage />} />
             <Route path="/accounts" element={<h1>Accounts screen</h1>} />
+            <Route path="/dashboard" element={<h1>Overview screen</h1>} />
           </Routes>
         </MemoryRouter>
       </QueryClientProvider>
@@ -103,7 +104,7 @@ describe('LoginPage', () => {
     await user.click(screen.getByRole('button', { name: 'Sign in' }))
 
     expect(
-      await screen.findByRole('heading', { name: 'Accounts screen' }),
+      await screen.findByRole('heading', { name: 'Overview screen' }),
     ).toBeInTheDocument()
     expect(useAuthStore.getState().token).toBe('jwt-token')
     expect(JSON.parse(localStorage.getItem('mini-bank.auth') ?? '{}')).toMatchObject({

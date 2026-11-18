@@ -53,6 +53,6 @@ describe('application shell', () => {
     cy.visit('/audit')
     cy.get('.ant-pro-sider-logo').find('a').click()
 
-    cy.location('pathname').should('eq', '/accounts')
+    cy.location('pathname').should('eq', '/dashboard')
   })
 })

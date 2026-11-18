@@ -48,7 +48,7 @@ export function LoginPage() {
   }, [documentTitle])
 
   const redirectTo =
-    (location.state as { from?: string } | null)?.from ?? '/accounts'
+    (location.state as { from?: string } | null)?.from ?? '/dashboard'
 
   const loginMutation = useMutation({
     mutationFn: login,

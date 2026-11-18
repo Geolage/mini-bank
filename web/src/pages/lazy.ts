@@ -8,6 +8,10 @@ export const AuditPage = lazy(() =>
   import('./AuditPage').then((module) => ({ default: module.AuditPage })),
 )
 
+export const DashboardPage = lazy(() =>
+  import('./DashboardPage').then((module) => ({ default: module.DashboardPage })),
+)
+
 export const LoginPage = lazy(() =>
   import('./LoginPage').then((module) => ({ default: module.LoginPage })),
 )

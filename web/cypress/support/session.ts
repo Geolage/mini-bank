@@ -12,5 +12,5 @@ export function fillLogin(identifier: string, password: string) {
 export function signIn({ identifier, password }: typeof ADMIN) {
   cy.visit('/login')
   fillLogin(identifier, password)
-  cy.location('pathname').should('eq', '/accounts')
+  cy.location('pathname').should('eq', '/dashboard')
 }

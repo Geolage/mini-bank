@@ -13,4 +13,5 @@ export const queryKeys = {
   audit: (params: AuditListParams) => ['audit', params] as const,
   payeesAll: ['payees'] as const,
   payees: (params: PayeeListParams) => ['payees', params] as const,
+  dashboard: ['dashboard'] as const,
 } as const

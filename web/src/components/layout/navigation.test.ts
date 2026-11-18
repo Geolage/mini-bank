@@ -8,11 +8,13 @@ import {
 describe('navigation', () => {
   it('limits viewers to account, payee and settings navigation', () => {
     expect(buildMenuRoutes('VIEWER').map((route) => route.path)).toEqual([
+      '/dashboard',
       '/accounts',
       '/payees',
       '/settings',
     ])
     expect(buildMenuRoutes(null).map((route) => route.path)).toEqual([
+      '/dashboard',
       '/accounts',
       '/payees',
       '/settings',
@@ -21,6 +23,7 @@ describe('navigation', () => {
 
   it('adds transfer and audit entries for operators', () => {
     expect(buildMenuRoutes('OPERATOR').map((route) => route.path)).toEqual([
+      '/dashboard',
       '/accounts',
       '/payees',
       '/transfer',
@@ -30,6 +33,8 @@ describe('navigation', () => {
   })
 
   it('keeps accounts selected on the transaction history route', () => {
+    expect(getSelectedMenuKeys('/dashboard')).toEqual(['/dashboard'])
+    expect(getSelectedMenuKeys('/dashboard')).toEqual(['/dashboard'])
     expect(getSelectedMenuKeys('/accounts')).toEqual(['/accounts'])
     expect(getSelectedMenuKeys('/accounts/abc/transactions')).toEqual([
       '/accounts',
@@ -41,6 +46,12 @@ describe('navigation', () => {
   })
 
   it('builds breadcrumbs only for known routes', () => {
+    expect(getBreadcrumbTrail('/dashboard')).toEqual([
+      { labelKey: 'nav.dashboard' },
+    ])
+    expect(getBreadcrumbTrail('/dashboard')).toEqual([
+      { labelKey: 'nav.dashboard' },
+    ])
     expect(getBreadcrumbTrail('/accounts')).toEqual([
       { labelKey: 'nav.accounts' },
     ])
@@ -65,6 +76,7 @@ describe('navigation', () => {
 
   it('names menu entries with message keys so they can be translated', () => {
     expect(buildMenuRoutes('OPERATOR').map((route) => route.nameKey)).toEqual([
+      'nav.dashboard',
       'nav.accounts',
       'nav.payees',
       'nav.transfer',

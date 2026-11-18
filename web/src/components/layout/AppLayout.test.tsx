@@ -70,13 +70,13 @@ describe('AppLayout', () => {
     expect(screen.queryByRole('menuitem', { name: /Audit log/ })).toBeNull()
   })
 
-  it('points the logo at the accounts page', async () => {
+  it('points the logo at the dashboard', async () => {
     renderShell()
 
     await screen.findByRole('menuitem', { name: /Accounts/ })
     expect(screen.getByRole('link', { name: /MiniBank/ })).toHaveAttribute(
       'href',
-      '/accounts',
+      '/dashboard',
     )
   })
 })

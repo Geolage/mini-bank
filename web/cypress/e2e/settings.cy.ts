@@ -177,7 +177,7 @@ describe('settings', () => {
     cy.get('input[name="password"]').type('00000000')
     cy.contains('button', 'Sign in').click()
 
-    cy.location('pathname').should('eq', '/accounts')
+    cy.location('pathname').should('eq', '/dashboard')
     cy.get('.ant-pro-sider-menu').within(() => {
       cy.contains('Transfer').should('not.exist')
       cy.contains('Audit log').should('not.exist')

@@ -125,3 +125,46 @@ export interface PayeeInput {
   bankName?: string
   note?: string
 }
+
+export interface CurrencyTotal {
+  currency: Currency
+  balance: string
+  accounts: number
+}
+
+export interface CurrencyFlow {
+  currency: Currency
+  incoming: string
+  outgoing: string
+}
+
+export interface SeriesPoint {
+  date: string
+  incoming: string
+  outgoing: string
+}
+
+export interface DashboardSeries {
+  currency: Currency
+  points: SeriesPoint[]
+}
+
+export interface RecentTransaction {
+  id: string
+  reference: string
+  direction: TransactionDirection
+  amount: string
+  currency: Currency
+  counterpartyAccountNumber: string
+  accountId: string
+  note: string | null
+  createdAt: string
+}
+
+export interface DashboardOverview {
+  totals: CurrencyTotal[]
+  payeeCount: number
+  month: CurrencyFlow[]
+  series: DashboardSeries[]
+  recent: RecentTransaction[]
+}

@@ -20,8 +20,10 @@ describe('authentication', () => {
 
     fillLogin('ADMIN@minibank.dev', ADMIN.password)
 
-    cy.location('pathname').should('eq', '/accounts')
-    cy.contains('h1', 'Accounts').should('be.visible')
+    cy.location('pathname').should('eq', '/dashboard')
+    cy.contains('h1', /Good (morning|afternoon|evening), Admin/).should(
+      'be.visible',
+    )
   })
 
   it('signs out from the user menu', () => {

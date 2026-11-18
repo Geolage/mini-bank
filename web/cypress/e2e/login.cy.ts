@@ -10,6 +10,9 @@ describe('login', () => {
 
     signIn(ADMIN)
 
-    cy.contains('h1', 'Accounts').should('be.visible')
+    cy.contains('h1', /Good (morning|afternoon|evening), Admin/).should(
+      'be.visible',
+    )
+    cy.contains('Cash flow · last 30 days').should('be.visible')
   })
 })

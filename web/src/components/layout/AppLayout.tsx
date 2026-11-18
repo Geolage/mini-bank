@@ -91,14 +91,14 @@ export function AppLayout() {
         }}
         menuHeaderRender={(logo, title) => (
           <Link
-            to="/accounts"
+            to="/dashboard"
             style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}
           >
             {logo}
             {title}
           </Link>
         )}
-        onMenuHeaderClick={() => navigate('/accounts')}
+        onMenuHeaderClick={() => navigate('/dashboard')}
         menuItemRender={(item, dom) =>
           item.path ? (
             <Link

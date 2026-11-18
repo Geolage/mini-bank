@@ -9,6 +9,7 @@ import { AppLayout } from '../components/layout/AppLayout'
 import { RequireRole } from '../components/layout/RequireRole'
 import { AccountsPage } from '../pages/AccountsPage'
 import { AuditPage } from '../pages/AuditPage'
+import { DashboardPage } from '../pages/DashboardPage'
 import { LoginPage } from '../pages/LoginPage'
 import { NotFoundPage } from '../pages/NotFoundPage'
 import { PayeesPage } from '../pages/PayeesPage'
@@ -132,6 +133,42 @@ function stubApi() {
       return Promise.resolve(jsonResponse(transactions))
     }
     if (path === '/api/audit-logs') return Promise.resolve(jsonResponse(auditLogs))
+    if (path === '/api/dashboard/overview') {
+      return Promise.resolve(
+        jsonResponse({
+          totals: [
+            { currency: 'USD', balance: '12500.00', accounts: 1 },
+            { currency: 'HKD', balance: '48000.00', accounts: 1 },
+          ],
+          payeeCount: 2,
+          month: [
+            { currency: 'USD', incoming: '18.75', outgoing: '292.00' },
+            { currency: 'HKD', incoming: '0.00', outgoing: '0.00' },
+          ],
+          series: ['USD', 'HKD'].map((currency) => ({
+            currency,
+            points: Array.from({ length: 30 }, (_, index) => ({
+              date: `2026-10-${String(index + 1).padStart(2, '0')}`,
+              incoming: index === 29 ? '18.75' : '0.00',
+              outgoing: index === 29 ? '42.00' : '0.00',
+            })),
+          })),
+          recent: [
+            {
+              id: 'txn-out',
+              reference: 'SEED-TXN-005',
+              direction: 'OUTGOING',
+              amount: '42.00',
+              currency: 'USD',
+              counterpartyAccountNumber: 'MB-2001-0001',
+              accountId: 'account-1',
+              note: 'Coffee beans',
+              createdAt: '2026-10-31T10:00:00.000Z',
+            },
+          ],
+        }),
+      )
+    }
     if (path === '/api/payees') {
       return Promise.resolve(
         jsonResponse({
@@ -209,6 +246,7 @@ function renderShell(initialEntry: string) {
             />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/payees" element={<PayeesPage />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
             <Route
               path="/forbidden"
               element={
@@ -274,6 +312,13 @@ describe('accessibility', () => {
     const { container } = renderShell('/audit')
 
     expect(await screen.findByText('TRANSFER_CREATED')).toBeInTheDocument()
+    await expectNoAccessibilityViolations(container)
+  })
+
+  it('dashboard is accessible', async () => {
+    const { container } = renderShell('/dashboard')
+
+    expect(await screen.findByText('SEED-TXN-005')).toBeInTheDocument()
     await expectNoAccessibilityViolations(container)
   })
 

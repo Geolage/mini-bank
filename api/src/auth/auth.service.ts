@@ -6,7 +6,7 @@ import { PrismaService } from '../prisma/prisma.service.js';
 import type { LoginDto } from './dto/login.dto.js';
 import type { JwtPayload } from './types/jwt-payload.js';
 
-type SafeUser = Pick<User, 'id' | 'name' | 'email' | 'role'>;
+type SafeUser = Pick<User, 'id' | 'username' | 'name' | 'email' | 'role'>;
 
 @Injectable()
 export class AuthService {
@@ -16,9 +16,10 @@ export class AuthService {
   ) {}
 
   async login(dto: LoginDto): Promise<{ accessToken: string; user: SafeUser }> {
-    const user = await this.validateCredentials(dto.email, dto.password);
+    const user = await this.validateCredentials(dto.identifier, dto.password);
     const payload: JwtPayload = {
       sub: user.id,
+      username: user.username,
       email: user.email,
       name: user.name,
       role: user.role,
@@ -30,20 +31,29 @@ export class AuthService {
     };
   }
 
-  async validateCredentials(email: string, password: string): Promise<SafeUser> {
-    const user = await this.prisma.user.findUnique({ where: { email } });
+  async validateCredentials(
+    identifier: string,
+    password: string,
+  ): Promise<SafeUser> {
+    const normalized = identifier.trim().toLowerCase();
+
+    // Both columns are unique, so an identifier is unambiguous: an '@' means email.
+    const user = normalized.includes('@')
+      ? await this.prisma.user.findUnique({ where: { email: normalized } })
+      : await this.prisma.user.findUnique({ where: { username: normalized } });
 
     if (!user) {
-      throw new UnauthorizedException('Invalid email or password');
+      throw new UnauthorizedException('Invalid username or password');
     }
 
     const passwordMatches = await bcrypt.compare(password, user.passwordHash);
     if (!passwordMatches) {
-      throw new UnauthorizedException('Invalid email or password');
+      throw new UnauthorizedException('Invalid username or password');
     }
 
     return {
       id: user.id,
+      username: user.username,
       name: user.name,
       email: user.email,
       role: user.role,

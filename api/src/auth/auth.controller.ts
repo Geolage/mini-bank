@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiBody,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
@@ -20,7 +21,16 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
-  @ApiOperation({ summary: 'Exchange email and password for a JWT' })
+  @ApiOperation({ summary: 'Exchange a username or email and password for a JWT' })
+  @ApiBody({
+    type: LoginDto,
+    examples: {
+      username: { value: { identifier: 'admin', password: '11111111' } },
+      email: {
+        value: { identifier: 'admin@minibank.dev', password: '11111111' },
+      },
+    },
+  })
   @ApiOkResponse({ type: LoginResponseDto })
   @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
   login(@Body() dto: LoginDto) {
@@ -33,7 +43,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Return the authenticated user' })
   @ApiOkResponse({ type: UserDto })
   me(@Req() request: Request & { user: AuthenticatedUser }): UserDto {
-    const { id, name, email, role } = request.user;
-    return { id, name, email, role };
+    const { id, username, name, email, role } = request.user;
+    return { id, username, name, email, role };
   }
 }

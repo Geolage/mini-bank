@@ -6,11 +6,12 @@ import type { PrismaService } from '../prisma/prisma.service.js';
 import { AuthService } from './auth.service.js';
 
 describe('AuthService', () => {
-  const passwordHash = bcrypt.hashSync('Password123!', 10);
+  const passwordHash = bcrypt.hashSync('11111111', 10);
   const user = {
     id: 'user-1',
-    email: 'operator@minibank.dev',
-    name: 'Alex Chen',
+    username: 'admin',
+    email: 'admin@minibank.dev',
+    name: 'Admin',
     passwordHash,
     role: 'OPERATOR' as const,
     createdAt: new Date(),
@@ -28,44 +29,75 @@ describe('AuthService', () => {
     service = new AuthService(prisma, jwtService);
   });
 
-  it('returns a token for valid credentials', async () => {
+  it('signs in with a username', async () => {
     findUnique.mockResolvedValue(user);
     signAsync.mockResolvedValue('signed-token');
 
     const result = await service.login({
-      email: user.email,
-      password: 'Password123!',
+      identifier: 'admin',
+      password: '11111111',
     });
 
+    expect(findUnique).toHaveBeenCalledWith({ where: { username: 'admin' } });
     expect(result.accessToken).toBe('signed-token');
     expect(result.user).toEqual({
       id: user.id,
+      username: user.username,
       name: user.name,
       email: user.email,
       role: 'OPERATOR',
     });
     expect(signAsync).toHaveBeenCalledWith({
       sub: user.id,
+      username: user.username,
       email: user.email,
       name: user.name,
       role: 'OPERATOR',
     });
   });
 
-  it('rejects an unknown email', async () => {
-    findUnique.mockResolvedValue(null);
+  it('signs in with an email', async () => {
+    findUnique.mockResolvedValue(user);
+    signAsync.mockResolvedValue('signed-token');
 
-    await expect(
-      service.login({ email: 'nobody@minibank.dev', password: 'Password123!' }),
-    ).rejects.toBeInstanceOf(UnauthorizedException);
+    await service.login({
+      identifier: 'admin@minibank.dev',
+      password: '11111111',
+    });
+
+    expect(findUnique).toHaveBeenCalledWith({
+      where: { email: 'admin@minibank.dev' },
+    });
   });
 
-  it('rejects a wrong password', async () => {
+  it('lowercases and trims the identifier', async () => {
     findUnique.mockResolvedValue(user);
+    signAsync.mockResolvedValue('signed-token');
 
-    await expect(
-      service.login({ email: user.email, password: 'wrong-password' }),
-    ).rejects.toBeInstanceOf(UnauthorizedException);
+    await service.login({ identifier: '  ADMIN  ', password: '11111111' });
+
+    expect(findUnique).toHaveBeenCalledWith({ where: { username: 'admin' } });
+  });
+
+  it('returns the same error for an unknown username and a wrong password', async () => {
+    findUnique.mockResolvedValue(null);
+    const unknown = await service
+      .login({ identifier: 'ghost', password: '11111111' })
+      .catch((error: unknown) => error as UnauthorizedException);
+
+    findUnique.mockResolvedValue(user);
+    const wrongPassword = await service
+      .login({ identifier: 'admin', password: '00000000' })
+      .catch((error: unknown) => error as UnauthorizedException);
+
+    expect(unknown).toBeInstanceOf(UnauthorizedException);
+    expect(wrongPassword).toBeInstanceOf(UnauthorizedException);
+    expect((unknown as UnauthorizedException).message).toBe(
+      (wrongPassword as UnauthorizedException).message,
+    );
+    expect((unknown as UnauthorizedException).message).toBe(
+      'Invalid username or password',
+    );
     expect(signAsync).not.toHaveBeenCalled();
   });
 });

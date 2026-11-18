@@ -16,38 +16,101 @@ try {
 
 const prisma = new PrismaClient();
 
-const SEED_PASSWORD = 'Password123!';
+const DEMO_ACCOUNTS = [
+  {
+    username: 'admin',
+    email: 'admin@minibank.dev',
+    name: 'Admin',
+    password: '11111111',
+    role: Role.OPERATOR,
+  },
+  {
+    username: 'visitor',
+    email: 'visitor@minibank.dev',
+    name: 'Visitor',
+    password: '00000000',
+    role: Role.VIEWER,
+  },
+];
+
+// Superseded by DEMO_ACCOUNTS. They must be removed, not just skipped, because the
+// upserts below key on account numbers: leaving the old users behind would keep two
+// sets of accounts and break the balances and row counts the Cypress suite asserts.
+const LEGACY_EMAILS = ['operator@minibank.dev', 'viewer@minibank.dev'];
+
+async function removeLegacyUsers(): Promise<void> {
+  const legacyUsers = await prisma.user.findMany({
+    where: { email: { in: LEGACY_EMAILS } },
+    select: { id: true },
+  });
+
+  if (legacyUsers.length === 0) return;
+
+  const userIds = legacyUsers.map((user) => user.id);
+  const legacyAccounts = await prisma.account.findMany({
+    where: { userId: { in: userIds } },
+    select: { id: true },
+  });
+  const accountIds = legacyAccounts.map((account) => account.id);
+
+  await prisma.auditLog.deleteMany({
+    where: {
+      OR: [
+        { actorId: { in: userIds } },
+        ...(accountIds.length > 0
+          ? [{ resourceId: { in: accountIds } }]
+          : []),
+      ],
+    },
+  });
+
+  if (accountIds.length > 0) {
+    await prisma.transaction.deleteMany({
+      where: {
+        OR: [
+          { fromAccountId: { in: accountIds } },
+          { toAccountId: { in: accountIds } },
+        ],
+      },
+    });
+  }
+
+  await prisma.account.deleteMany({ where: { userId: { in: userIds } } });
+  await prisma.user.deleteMany({ where: { id: { in: userIds } } });
+
+  console.log(`Removed ${legacyUsers.length} legacy demo user(s).`);
+}
+
+async function upsertUser(account: (typeof DEMO_ACCOUNTS)[number]) {
+  return prisma.user.upsert({
+    where: { username: account.username },
+    update: {
+      email: account.email,
+      name: account.name,
+      passwordHash: await bcrypt.hash(account.password, 10),
+      role: account.role,
+    },
+    create: {
+      username: account.username,
+      email: account.email,
+      name: account.name,
+      passwordHash: await bcrypt.hash(account.password, 10),
+      role: account.role,
+    },
+  });
+}
 
 async function main() {
-  const passwordHash = await bcrypt.hash(SEED_PASSWORD, 10);
+  await removeLegacyUsers();
 
-  const operator = await prisma.user.upsert({
-    where: { email: 'operator@minibank.dev' },
-    update: {},
-    create: {
-      email: 'operator@minibank.dev',
-      name: 'Alex Chen',
-      passwordHash,
-      role: Role.OPERATOR,
-    },
-  });
+  const admin = await upsertUser(DEMO_ACCOUNTS[0]);
+  const visitor = await upsertUser(DEMO_ACCOUNTS[1]);
 
-  const viewer = await prisma.user.upsert({
-    where: { email: 'viewer@minibank.dev' },
-    update: {},
-    create: {
-      email: 'viewer@minibank.dev',
-      name: 'Jamie Lin',
-      passwordHash,
-      role: Role.VIEWER,
-    },
-  });
-
-  const operatorUsd = await prisma.account.upsert({
+  const adminUsd = await prisma.account.upsert({
     where: { accountNumber: 'MB-1001-0001' },
     update: {},
     create: {
-      userId: operator.id,
+      userId: admin.id,
       accountNumber: 'MB-1001-0001',
       type: AccountType.CHECKING,
       currency: Currency.USD,
@@ -55,11 +118,11 @@ async function main() {
     },
   });
 
-  const operatorHkd = await prisma.account.upsert({
+  const adminHkd = await prisma.account.upsert({
     where: { accountNumber: 'MB-1001-0002' },
     update: {},
     create: {
-      userId: operator.id,
+      userId: admin.id,
       accountNumber: 'MB-1001-0002',
       type: AccountType.SAVINGS,
       currency: Currency.HKD,
@@ -67,11 +130,11 @@ async function main() {
     },
   });
 
-  const viewerUsd = await prisma.account.upsert({
+  const visitorUsd = await prisma.account.upsert({
     where: { accountNumber: 'MB-2001-0001' },
     update: {},
     create: {
-      userId: viewer.id,
+      userId: visitor.id,
       accountNumber: 'MB-2001-0001',
       type: AccountType.CHECKING,
       currency: Currency.USD,
@@ -79,11 +142,11 @@ async function main() {
     },
   });
 
-  const viewerHkd = await prisma.account.upsert({
+  const visitorHkd = await prisma.account.upsert({
     where: { accountNumber: 'MB-2001-0002' },
     update: {},
     create: {
-      userId: viewer.id,
+      userId: visitor.id,
       accountNumber: 'MB-2001-0002',
       type: AccountType.CHECKING,
       currency: Currency.HKD,
@@ -94,8 +157,8 @@ async function main() {
   const transactions = [
     {
       reference: 'SEED-TXN-001',
-      fromAccountId: operatorUsd.id,
-      toAccountId: viewerUsd.id,
+      fromAccountId: adminUsd.id,
+      toAccountId: visitorUsd.id,
       amount: '250.00',
       currency: Currency.USD,
       idempotencyKey: 'seed-idem-001',
@@ -103,8 +166,8 @@ async function main() {
     },
     {
       reference: 'SEED-TXN-002',
-      fromAccountId: viewerUsd.id,
-      toAccountId: operatorUsd.id,
+      fromAccountId: visitorUsd.id,
+      toAccountId: adminUsd.id,
       amount: '75.50',
       currency: Currency.USD,
       idempotencyKey: 'seed-idem-002',
@@ -112,8 +175,8 @@ async function main() {
     },
     {
       reference: 'SEED-TXN-003',
-      fromAccountId: operatorHkd.id,
-      toAccountId: viewerHkd.id,
+      fromAccountId: adminHkd.id,
+      toAccountId: visitorHkd.id,
       amount: '1200.00',
       currency: Currency.HKD,
       idempotencyKey: 'seed-idem-003',
@@ -121,8 +184,8 @@ async function main() {
     },
     {
       reference: 'SEED-TXN-004',
-      fromAccountId: viewerHkd.id,
-      toAccountId: operatorHkd.id,
+      fromAccountId: visitorHkd.id,
+      toAccountId: adminHkd.id,
       amount: '300.00',
       currency: Currency.HKD,
       idempotencyKey: 'seed-idem-004',
@@ -130,8 +193,8 @@ async function main() {
     },
     {
       reference: 'SEED-TXN-005',
-      fromAccountId: operatorUsd.id,
-      toAccountId: viewerUsd.id,
+      fromAccountId: adminUsd.id,
+      toAccountId: visitorUsd.id,
       amount: '42.00',
       currency: Currency.USD,
       idempotencyKey: 'seed-idem-005',
@@ -139,8 +202,8 @@ async function main() {
     },
     {
       reference: 'SEED-TXN-006',
-      fromAccountId: viewerUsd.id,
-      toAccountId: operatorUsd.id,
+      fromAccountId: visitorUsd.id,
+      toAccountId: adminUsd.id,
       amount: '18.75',
       currency: Currency.USD,
       idempotencyKey: 'seed-idem-006',
@@ -158,23 +221,23 @@ async function main() {
 
   await prisma.auditLog.upsert({
     where: { id: '00000000-0000-4000-8000-000000000001' },
-    update: {},
+    update: { actorId: admin.id },
     create: {
       id: '00000000-0000-4000-8000-000000000001',
-      actorId: operator.id,
+      actorId: admin.id,
       action: 'SEED_ACCOUNTS_CREATED',
       resourceType: 'Account',
-      resourceId: operatorUsd.id,
+      resourceId: adminUsd.id,
       metadata: { source: 'seed', accounts: 4 },
     },
   });
 
   await prisma.auditLog.upsert({
     where: { id: '00000000-0000-4000-8000-000000000002' },
-    update: {},
+    update: { actorId: visitor.id },
     create: {
       id: '00000000-0000-4000-8000-000000000002',
-      actorId: viewer.id,
+      actorId: visitor.id,
       action: 'SEED_TRANSACTIONS_CREATED',
       resourceType: 'Transaction',
       resourceId: 'SEED-TXN-001',
@@ -183,8 +246,11 @@ async function main() {
   });
 
   console.log('Seed complete.');
-  console.log(`Operator: operator@minibank.dev / ${SEED_PASSWORD}`);
-  console.log(`Viewer:   viewer@minibank.dev / ${SEED_PASSWORD}`);
+  for (const account of DEMO_ACCOUNTS) {
+    console.log(
+      `${account.role.padEnd(8)} ${account.username} | ${account.email} | ${account.password}`,
+    );
+  }
 }
 
 main()

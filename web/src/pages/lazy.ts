@@ -4,6 +4,12 @@ export const AccountsPage = lazy(() =>
   import('./AccountsPage').then((module) => ({ default: module.AccountsPage })),
 )
 
+export const ApprovalsPage = lazy(() =>
+  import('./ApprovalsPage').then((module) => ({
+    default: module.ApprovalsPage,
+  })),
+)
+
 export const AuditPage = lazy(() =>
   import('./AuditPage').then((module) => ({ default: module.AuditPage })),
 )

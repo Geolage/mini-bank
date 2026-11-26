@@ -23,6 +23,14 @@ const viewer: User = {
   role: 'VIEWER',
 }
 
+const checker: User = {
+  id: 'checker-1',
+  username: 'checker',
+  name: 'Checker',
+  email: 'checker@minibank.dev',
+  role: 'CHECKER',
+}
+
 function renderAuditRoute() {
   return render(
     <MemoryRouter initialEntries={['/audit']}>
@@ -36,6 +44,23 @@ function renderAuditRoute() {
                 <div>Audit content</div>
               </RequireRole>
             </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </MemoryRouter>,
+  )
+}
+
+function renderApprovalsRoute() {
+  return render(
+    <MemoryRouter initialEntries={['/approvals']}>
+      <Routes>
+        <Route
+          path="/approvals"
+          element={
+            <RequireRole role={['OPERATOR', 'CHECKER']}>
+              <div>Approvals content</div>
+            </RequireRole>
           }
         />
       </Routes>
@@ -69,5 +94,22 @@ describe('route guards', () => {
 
     expect(screen.getByText('403')).toBeInTheDocument()
     expect(screen.getByText(/requires the Operator role/)).toBeInTheDocument()
+  })
+
+  it('lets a checker reach a multi-role route', () => {
+    useAuthStore.setState({ token: 'jwt', user: checker })
+    renderApprovalsRoute()
+
+    expect(screen.getByText('Approvals content')).toBeInTheDocument()
+  })
+
+  it('renders 403 with every allowed role for a viewer', () => {
+    useAuthStore.setState({ token: 'jwt', user: viewer })
+    renderApprovalsRoute()
+
+    expect(screen.getByText('403')).toBeInTheDocument()
+    expect(
+      screen.getByText(/requires the Operator \/ Checker role/),
+    ).toBeInTheDocument()
   })
 })

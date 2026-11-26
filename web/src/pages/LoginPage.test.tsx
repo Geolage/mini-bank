@@ -94,6 +94,16 @@ describe('LoginPage', () => {
     expect(screen.getByLabelText('Password')).toHaveValue('11111111')
   })
 
+  it('fills the checker demo credentials', async () => {
+    const user = userEvent.setup()
+    renderLoginPage()
+
+    await user.click(screen.getByRole('button', { name: 'Use checker' }))
+
+    expect(screen.getByLabelText('Account')).toHaveValue('checker')
+    expect(screen.getByLabelText('Password')).toHaveValue('22222222')
+  })
+
   it('stores the session and redirects after a successful sign-in', async () => {
     const user = userEvent.setup()
     mockLogin(jsonResponse({ accessToken: 'jwt-token', user: admin }))

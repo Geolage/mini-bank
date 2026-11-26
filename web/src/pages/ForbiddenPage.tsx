@@ -1,20 +1,35 @@
 import { Button, Result } from 'antd'
 import { useNavigate } from 'react-router-dom'
 import { useI18n } from '../i18n/useI18n'
+import type { MessageKey } from '../i18n/types'
 import type { Role } from '../types/api'
 
-export function ForbiddenPage({ requiredRole }: { requiredRole?: Role }) {
+const ROLE_KEYS: Record<Role, MessageKey> = {
+  OPERATOR: 'enum.role.OPERATOR',
+  VIEWER: 'enum.role.VIEWER',
+  CHECKER: 'enum.role.CHECKER',
+}
+
+export function ForbiddenPage({
+  requiredRole,
+}: {
+  requiredRole?: Role | Role[]
+}) {
   const navigate = useNavigate()
   const { t } = useI18n()
 
-  const subTitle = requiredRole
-    ? t('errors.forbiddenRole', {
-        role:
-          requiredRole === 'OPERATOR'
-            ? t('enum.role.OPERATOR')
-            : t('enum.role.VIEWER'),
-      })
-    : t('errors.forbiddenBody')
+  const roles = requiredRole
+    ? Array.isArray(requiredRole)
+      ? requiredRole
+      : [requiredRole]
+    : []
+
+  const subTitle =
+    roles.length > 0
+      ? t('errors.forbiddenRole', {
+          role: roles.map((role) => t(ROLE_KEYS[role])).join(' / '),
+        })
+      : t('errors.forbiddenBody')
 
   return (
     <>

@@ -7,13 +7,14 @@ export function RequireRole({
   role,
   children,
 }: {
-  role: Role
+  role: Role | Role[]
   children: ReactNode
 }) {
   const user = useAuthStore((state) => state.user)
+  const requiredRoles: Role[] = Array.isArray(role) ? role : [role]
 
-  if (user?.role !== role) {
-    return <ForbiddenPage requiredRole={role} />
+  if (!user || !requiredRoles.includes(user.role)) {
+    return <ForbiddenPage requiredRole={requiredRoles} />
   }
 
   return <>{children}</>

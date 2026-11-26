@@ -1,4 +1,4 @@
-export type Role = 'VIEWER' | 'OPERATOR'
+export type Role = 'VIEWER' | 'OPERATOR' | 'CHECKER'
 export type Currency = 'USD' | 'HKD' | 'CNY'
 export type AccountType = 'CHECKING' | 'SAVINGS'
 export type TransactionStatus = 'COMPLETED' | 'FAILED'
@@ -64,9 +64,16 @@ export interface TransferInput {
   note?: string
 }
 
+export type TransferOrderStatus =
+  'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED'
+
+export type TransferResultStatus =
+  'COMPLETED' | 'PENDING_APPROVAL' | 'REJECTED' | 'CANCELLED'
+
 export interface TransferResult {
   id: string
   reference: string
+  status: TransferResultStatus
 }
 
 export interface AuditActor {
@@ -167,4 +174,39 @@ export interface DashboardOverview {
   month: CurrencyFlow[]
   series: DashboardSeries[]
   recent: RecentTransaction[]
+}
+
+export interface TransferOrderParty {
+  id: string
+  name: string
+  username: string
+}
+
+export interface TransferOrderAccount {
+  id: string
+  accountNumber: string
+  type: AccountType
+}
+
+export interface TransferOrder {
+  id: string
+  reference: string
+  status: TransferOrderStatus
+  amount: string
+  currency: Currency
+  note: string | null
+  createdAt: string
+  decidedAt: string | null
+  decisionNote: string | null
+  maker: TransferOrderParty
+  checker: TransferOrderParty | null
+  fromAccount: TransferOrderAccount
+  toAccount: TransferOrderAccount
+  transactionId: string | null
+}
+
+export interface TransferOrderListParams {
+  page: number
+  pageSize: number
+  status?: TransferOrderStatus
 }

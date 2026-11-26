@@ -3,6 +3,7 @@ import {
   BankOutlined,
   ContactsOutlined,
   DashboardOutlined,
+  SafetyCertificateOutlined,
   SettingOutlined,
   SwapOutlined,
 } from '@ant-design/icons'
@@ -35,8 +36,19 @@ export function buildMenuRoutes(role: Role | null): MenuRoute[] {
   if (role === 'OPERATOR') {
     routes.push(
       { path: '/transfer', nameKey: 'nav.transfer', icon: <SwapOutlined /> },
+      {
+        path: '/approvals',
+        nameKey: 'nav.approvals',
+        icon: <SafetyCertificateOutlined />,
+      },
       { path: '/audit', nameKey: 'nav.audit', icon: <AuditOutlined /> },
     )
+  } else if (role === 'CHECKER') {
+    routes.push({
+      path: '/approvals',
+      nameKey: 'nav.approvals',
+      icon: <SafetyCertificateOutlined />,
+    })
   }
 
   routes.push({
@@ -60,6 +72,9 @@ export function getSelectedMenuKeys(pathname: string): string[] {
   }
   if (pathname === '/transfer' || pathname.startsWith('/transfer/')) {
     return ['/transfer']
+  }
+  if (pathname === '/approvals' || pathname.startsWith('/approvals/')) {
+    return ['/approvals']
   }
   if (pathname === '/audit' || pathname.startsWith('/audit/')) {
     return ['/audit']
@@ -88,6 +103,9 @@ export function getBreadcrumbTrail(pathname: string): BreadcrumbTrailItem[] {
   }
   if (pathname === '/transfer') {
     return [{ labelKey: 'nav.transfer' }]
+  }
+  if (pathname === '/approvals') {
+    return [{ labelKey: 'nav.approvals' }]
   }
   if (pathname === '/audit') {
     return [{ labelKey: 'nav.audit' }]

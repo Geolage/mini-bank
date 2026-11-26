@@ -63,6 +63,7 @@ function mockApi(
   transferResponse: Response = jsonResponse({
     id: 'txn-1',
     reference: 'TXN-abc',
+    status: 'COMPLETED',
   }),
 ) {
   fetchMock.mockImplementation(
@@ -167,6 +168,34 @@ describe('TransferPage', () => {
         ).length,
       ).toBeGreaterThanOrEqual(2),
     )
+  })
+
+  it('reports an order queued for approval', async () => {
+    mockApi(
+      jsonResponse(
+        { id: 'order-1', reference: 'ORD-1', status: 'PENDING_APPROVAL' },
+        201,
+      ),
+    )
+    renderTransferPage()
+
+    await screen.findByText(/•••• 0001 · USD\s12,500\.00/)
+    await userEvent.type(
+      screen.getByLabelText('To account number'),
+      'MB-2001-0001',
+    )
+    await userEvent.type(screen.getByLabelText('Amount'), '10000.00')
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Submit transfer' }),
+    )
+
+    expect(
+      await screen.findByText('Submitted for approval'),
+    ).toBeInTheDocument()
+    expect(screen.getByText('ORD-1')).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'View approvals' }),
+    ).toBeInTheDocument()
   })
 
   it('shows the API error when the transfer fails', async () => {

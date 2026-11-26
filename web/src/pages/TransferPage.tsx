@@ -12,7 +12,7 @@ import {
   Typography,
 } from 'antd'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { useI18n } from '../i18n/useI18n'
 import { accountsQueryOptions } from '../services/accounts'
@@ -34,6 +34,7 @@ export function TransferPage() {
   const { locale, t } = useI18n()
   const [form] = Form.useForm<TransferFormValues>()
   const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const accounts = useQuery(accountsQueryOptions)
   const [idempotencyKey, setIdempotencyKey] = useState(() =>
@@ -57,7 +58,9 @@ export function TransferPage() {
       form.setFieldsValue({ toAccountNumber: '', amount: '', note: '' })
       setIdempotencyKey(crypto.randomUUID())
       queryClient.invalidateQueries({ queryKey: queryKeys.accounts })
+      queryClient.invalidateQueries({ queryKey: queryKeys.transferOrdersAll })
       queryClient.invalidateQueries({ queryKey: queryKeys.auditAll })
+      queryClient.invalidateQueries({ queryKey: queryKeys.dashboard })
     },
   })
 
@@ -201,14 +204,28 @@ export function TransferPage() {
 
               {receipt ? (
                 <Alert
-                  type="success"
+                  type={receipt.status === 'COMPLETED' ? 'success' : 'info'}
                   showIcon
-                  message={t('transfer.success')}
+                  message={
+                    receipt.status === 'COMPLETED'
+                      ? t('transfer.success')
+                      : t('transfer.pendingApproval')
+                  }
                   description={
-                    <span>
-                      {t('transfer.reference')}{' '}
-                      <Text code>{receipt.reference}</Text>
-                    </span>
+                    <Space direction="vertical" size={4}>
+                      <span>
+                        {t('transfer.reference')}{' '}
+                        <Text code>{receipt.reference}</Text>
+                      </span>
+                      {receipt.status === 'PENDING_APPROVAL' ? (
+                        <Button
+                          size="small"
+                          onClick={() => navigate('/approvals')}
+                        >
+                          {t('transfer.viewApprovals')}
+                        </Button>
+                      ) : null}
+                    </Space>
                   }
                   style={{ marginBottom: 16 }}
                 />

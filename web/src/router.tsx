@@ -6,6 +6,7 @@ import { RequireRole } from './components/layout/RequireRole'
 import { RouteFallback } from './components/layout/RouteFallback'
 import {
   AccountsPage,
+  ApprovalsPage,
   AuditPage,
   DashboardPage,
   LoginPage,
@@ -46,6 +47,14 @@ export const router = createBrowserRouter([
         element: (
           <RequireRole role="OPERATOR">
             <TransferPage />
+          </RequireRole>
+        ),
+      },
+      {
+        path: 'approvals',
+        element: (
+          <RequireRole role={['OPERATOR', 'CHECKER']}>
+            <ApprovalsPage />
           </RequireRole>
         ),
       },

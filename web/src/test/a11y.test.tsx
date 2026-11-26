@@ -8,6 +8,7 @@ import { usePreferencesStore } from '../app/preferencesStore'
 import { AppLayout } from '../components/layout/AppLayout'
 import { RequireRole } from '../components/layout/RequireRole'
 import { AccountsPage } from '../pages/AccountsPage'
+import { ApprovalsPage } from '../pages/ApprovalsPage'
 import { AuditPage } from '../pages/AuditPage'
 import { DashboardPage } from '../pages/DashboardPage'
 import { LoginPage } from '../pages/LoginPage'
@@ -21,6 +22,7 @@ import type {
   AccountTransaction,
   AuditLog,
   Paginated,
+  TransferOrder,
   User,
 } from '../types/api'
 import { expectNoAccessibilityViolations } from './a11y'
@@ -39,6 +41,14 @@ const viewer: User = {
   name: 'Visitor',
   email: 'visitor@minibank.dev',
   role: 'VIEWER',
+}
+
+const checker: User = {
+  id: 'checker-1',
+  username: 'checker',
+  name: 'Checker',
+  email: 'checker@minibank.dev',
+  role: 'CHECKER',
 }
 
 const accounts: Account[] = [
@@ -107,6 +117,38 @@ const auditLogs: Paginated<AuditLog> = {
 
 let fetchMock: ReturnType<typeof vi.fn>
 
+const transferOrders: Paginated<TransferOrder> = {
+  items: [
+    {
+      id: 'order-1',
+      reference: 'ORD-1',
+      status: 'PENDING',
+      amount: '10000.00',
+      currency: 'USD',
+      note: 'Invoice 42',
+      createdAt: '2026-11-19T10:00:00.000Z',
+      decidedAt: null,
+      decisionNote: null,
+      maker: { id: 'operator-1', name: 'Admin', username: 'admin' },
+      checker: null,
+      fromAccount: {
+        id: 'account-1',
+        accountNumber: 'MB-1001-0001',
+        type: 'CHECKING',
+      },
+      toAccount: {
+        id: 'account-2',
+        accountNumber: 'MB-2001-0001',
+        type: 'CHECKING',
+      },
+      transactionId: null,
+    },
+  ],
+  page: 1,
+  pageSize: 20,
+  total: 1,
+}
+
 function jsonResponse(body: unknown, status = 200): Response {
   return {
     ok: status >= 200 && status < 300,
@@ -127,7 +169,11 @@ function stubApi() {
       }
       if (init?.method === 'POST' && path === '/api/transfers') {
         return Promise.resolve(
-          jsonResponse({ id: 'txn-new', reference: 'TXN-abc' }),
+          jsonResponse({
+            id: 'txn-new',
+            reference: 'TXN-abc',
+            status: 'COMPLETED',
+          }),
         )
       }
       if (path === '/api/accounts')
@@ -197,6 +243,10 @@ function stubApi() {
         )
       }
 
+      if (path === '/api/transfer-orders') {
+        return Promise.resolve(jsonResponse(transferOrders))
+      }
+
       return Promise.reject(new Error(`Unexpected fetch: ${path}`))
     },
   )
@@ -249,6 +299,14 @@ function renderShell(initialEntry: string) {
               element={
                 <RequireRole role="OPERATOR">
                   <AuditPage />
+                </RequireRole>
+              }
+            />
+            <Route
+              path="/approvals"
+              element={
+                <RequireRole role={['OPERATOR', 'CHECKER']}>
+                  <ApprovalsPage />
                 </RequireRole>
               }
             />
@@ -369,6 +427,18 @@ describe('accessibility', () => {
       await screen.findByRole('heading', { name: 'Page not found' }),
     ).toBeInTheDocument()
     await expectNoAccessibilityViolations(container)
+  })
+
+  it('approvals page is accessible in both languages', async () => {
+    for (const locale of ['en-US', 'zh-CN'] as const) {
+      usePreferencesStore.setState({ locale, themeId: 'antd-blue' })
+      useAuthStore.setState({ token: 'jwt', user: checker })
+      const { container, unmount } = renderShell('/approvals')
+
+      expect(await screen.findByText('ORD-1')).toBeInTheDocument()
+      await expectNoAccessibilityViolations(container)
+      unmount()
+    }
   })
 
   it('exposes form validation errors to assistive tech', async () => {

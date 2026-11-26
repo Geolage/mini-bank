@@ -14,7 +14,11 @@ describe('transfer', () => {
     }).as('accounts')
     cy.intercept('POST', '/api/transfers', {
       statusCode: 201,
-      body: { id: 'cypress-txn', reference: 'TXN-CYPRESS-1' },
+      body: {
+        id: 'cypress-txn',
+        reference: 'TXN-CYPRESS-1',
+        status: 'COMPLETED',
+      },
     }).as('transfer')
 
     signIn(ADMIN)

@@ -21,19 +21,29 @@ describe('navigation', () => {
     ])
   })
 
-  it('adds transfer and audit entries for operators', () => {
+  it('adds transfer, approval and audit entries for operators', () => {
     expect(buildMenuRoutes('OPERATOR').map((route) => route.path)).toEqual([
       '/dashboard',
       '/accounts',
       '/payees',
       '/transfer',
+      '/approvals',
       '/audit',
       '/settings',
     ])
   })
 
+  it('adds the approvals entry for checkers', () => {
+    expect(buildMenuRoutes('CHECKER').map((route) => route.path)).toEqual([
+      '/dashboard',
+      '/accounts',
+      '/payees',
+      '/approvals',
+      '/settings',
+    ])
+  })
+
   it('keeps accounts selected on the transaction history route', () => {
-    expect(getSelectedMenuKeys('/dashboard')).toEqual(['/dashboard'])
     expect(getSelectedMenuKeys('/dashboard')).toEqual(['/dashboard'])
     expect(getSelectedMenuKeys('/accounts')).toEqual(['/accounts'])
     expect(getSelectedMenuKeys('/accounts/abc/transactions')).toEqual([
@@ -41,14 +51,12 @@ describe('navigation', () => {
     ])
     expect(getSelectedMenuKeys('/transfer')).toEqual(['/transfer'])
     expect(getSelectedMenuKeys('/payees')).toEqual(['/payees'])
+    expect(getSelectedMenuKeys('/approvals')).toEqual(['/approvals'])
     expect(getSelectedMenuKeys('/audit')).toEqual(['/audit'])
     expect(getSelectedMenuKeys('/unknown')).toEqual([])
   })
 
-  it('builds breadcrumbs only for known routes', () => {
-    expect(getBreadcrumbTrail('/dashboard')).toEqual([
-      { labelKey: 'nav.dashboard' },
-    ])
+  it('builds breadcrumbs for known routes', () => {
     expect(getBreadcrumbTrail('/dashboard')).toEqual([
       { labelKey: 'nav.dashboard' },
     ])
@@ -62,6 +70,9 @@ describe('navigation', () => {
     expect(getBreadcrumbTrail('/transfer')).toEqual([
       { labelKey: 'nav.transfer' },
     ])
+    expect(getBreadcrumbTrail('/approvals')).toEqual([
+      { labelKey: 'nav.approvals' },
+    ])
     expect(getBreadcrumbTrail('/audit')).toEqual([{ labelKey: 'nav.audit' }])
     expect(getBreadcrumbTrail('/payees')).toEqual([{ labelKey: 'nav.payees' }])
     expect(getBreadcrumbTrail('/settings')).toEqual([
@@ -70,16 +81,13 @@ describe('navigation', () => {
     expect(getBreadcrumbTrail('/unknown')).toEqual([])
   })
 
-  it('selects the settings entry', () => {
-    expect(getSelectedMenuKeys('/settings')).toEqual(['/settings'])
-  })
-
   it('names menu entries with message keys so they can be translated', () => {
     expect(buildMenuRoutes('OPERATOR').map((route) => route.nameKey)).toEqual([
       'nav.dashboard',
       'nav.accounts',
       'nav.payees',
       'nav.transfer',
+      'nav.approvals',
       'nav.audit',
       'nav.settings',
     ])

@@ -66,10 +66,15 @@ export function LoginPage() {
 
   const errorMessage = loginMutation.error ? loginMutation.error.message : null
 
-  function fillDemo(username: 'admin' | 'visitor') {
+  function fillDemo(username: 'admin' | 'visitor' | 'checker') {
     form.setFieldsValue({
       identifier: username,
-      password: username === 'admin' ? '11111111' : '00000000',
+      password:
+        username === 'admin'
+          ? '11111111'
+          : username === 'visitor'
+            ? '00000000'
+            : '22222222',
     })
   }
 
@@ -290,6 +295,9 @@ export function LoginPage() {
                   </Button>
                   <Button size="small" onClick={() => fillDemo('visitor')}>
                     {t('auth.useVisitor')}
+                  </Button>
+                  <Button size="small" onClick={() => fillDemo('checker')}>
+                    {t('auth.useChecker')}
                   </Button>
                 </Space>
               </div>

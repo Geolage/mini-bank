@@ -7,10 +7,10 @@ idempotent transfers, an audit trail, a payee address book, an overview dashboar
 bilingual UI, theming and accessibility — built so developers can read how an internet
 bank is put together and practise building one themselves.
 
-> Status: authentication, accounts, transaction history, transfers, audit logs, a payee
-> address book, an overview dashboard, statement export, bilingual UI (English / 简体中文)
-> and user settings are implemented end to end, on the final frontend stack. Remaining work
-> is deployment and stretch goals (see [Build tasks](#build-tasks)).
+> Status: authentication, accounts, transaction history, transfers, transfer approval,
+> audit logs, a payee address book, an overview dashboard, statement export, bilingual UI
+> (English / 简体中文) and user settings are implemented end to end, on the final frontend
+> stack. Remaining work is deployment and stretch goals (see [Build tasks](#build-tasks)).
 >
 > The frontend runs on React Router + TanStack Query + Zustand + Ant Design/ProComponents.
 
@@ -118,7 +118,7 @@ Seeding is idempotent. If a demo run moved money and you want the original balan
 statement rows back, reset the schema and re-seed:
 
 ```bash
-pnpm --filter api exec prisma migrate reset --force
+pnpm db:reset
 ```
 
 ### 5. Run
@@ -140,10 +140,11 @@ pnpm dev
 | ----------------------------------- | --------- | ---------------------- | -------- | ---------- |
 | Operator (can transfer, sees audit) | `admin`   | `admin@minibank.dev`   | Admin    | `11111111` |
 | Viewer (read only)                  | `visitor` | `visitor@minibank.dev` | Visitor  | `00000000` |
+| Checker (approves large transfers)  | `checker` | `checker@minibank.dev` | Checker  | `22222222` |
 
 Sign in with either the username or the email; both are case-insensitive. The sign-in page
-also has **Use admin** / **Use visitor** buttons that fill the form for you, in whichever
-language the page is currently using.
+also has **Use admin** / **Use visitor** / **Use checker** buttons that fill the form for
+you, in whichever language the page is currently using.
 
 ## Scripts
 
@@ -161,14 +162,15 @@ language the page is currently using.
 | `pnpm db:migrate`              | `prisma migrate dev` (also generates the Prisma client)      |
 | `pnpm db:generate`             | Generate the Prisma client without migrating (used by CI)    |
 | `pnpm db:seed`                 | Seed demo users, accounts and transactions                   |
+| `pnpm db:reset`                | Reset the schema and re-seed demo data                       |
 | `pnpm db:studio`               | Prisma Studio                                                |
 | `pnpm --filter web cy:open`    | Cypress interactive runner                                   |
 | `pnpm --filter web cy:run`     | Cypress headless (requires web + API + DB)                   |
 
 ## Build tasks
 
-The core flows are implemented. The remaining tasks are stack cleanup, test depth,
-accessibility and stretch goals.
+The core flows and hardening work are implemented. What remains is deployment and the
+stretch goals.
 
 ### 1. Transaction history (implemented)
 
@@ -194,16 +196,17 @@ accessibility and stretch goals.
 - UI: ProTable with URL-synced filters and pagination
 - Tests: RBAC (viewer gets 403) and transfer-created entries
 
-### 4. Test depth (in progress)
+### 4. Test depth (implemented)
 
 - Done: Vitest for the auth store, the preferences store, the i18n resolver, locale-aware
   formatting, guards and every page state; axe-core checks for all pages, including Settings
-  in both languages; Supertest e2e for auth, transactions, transfers and audit; 34 Cypress
-  scenarios for login (username and email), shell, transactions, audit, transfer, settings,
-  payees and the dashboard
-- Current totals: 38 API unit + 35 API e2e + 127 web unit tests
-- Remaining: a Cypress transfer scenario against the real database with automatic
-  demo-data reset
+  and Approvals in both languages; Supertest e2e for auth, transactions, transfers, transfer
+  orders and audit; 35 Cypress scenarios for login (username and email), shell, transactions,
+  audit, transfer, transfer approval, settings, payees and the dashboard
+- Current totals: 56 API unit + 46 API e2e + 145 web unit tests
+- The earlier gap — a Cypress flow against the real database with automatic demo-data
+  reset — is closed: the approval scenario resets the schema, moves real money and restores
+  the seed afterwards
 
 ### 5. Accessibility (implemented)
 
@@ -250,7 +253,18 @@ accessibility and stretch goals.
 - Statements: CSV export of the whole filtered set (RFC 4180 quoting + UTF-8 BOM for Excel)
   and a print-optimized sheet isolated from the app chrome via `@media print`
 
-### 8. Stretch goals
+### 8. Transfer approval (implemented)
+
+- API: transfers at or above `TRANSFER_APPROVAL_THRESHOLD` (default 5,000) create a
+  `TransferOrder` instead of posting immediately
+- CHECKER role: approve (revalidates funds under row locks and posts the ledger entry) or
+  reject with a reason; makers can cancel their own pending orders
+- Idempotency covers both paths; audit entries for submit, approve, reject and cancel
+- UI: approvals queue with URL-synced status filter; the transfer page reports queued orders
+- Tests: service unit, Supertest e2e, page tests with axe in both languages, Cypress flow
+  with an automatic demo-data reset
+
+### 9. Stretch goals
 
 - Refresh tokens / httpOnly cookies
 - Redis caching for account summaries
@@ -289,6 +303,13 @@ accessibility and stretch goals.
   integer cents, so two-decimal money stays exact and a USD total can never absorb HKD.
 - **Exports respect the filter, not the page.** CSV and print walk every page of the current
   query, and the CSV carries a BOM so Excel opens Chinese notes without mojibake.
+- **Payment orders and the ledger are separate.** A large transfer first becomes a
+  `TransferOrder`; the `Transaction` ledger row appears only when a checker approves, so
+  balances, statements and exports never include money that has not moved.
+- **Four-eyes by role, not by convention.** Only CHECKER can approve, only OPERATOR can
+  submit, the API also rejects self-approval, and every decision is audited.
+- **One configurable approval threshold.** `TRANSFER_APPROVAL_THRESHOLD` defaults to
+  5,000 and is compared as a numeric amount across the demo currencies.
 
 ## Known limitations
 
@@ -297,6 +318,9 @@ accessibility and stretch goals.
   anyone can try the app without setup. The API only enforces `@MinLength(8)`; a real
   deployment needs a password policy, MFA, reuse checks and rate limiting.
 - No refresh token, rate limiting or account lockout.
+- The approval threshold is one number for every currency, and pending orders neither
+  reserve funds nor expire; a production system would add per-currency limits, holds and
+  an expiry job.
 - Seed data only; no real banking integration.
 - The API runs without HTTPS locally.
 

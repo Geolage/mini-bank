@@ -6,6 +6,10 @@ export default defineConfig({
     baseUrl: 'http://localhost:8080',
     specPattern: 'cypress/e2e/**/*.cy.ts',
     supportFile: 'cypress/support/e2e.ts',
+    // Cypress moves the previous run's screenshots/downloads to the OS Recycle Bin by
+    // default (via the `trash` package). Keep them in place and delete them with
+    // `pnpm --filter web cy:clean` instead, which uses fs.rm and never touches the bin.
+    trashAssetsBeforeRuns: false,
     setupNodeEvents(on) {
       on('task', {
         resetDemoData() {

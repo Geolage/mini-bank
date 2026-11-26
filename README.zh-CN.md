@@ -162,6 +162,7 @@ pnpm dev
 | `pnpm db:studio`               | 打开 Prisma Studio                             |
 | `pnpm --filter web cy:open`    | Cypress 交互式运行器                           |
 | `pnpm --filter web cy:run`     | Cypress 无头模式（需 web + API + 数据库就绪）  |
+| `pnpm --filter web cy:clean`   | 永久删除 Cypress 截图与下载产物                |
 
 ## 构建进度
 

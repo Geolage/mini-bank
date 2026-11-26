@@ -18,6 +18,7 @@
     "test:watch": "vitest",
     "cy:open": "cypress open",
     "cy:run": "cypress run",
+    "cy:clean": "node -e \"const { rmSync } = require('node:fs'); for (const p of ['cypress/screenshots', 'cypress/videos', 'cypress/downloads']) rmSync(p, { recursive: true, force: true })\"",
     "preview": "vite preview"
   },
   "dependencies": {

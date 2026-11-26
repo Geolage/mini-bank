@@ -166,6 +166,7 @@ you, in whichever language the page is currently using.
 | `pnpm db:studio`               | Prisma Studio                                                |
 | `pnpm --filter web cy:open`    | Cypress interactive runner                                   |
 | `pnpm --filter web cy:run`     | Cypress headless (requires web + API + DB)                   |
+| `pnpm --filter web cy:clean`   | Permanently delete Cypress screenshots and downloads         |
 
 ## Build tasks
 

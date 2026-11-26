@@ -19,6 +19,7 @@ import {
 import { JwtAuthGuard } from '../src/common/guards/jwt-auth.guard.js';
 import { RolesGuard } from '../src/common/guards/roles.guard.js';
 import { PrismaService } from '../src/prisma/prisma.service.js';
+import { TransferLedgerService } from '../src/transfers/transfer-ledger.service.js';
 import { TransfersController } from '../src/transfers/transfers.controller.js';
 import { TransfersService } from '../src/transfers/transfers.service.js';
 
@@ -33,6 +34,7 @@ describe('POST /transfers (e2e)', () => {
     transaction = vi.fn().mockResolvedValue({
       id: 'txn-1',
       reference: 'TXN-1',
+      status: 'COMPLETED',
     });
 
     const prisma = {
@@ -45,6 +47,7 @@ describe('POST /transfers (e2e)', () => {
       controllers: [TransfersController],
       providers: [
         TransfersService,
+        TransferLedgerService,
         RolesGuard,
         Reflector,
         { provide: PrismaService, useValue: prisma },
@@ -91,7 +94,11 @@ describe('POST /transfers (e2e)', () => {
       })
       .expect(201);
 
-    expect(response.body).toEqual({ id: 'txn-1', reference: 'TXN-1' });
+    expect(response.body).toEqual({
+      id: 'txn-1',
+      reference: 'TXN-1',
+      status: 'COMPLETED',
+    });
     expect(transaction).toHaveBeenCalledTimes(1);
   });
 
@@ -145,6 +152,21 @@ describe('POST /transfers (e2e)', () => {
 
   it('forbids viewers', async () => {
     role = 'VIEWER';
+
+    await request(app.getHttpServer())
+      .post('/transfers')
+      .set('Idempotency-Key', idempotencyKey)
+      .send({
+        fromAccountId: '3f2b8c1a-8d4e-4b6f-9a0c-1e2d3c4b5a69',
+        toAccountNumber: 'MB-2001-0001',
+        amount: '120.50',
+      })
+      .expect(403);
+    expect(transaction).not.toHaveBeenCalled();
+  });
+
+  it('forbids checkers from transferring', async () => {
+    role = 'CHECKER';
 
     await request(app.getHttpServer())
       .post('/transfers')

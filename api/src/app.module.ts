@@ -10,6 +10,7 @@ import { DashboardModule } from './dashboard/dashboard.module.js';
 import { PayeesModule } from './payees/payees.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 import { TransactionsModule } from './transactions/transactions.module.js';
+import { TransferOrdersModule } from './transfer-orders/transfer-orders.module.js';
 import { TransfersModule } from './transfers/transfers.module.js';
 
 @Module({
@@ -37,6 +38,7 @@ import { TransfersModule } from './transfers/transfers.module.js';
     AccountsModule,
     TransactionsModule,
     TransfersModule,
+    TransferOrdersModule,
     AuditModule,
     PayeesModule,
     DashboardModule,

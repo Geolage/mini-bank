@@ -3,10 +3,16 @@ import {
   ConflictException,
   NotFoundException,
 } from '@nestjs/common';
-import { Currency, Prisma, TransactionStatus } from '@prisma/client';
+import {
+  Currency,
+  Prisma,
+  TransactionStatus,
+  TransferOrderStatus,
+} from '@prisma/client';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { PrismaService } from '../prisma/prisma.service.js';
 import type { CreateTransferDto } from './dto/create-transfer.dto.js';
+import { TransferLedgerService } from './transfer-ledger.service.js';
 import { TransfersService } from './transfers.service.js';
 
 const userId = 'user-1';
@@ -64,6 +70,7 @@ describe('TransfersService', () => {
       update: MockFn;
     };
     transaction: { findUnique: MockFn; create: MockFn };
+    transferOrder: { findUnique: MockFn; create: MockFn };
     auditLog: { create: MockFn };
     $queryRaw: MockFn;
   };
@@ -71,6 +78,7 @@ describe('TransfersService', () => {
     $transaction: MockFn;
     account: { findFirst: MockFn };
     transaction: { findUnique: MockFn };
+    transferOrder: { findUnique: MockFn };
   };
   let service: TransfersService;
 
@@ -88,6 +96,10 @@ describe('TransfersService', () => {
           .fn()
           .mockResolvedValue({ id: 'txn-new', reference: 'TXN-new' }),
       },
+      transferOrder: {
+        findUnique: vi.fn().mockResolvedValue(null),
+        create: vi.fn(),
+      },
       auditLog: {
         create: vi.fn().mockResolvedValue({ id: 'audit-new' }),
       },
@@ -100,9 +112,13 @@ describe('TransfersService', () => {
       ),
       account: { findFirst: vi.fn() },
       transaction: { findUnique: vi.fn() },
+      transferOrder: { findUnique: vi.fn() },
     };
 
-    service = new TransfersService(prismaMock as unknown as PrismaService);
+    service = new TransfersService(
+      prismaMock as unknown as PrismaService,
+      new TransferLedgerService(),
+    );
   });
 
   it('requires a UUID idempotency key', async () => {
@@ -130,6 +146,7 @@ describe('TransfersService', () => {
     expect(result).toEqual({
       id: 'txn-existing',
       reference: 'TXN-existing',
+      status: 'COMPLETED',
     });
     expect(tx.account.update).not.toHaveBeenCalled();
     expect(tx.transaction.create).not.toHaveBeenCalled();
@@ -157,6 +174,7 @@ describe('TransfersService', () => {
 
     expect(result.id).toBe('txn-new');
     expect(result.reference).toMatch(/^TXN-/);
+    expect(result.status).toBe('COMPLETED');
     expect(tx.account.findFirst).toHaveBeenCalledWith({
       where: { id: sourceId, userId },
     });
@@ -254,6 +272,114 @@ describe('TransfersService', () => {
     expect(result).toEqual({
       id: 'txn-existing',
       reference: 'TXN-existing',
+      status: 'COMPLETED',
     });
+  });
+
+  it('queues transfers at or above the threshold without moving money', async () => {
+    tx.account.findFirst.mockResolvedValue(sourceAccount);
+    tx.account.findUnique.mockResolvedValue(targetAccount);
+    tx.transferOrder.create.mockResolvedValue({
+      id: 'order-1',
+      reference: 'ORD-1',
+    });
+
+    const result = await service.create(
+      userId,
+      dto({ amount: '5000.00' }),
+      idempotencyKey,
+    );
+
+    expect(result).toEqual({
+      id: 'order-1',
+      reference: 'ORD-1',
+      status: 'PENDING_APPROVAL',
+    });
+    expect(tx.account.update).not.toHaveBeenCalled();
+    expect(tx.transaction.create).not.toHaveBeenCalled();
+    expect(tx.transferOrder.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        idempotencyKey,
+        makerId: userId,
+        fromAccountId: sourceId,
+        toAccountId: targetId,
+        amount: new Prisma.Decimal('5000.00'),
+        currency: Currency.USD,
+        status: TransferOrderStatus.PENDING,
+      }),
+    });
+    expect(tx.auditLog.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          actorId: userId,
+          action: 'TRANSFER_ORDER_CREATED',
+          resourceType: 'TransferOrder',
+          resourceId: 'order-1',
+        }),
+      }),
+    );
+  });
+
+  it('keeps small transfers on the immediate path', async () => {
+    tx.account.findFirst.mockResolvedValue(sourceAccount);
+    tx.account.findUnique.mockResolvedValue(targetAccount);
+    tx.account.findMany.mockResolvedValue([sourceAccount, targetAccount]);
+
+    const result = await service.create(
+      userId,
+      dto({ amount: '4999.99' }),
+      idempotencyKey,
+    );
+
+    expect(result.status).toBe('COMPLETED');
+    expect(tx.transferOrder.create).not.toHaveBeenCalled();
+  });
+
+  it('rejects insufficient funds before queueing an order', async () => {
+    tx.account.findFirst.mockResolvedValue({
+      ...sourceAccount,
+      balance: new Prisma.Decimal('100.00'),
+    });
+    tx.account.findUnique.mockResolvedValue(targetAccount);
+
+    await expect(
+      service.create(userId, dto({ amount: '5000.00' }), idempotencyKey),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(tx.transferOrder.create).not.toHaveBeenCalled();
+  });
+
+  it('replays an existing transfer order for its maker', async () => {
+    tx.transferOrder.findUnique.mockResolvedValue({
+      id: 'order-1',
+      reference: 'ORD-1',
+      makerId: userId,
+      status: TransferOrderStatus.PENDING,
+    });
+
+    const result = await service.create(
+      userId,
+      dto({ amount: '5000.00' }),
+      idempotencyKey,
+    );
+
+    expect(result).toEqual({
+      id: 'order-1',
+      reference: 'ORD-1',
+      status: 'PENDING_APPROVAL',
+    });
+    expect(tx.transferOrder.create).not.toHaveBeenCalled();
+  });
+
+  it('rejects an order idempotency key owned by another user', async () => {
+    tx.transferOrder.findUnique.mockResolvedValue({
+      id: 'order-1',
+      reference: 'ORD-1',
+      makerId: 'someone-else',
+      status: TransferOrderStatus.PENDING,
+    });
+
+    await expect(
+      service.create(userId, dto({ amount: '5000.00' }), idempotencyKey),
+    ).rejects.toBeInstanceOf(ConflictException);
   });
 });

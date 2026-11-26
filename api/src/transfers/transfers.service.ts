@@ -4,18 +4,32 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma, TransactionStatus } from '@prisma/client';
+import { Prisma, TransferOrderStatus } from '@prisma/client';
 import { randomUUID } from 'node:crypto';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { readApprovalThreshold } from './approval-threshold.js';
 import type { CreateTransferDto } from './dto/create-transfer.dto.js';
-import type { TransferResultDto } from './dto/transfer-result.dto.js';
+import type {
+  TransferResultDto,
+  TransferResultStatus,
+} from './dto/transfer-result.dto.js';
+import { TransferLedgerService } from './transfer-ledger.service.js';
 
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 @Injectable()
 export class TransfersService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly approvalThreshold: Prisma.Decimal;
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly ledger: TransferLedgerService,
+  ) {
+    this.approvalThreshold = readApprovalThreshold(
+      process.env.TRANSFER_APPROVAL_THRESHOLD,
+    );
+  }
 
   async create(
     userId: string,
@@ -66,63 +80,59 @@ export class TransfersService {
           );
         }
 
-        for (const accountId of [source.id, target.id].sort()) {
-          await tx.$queryRaw`SELECT id FROM accounts WHERE id = ${accountId} FOR UPDATE`;
-        }
+        if (amount.gte(this.approvalThreshold)) {
+          if (source.balance.lt(amount)) {
+            throw new BadRequestException('Insufficient funds');
+          }
 
-        const locked = await tx.account.findMany({
-          where: { id: { in: [source.id, target.id] } },
-        });
-        const lockedSource = locked.find((account) => account.id === source.id);
-
-        if (!lockedSource) {
-          throw new NotFoundException('Source account not found');
-        }
-
-        if (lockedSource.balance.lt(amount)) {
-          throw new BadRequestException('Insufficient funds');
-        }
-
-        await tx.account.update({
-          where: { id: source.id },
-          data: { balance: { decrement: amount } },
-        });
-        await tx.account.update({
-          where: { id: target.id },
-          data: { balance: { increment: amount } },
-        });
-
-        const reference = `TXN-${randomUUID()}`;
-        const transaction = await tx.transaction.create({
-          data: {
-            reference,
-            fromAccountId: source.id,
-            toAccountId: target.id,
-            amount,
-            currency: source.currency,
-            status: TransactionStatus.COMPLETED,
-            idempotencyKey,
-            note: dto.note ?? null,
-          },
-        });
-
-        await tx.auditLog.create({
-          data: {
-            actorId: userId,
-            action: 'TRANSFER_CREATED',
-            resourceType: 'Transaction',
-            resourceId: transaction.id,
-            metadata: {
-              reference,
+          const order = await tx.transferOrder.create({
+            data: {
+              reference: `ORD-${randomUUID()}`,
+              idempotencyKey,
+              makerId: userId,
               fromAccountId: source.id,
               toAccountId: target.id,
-              amount: amount.toFixed(2),
+              amount,
               currency: source.currency,
+              note: dto.note ?? null,
+              status: TransferOrderStatus.PENDING,
             },
-          },
+          });
+
+          await tx.auditLog.create({
+            data: {
+              actorId: userId,
+              action: 'TRANSFER_ORDER_CREATED',
+              resourceType: 'TransferOrder',
+              resourceId: order.id,
+              metadata: {
+                reference: order.reference,
+                fromAccountId: source.id,
+                toAccountId: target.id,
+                amount: amount.toFixed(2),
+                currency: source.currency,
+              },
+            },
+          });
+
+          return {
+            id: order.id,
+            reference: order.reference,
+            status: 'PENDING_APPROVAL' as const,
+          };
+        }
+
+        const executed = await this.ledger.execute(tx, {
+          actorId: userId,
+          fromAccountId: source.id,
+          toAccountId: target.id,
+          amount,
+          currency: source.currency,
+          note: dto.note ?? null,
+          idempotencyKey,
         });
 
-        return { id: transaction.id, reference };
+        return { ...executed, status: 'COMPLETED' as const };
       });
     } catch (error) {
       if (isIdempotencyConflict(error)) {
@@ -139,7 +149,10 @@ export class TransfersService {
   }
 
   private async findReplay(
-    client: Pick<Prisma.TransactionClient, 'transaction' | 'account'>,
+    client: Pick<
+      Prisma.TransactionClient,
+      'transaction' | 'account' | 'transferOrder'
+    >,
     userId: string,
     idempotencyKey: string,
   ): Promise<TransferResultDto | null> {
@@ -147,18 +160,53 @@ export class TransfersService {
       where: { idempotencyKey },
     });
 
-    if (!existing) return null;
+    if (existing) {
+      const owned = await client.account.findFirst({
+        where: { id: existing.fromAccountId, userId },
+        select: { id: true },
+      });
 
-    const owned = await client.account.findFirst({
-      where: { id: existing.fromAccountId, userId },
-      select: { id: true },
-    });
+      if (!owned) {
+        throw new ConflictException('Idempotency key is already in use');
+      }
 
-    if (!owned) {
-      throw new ConflictException('Idempotency key is already in use');
+      return {
+        id: existing.id,
+        reference: existing.reference,
+        status: 'COMPLETED',
+      };
     }
 
-    return { id: existing.id, reference: existing.reference };
+    const existingOrder = await client.transferOrder.findUnique({
+      where: { idempotencyKey },
+    });
+
+    if (existingOrder) {
+      if (existingOrder.makerId !== userId) {
+        throw new ConflictException('Idempotency key is already in use');
+      }
+
+      return {
+        id: existingOrder.id,
+        reference: existingOrder.reference,
+        status: mapOrderStatus(existingOrder.status),
+      };
+    }
+
+    return null;
+  }
+}
+
+function mapOrderStatus(status: TransferOrderStatus): TransferResultStatus {
+  switch (status) {
+    case TransferOrderStatus.APPROVED:
+      return 'COMPLETED';
+    case TransferOrderStatus.REJECTED:
+      return 'REJECTED';
+    case TransferOrderStatus.CANCELLED:
+      return 'CANCELLED';
+    default:
+      return 'PENDING_APPROVAL';
   }
 }
 

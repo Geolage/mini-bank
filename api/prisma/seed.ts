@@ -31,6 +31,13 @@ const DEMO_ACCOUNTS = [
     password: '00000000',
     role: Role.VIEWER,
   },
+  {
+    username: 'checker',
+    email: 'checker@minibank.dev',
+    name: 'Checker',
+    password: '22222222',
+    role: Role.CHECKER,
+  },
 ];
 
 // Superseded by DEMO_ACCOUNTS. They must be removed, not just skipped, because the
@@ -103,6 +110,7 @@ async function main() {
 
   const admin = await upsertUser(DEMO_ACCOUNTS[0]);
   const visitor = await upsertUser(DEMO_ACCOUNTS[1]);
+  await upsertUser(DEMO_ACCOUNTS[2]);
 
   const adminUsd = await prisma.account.upsert({
     where: { accountNumber: 'MB-1001-0001' },

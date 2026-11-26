@@ -10,6 +10,7 @@ datasource db {
 enum Role {
   VIEWER
   OPERATOR
+  CHECKER
 }
 
 enum AccountType {
@@ -28,33 +29,44 @@ enum TransactionStatus {
   FAILED
 }
 
+enum TransferOrderStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
 model User {
-  id           String     @id @default(uuid())
-  username     String     @unique
-  email        String     @unique
-  passwordHash String     @map("password_hash")
-  name         String
-  role         Role       @default(VIEWER)
-  accounts     Account[]
-  payees       Payee[]
-  auditLogs    AuditLog[] @relation("ActorAuditLogs")
-  createdAt    DateTime   @default(now()) @map("created_at")
+  id            String          @id @default(uuid())
+  username      String          @unique
+  email         String          @unique
+  passwordHash  String          @map("password_hash")
+  name          String
+  role          Role            @default(VIEWER)
+  accounts      Account[]
+  payees        Payee[]
+  auditLogs     AuditLog[]      @relation("ActorAuditLogs")
+  makerOrders   TransferOrder[] @relation("MakerTransferOrders")
+  checkerOrders TransferOrder[] @relation("CheckerTransferOrders")
+  createdAt     DateTime        @default(now()) @map("created_at")
 
   @@map("users")
 }
 
 model Account {
-  id            String        @id @default(uuid())
-  userId        String        @map("user_id")
-  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  accountNumber String        @unique @map("account_number")
-  type          AccountType
-  currency      Currency      @default(USD)
-  balance       Decimal       @db.Decimal(14, 2)
-  createdAt     DateTime      @default(now()) @map("created_at")
-  updatedAt     DateTime      @updatedAt @map("updated_at")
-  outgoing      Transaction[] @relation("FromAccount")
-  incoming      Transaction[] @relation("ToAccount")
+  id             String          @id @default(uuid())
+  userId         String          @map("user_id")
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accountNumber  String          @unique @map("account_number")
+  type           AccountType
+  currency       Currency        @default(USD)
+  balance        Decimal         @db.Decimal(14, 2)
+  createdAt      DateTime        @default(now()) @map("created_at")
+  updatedAt      DateTime        @updatedAt @map("updated_at")
+  outgoing       Transaction[]   @relation("FromAccount")
+  incoming       Transaction[]   @relation("ToAccount")
+  outgoingOrders TransferOrder[] @relation("FromAccountOrders")
+  incomingOrders TransferOrder[] @relation("ToAccountOrders")
 
   @@index([userId])
   @@map("accounts")
@@ -73,10 +85,38 @@ model Transaction {
   idempotencyKey String            @unique @map("idempotency_key")
   note           String?
   createdAt      DateTime          @default(now()) @map("created_at")
+  order          TransferOrder?
 
   @@index([fromAccountId, createdAt(sort: Desc)])
   @@index([toAccountId, createdAt(sort: Desc)])
   @@map("transactions")
+}
+
+model TransferOrder {
+  id             String              @id @default(uuid())
+  reference      String              @unique
+  idempotencyKey String              @unique @map("idempotency_key")
+  makerId        String              @map("maker_id")
+  maker          User                @relation("MakerTransferOrders", fields: [makerId], references: [id])
+  checkerId      String?             @map("checker_id")
+  checker        User?               @relation("CheckerTransferOrders", fields: [checkerId], references: [id])
+  fromAccountId  String              @map("from_account_id")
+  fromAccount    Account             @relation("FromAccountOrders", fields: [fromAccountId], references: [id])
+  toAccountId    String              @map("to_account_id")
+  toAccount      Account             @relation("ToAccountOrders", fields: [toAccountId], references: [id])
+  amount         Decimal             @db.Decimal(14, 2)
+  currency       Currency
+  note           String?
+  status         TransferOrderStatus @default(PENDING)
+  decisionNote   String?             @map("decision_note")
+  decidedAt      DateTime?           @map("decided_at")
+  transactionId  String?             @unique @map("transaction_id")
+  transaction    Transaction?        @relation(fields: [transactionId], references: [id])
+  createdAt      DateTime            @default(now()) @map("created_at")
+
+  @@index([status, createdAt(sort: Desc)])
+  @@index([makerId, createdAt(sort: Desc)])
+  @@map("transfer_orders")
 }
 
 model AuditLog {

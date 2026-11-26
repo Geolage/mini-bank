@@ -2,6 +2,7 @@
 
 export const ADMIN = { identifier: 'admin', password: '11111111' }
 export const VISITOR = { identifier: 'visitor', password: '00000000' }
+export const CHECKER = { identifier: 'checker', password: '22222222' }
 
 export function fillLogin(identifier: string, password: string) {
   cy.get('input[name="identifier"]').type(identifier)
